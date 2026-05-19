@@ -2224,11 +2224,11 @@
       });
       if(!res.ok) {
         const errBody = await res.text();
-        throw new Error('Status ' + res.status + '\\nSzczegóły: ' + errBody);
+        throw new Error('Status ' + res.status + '\nSzczegóły: ' + errBody);
       }
       return true;
     } catch(e) {
-      alert("Błąd zapisu w chmurze! Upewnij się, że wykonałeś KROK 2 (kod SQL) z instrukcji.\\n\\nDokładny błąd serwera:\\n" + e.message);
+      alert("Błąd zapisu w chmurze! Upewnij się, że wykonałeś KROK 2 (kod SQL) z instrukcji.\n\nDokładny błąd serwera:\n" + e.message);
       console.error(e);
       return false;
     }
