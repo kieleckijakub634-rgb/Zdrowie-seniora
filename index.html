@@ -837,9 +837,22 @@
   /* ══════════════════════════════════════════════════════════════════
      APP ENGINE – Panel Członkowski
   ══════════════════════════════════════════════════════════════════ */
+  if (window.KZ_EXPORTED_DATA) {
+    const eid = window.KZ_EXPORTED_DATA.exportId;
+    if (!localStorage.getItem('kz_imported_' + eid)) {
+      if(window.KZ_EXPORTED_DATA.videos) localStorage.setItem('kz_videos', JSON.stringify(window.KZ_EXPORTED_DATA.videos));
+      if(window.KZ_EXPORTED_DATA.diets) localStorage.setItem('kz_diets', JSON.stringify(window.KZ_EXPORTED_DATA.diets));
+      if(window.KZ_EXPORTED_DATA.priceM) localStorage.setItem('kz_price_monthly', window.KZ_EXPORTED_DATA.priceM);
+      if(window.KZ_EXPORTED_DATA.priceY) localStorage.setItem('kz_price_yearly', window.KZ_EXPORTED_DATA.priceY);
+      if(window.KZ_EXPORTED_DATA.announce) localStorage.setItem('kz_announce', window.KZ_EXPORTED_DATA.announce);
+      localStorage.setItem('kz_imported_' + eid, '1');
+    }
+  }
+
   // Dane aplikacji
+  const exp = window.KZ_EXPORTED_DATA || {};
   const APP_DATA = {
-    videos: JSON.parse(localStorage.getItem('kz_videos')) || [
+    videos: JSON.parse(localStorage.getItem('kz_videos')) || exp.videos || [
       { id:1, title:'Rozgrzewka kręgosłupa', duration:'15 min', tag:'Kręgosłup', emoji:'🦴', desc:'Łagodne mobilizacje odcinka lędźwiowego i szyjnego. Idealne na dobry początek dnia.', day:'Dzisiaj', url:'' },
       { id:2, title:'Stawy – bez bólu', duration:'15 min', tag:'Stawy', emoji:'🦵', desc:'Ćwiczenia poprawiające ruchomość kolan, bioder i łokci. Bez klęczenia.', day:'Wczoraj', url:'' },
       { id:3, title:'Równowaga i stabilność', duration:'15 min', tag:'Równowaga', emoji:'⚖️', desc:'Trening propriocepcji – ćwiczenia przy krześle, które zmniejszają ryzyko upadków.', day:'Poniedziałek', url:'' },
@@ -847,7 +860,7 @@
       { id:5, title:'Ręce i ramiona', duration:'12 min', tag:'Górna część', emoji:'💪', desc:'Ćwiczenia wzmacniające ramiona, nadgarstki i dłonie. Przydatne do codziennych czynności.', day:'Sobota', url:'' },
       { id:6, title:'Spacer w miejscu', duration:'18 min', tag:'Cardio', emoji:'🚶', desc:'Energiczne ćwiczenia w miejscu poprawiające krążenie i wydolność oddechową.', day:'Piątek', url:'' },
     ],
-    diets: JSON.parse(localStorage.getItem('kz_diets')) || [
+    diets: JSON.parse(localStorage.getItem('kz_diets')) || exp.diets || [
       { id:1, title:'Tydzień 1 – Przeciwzapalny start', emoji:'🥗', tag:'Przeciwzapalna', meals:['Śniadanie: owsianka z siemieniem lnianym i jagodami','Obiad: zupa z soczewicy, pieczone warzywa','Kolacja: twaróg z rzodkiewką i pieczywem żytnim'], shopping:['Soczewica czerwona 500g','Jagody mrożone 300g','Siemię lniane','Pieczone buraki','Twaróg półtłusty','Pieczywo żytnie'] },
       { id:2, title:'Tydzień 2 – Zdrowe stawy', emoji:'🐟', tag:'Omega-3', meals:['Śniadanie: jajecznica z pomidorami i koperkiem','Obiad: makrela pieczona z ziemniakami','Kolacja: jogurt naturalny z orzechami włoskimi'], shopping:['Makrela świeża lub wędzona','Jajka 10szt','Pomidory 1kg','Orzechy włoskie','Jogurt naturalny','Koperek'] },
       { id:3, title:'Tydzień 3 – Energia i witalność', emoji:'🌿', tag:'Witaminy', meals:['Śniadanie: kasza jaglana z miodem i cynamonem','Obiad: kurczak duszony z warzywami','Kolacja: sałatka z burakiem i fetą'], shopping:['Kasza jaglana','Pierś z kurczaka 500g','Burak gotowany','Ser feta','Miód','Cynamon'] },
@@ -2005,7 +2018,7 @@
     if(users) users.textContent = localStorage.getItem('kz_name') ? '1' : '0';
   }
 
-  function saveData(type){
+  async function saveData(type){
     if(type === 'videos'){
       localStorage.setItem('kz_videos', JSON.stringify(APP_DATA.videos));
       renderVideos();
@@ -2013,7 +2026,9 @@
       localStorage.setItem('kz_diets', JSON.stringify(APP_DATA.diets));
       renderDiets();
     }
-    showToast('✅ Zmiany pomyślnie zapisane');
+    showToast('⏳ Zapisywanie do chmury...');
+    const ok = await saveToCloud();
+    if(ok) showToast('✅ Zmiany zapisane w chmurze (widoczne dla wszystkich)!');
   }
 
   function addAdminVideo(){
@@ -2044,13 +2059,16 @@
     }
   }
 
-  function saveAdminPrices(){
+  async function saveAdminPrices(){
     const pm = document.getElementById('admin-price-monthly').value;
     const py = document.getElementById('admin-price-yearly').value;
     if(pm) localStorage.setItem('kz_price_monthly', pm);
     if(py) localStorage.setItem('kz_price_yearly', py);
-    switchPlan(currentPlan); // odśwież na stronie głównej
-    showToast('💰 Cennik pomyślnie zaktualizowany!');
+    if(typeof switchPlan === 'function' && typeof currentPlan !== 'undefined') switchPlan(currentPlan);
+    
+    showToast('⏳ Zapisywanie cennika do chmury...');
+    const ok = await saveToCloud();
+    if(ok) showToast('💰 Cennik pomyślnie zaktualizowany na serwerze!');
   }
 
   function loadAdminPrices(){
@@ -2128,18 +2146,89 @@
     });
   }
 
-  function saveAnnounce(){
+  async function saveAnnounce(){
     const txt = document.getElementById('announce-text')?.value.trim();
     if(!txt) return;
     localStorage.setItem('kz_announce', txt);
-    showToast('📢 Ogłoszenie zapisane! Widoczne w panelu użytkownika.');
+    showToast('⏳ Zapisywanie w chmurze...');
+    const ok = await saveToCloud();
+    if(ok) showToast('📢 Ogłoszenie zapisane w chmurze! Widoczne od razu.');
   }
 
-  function clearAnnounce(){
+  async function clearAnnounce(){
     localStorage.removeItem('kz_announce');
     const el = document.getElementById('announce-text');
     if(el) el.value='';
-    showToast('🗑 Ogłoszenie usunięte.');
+    showToast('⏳ Usuwanie z chmury...');
+    const ok = await saveToCloud();
+    if(ok) showToast('🗑 Ogłoszenie usunięte na stałe.');
+  }
+
+  /* ── CLOUD DATABASE (SUPABASE) ── */
+  const SUPA_URL = "https://idpwlfgicadaeqakhkqa.supabase.co/rest/v1/vitalfly_data";
+  const SUPA_KEY = "sb_publishable___S6vns0m3SKvlFngRtpFA_NDUwSATq";
+
+  async function syncFromCloud() {
+    try {
+      const res = await fetch(`${SUPA_URL}?id=eq.1`, {
+        headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+      });
+      const data = await res.json();
+      if(data && data.length > 0 && data[0].payload) {
+        const cloud = data[0].payload;
+        if(cloud.videos && cloud.videos.length > 0) APP_DATA.videos = cloud.videos;
+        if(cloud.diets && cloud.diets.length > 0) APP_DATA.diets = cloud.diets;
+        if(cloud.priceM) localStorage.setItem('kz_price_monthly', cloud.priceM);
+        if(cloud.priceY) localStorage.setItem('kz_price_yearly', cloud.priceY);
+        if(cloud.announce !== undefined) localStorage.setItem('kz_announce', cloud.announce);
+        
+        // Odśwież UI, jeśli zdążyło się już załadować z defaults
+        renderVideos();
+        renderDiets();
+        showAnnounceIfExists();
+        if(typeof switchPlan === 'function' && typeof currentPlan !== 'undefined') switchPlan(currentPlan);
+        if(document.getElementById('adminPanelView').style.display !== 'none') {
+            renderAdminContent();
+        }
+      }
+    } catch(e) {
+      console.warn("Brak połączenia z Supabase lub brak danych:", e);
+    }
+  }
+
+  async function saveToCloud() {
+    const vids = APP_DATA.videos;
+    if(vids.some(v => v.url && v.url.includes('blob:'))){
+      alert('❌ ZATRZYMANO ZAPIS - WYKRYTO PLIK Z KOMPUTERA!\n\nJeden lub więcej filmów w panelu został wgrany poprzez przeciągnięcie z dysku. Taki plik nie zadziała w internecie!\nZmień ten film na poprawny link YouTube przed zapisem w chmurze.');
+      return false;
+    }
+
+    const payload = {
+      videos: APP_DATA.videos,
+      diets: APP_DATA.diets,
+      priceM: localStorage.getItem('kz_price_monthly') || '39',
+      priceY: localStorage.getItem('kz_price_yearly') || '390',
+      announce: localStorage.getItem('kz_announce') || ''
+    };
+    
+    try {
+      const res = await fetch(`${SUPA_URL}?id=eq.1`, {
+        method: 'PATCH',
+        headers: { 
+          'apikey': SUPA_KEY, 
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ payload })
+      });
+      if(!res.ok) throw new Error('Błąd HTTP ' + res.status);
+      return true;
+    } catch(e) {
+      alert("Błąd zapisu w chmurze! Upewnij się, że wykonałeś KROK 2 (kod SQL) z instrukcji.");
+      console.error(e);
+      return false;
+    }
   }
 
   /* ── ADMIN DRAG & DROP ── */
@@ -2169,6 +2258,8 @@
 
   /* Przy starcie sprawdź czy jest aktywna sesja */
   window.addEventListener('DOMContentLoaded', ()=>{
+    syncFromCloud(); // non-blocking fetch from Supabase
+    
     const sess = localStorage.getItem('kz_session');
     if(sess){
       try{
