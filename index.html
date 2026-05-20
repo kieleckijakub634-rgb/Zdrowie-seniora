@@ -94,8 +94,8 @@
     .form-input:focus{border-color:var(--mint);}
     .form-input.error{border-color:#E05252;}
     .field-error{color:#E05252;font-size:.88rem;margin-top:.3rem;display:none;}
-    .btn-p24{width:100%;background:#F26523;color:#fff;font-family:'Lora',serif;font-weight:700;font-size:1.2rem;padding:1.1rem;border-radius:12px;border:none;cursor:pointer;transition:background .2s,transform .2s;display:flex;align-items:center;justify-content:center;gap:.65rem;}
-    .btn-p24:hover{background:#D94E0F;transform:translateY(-1px);}
+    .btn-stripe{width:100%;background:#635BFF;color:#fff;font-family:'Lora',serif;font-weight:700;font-size:1.2rem;padding:1.1rem;border-radius:12px;border:none;cursor:pointer;transition:background .2s,transform .2s;display:flex;align-items:center;justify-content:center;gap:.65rem;}
+    .btn-stripe:hover{background:#4F46E5;transform:translateY(-1px);}
     .step-dot{width:10px;height:10px;border-radius:50%;background:#D4DFF0;transition:background .3s;}
     .step-dot.active{background:var(--mint);}
     /* Deploy */
@@ -659,13 +659,13 @@
           <span class="font-serif font-bold" style="font-size:1.4rem;color:var(--navy);">39,00 zł / m-c</span>
         </div>
       </div>
-      <div style="background:#FFF8F3;border:1px solid #FFD8B0;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.97rem;color:#7A5020;">
-        💳 Zostaniesz przekierowany do bezpiecznej bramki <strong>Przelewy24</strong> – BLIK, karta lub przelew.
+      <div style="background:#F2F2FC;border:1px solid #D9D7FA;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.97rem;color:#3C369E;">
+        💳 Zostaniesz przekierowany do bezpiecznej bramki <strong>Stripe</strong> – BLIK, karta, Apple Pay lub Google Pay.
       </div>
-      <!-- PRZELEWY24 CONFIG: podmień P24_MERCHANT_ID i P24_CRC w skrypcie poniżej -->
-      <button onclick="redirectToP24()" class="btn-p24">
-        <svg width="28" height="20" viewBox="0 0 28 20" fill="none"><rect width="28" height="20" rx="4" fill="#F26523"/><text x="14" y="14" text-anchor="middle" font-size="9" font-weight="bold" fill="white" font-family="Arial">P24</text></svg>
-        Płacę przez Przelewy24 – 39 zł
+      <!-- STRIPE CONFIG: podmień linki w skrypcie poniżej -->
+      <button onclick="redirectToStripe()" class="btn-stripe">
+        <svg width="28" height="20" viewBox="0 0 28 20" fill="none" style="margin-right:8px;"><rect width="28" height="20" rx="4" fill="#635BFF"/><path d="M11.66 12.58c0-1.63 1.34-2.12 3.8-2.33v-1.1c0-.68-.53-1.05-1.5-1.05-1.04 0-2.1.37-3.08.93l-.84-2.16c1.23-.74 2.87-1.1 4.56-1.1 2.65 0 4.14 1.32 4.14 3.52v4.8h-2.6v-1.17h-.08c-.76 1.1-2.1 1.4-3.4 1.4-1.9 0-3.15-1.15-3.15-2.7zm5.54-1.1v-1.08c-1.37.15-2.2.4-2.2 1.08 0 .58.54.95 1.25.95 1.03 0 1.8-.57 2.1-1.4l-.15.45z" fill="#fff"/></svg>
+        Płacę przez Stripe – 39 zł
       </button>
       <p style="text-align:center;font-size:.85rem;color:#999;margin-top:.75rem;">🔒 Szyfrowane połączenie SSL</p>
       <button onclick="goStep1()" style="background:none;border:none;color:var(--warm-gray);font-size:.95rem;cursor:pointer;margin-top:.75rem;text-decoration:underline;display:block;text-align:center;width:100%;">← Wróć i popraw dane</button>
@@ -728,54 +728,42 @@
   }
   function goStep1(){showStep(1);}
 
-  /* ── Przelewy24 ──────────────────────────────────────────────────
+  /* ── Stripe Payment Links ─────────────────────────────────────────
      INSTRUKCJA KONFIGURACJI:
-     1. Zaloguj się na przelewy24.pl → Panel → Moje dane → Dane do API
-     2. Skopiuj "Identyfikator sprzedawcy" → wklej w P24_MERCHANT_ID poniżej
-     3. Skopiuj "Klucz CRC" → wklej w P24_CRC poniżej
-     4. Ustaw P24_SANDBOX = false gdy przechodzisz na produkcję
-     5. Podmień P24_RETURN_URL na adres swojej strony
-
-     UWAGA: Pełna integracja wymaga backendu (PHP lub Node.js) do podpisania
-     transakcji. Bez backendu działa tryb demo (symulacja przekierowania).
-     Backend endpoint przykład: https://developers.przelewy24.pl
+     1. Zaloguj się do Stripe (dashboard.stripe.com)
+     2. Przejdź do "Product catalog" -> dodaj "Subskrypcja miesięczna" (39 zł)
+     3. Przejdź do "Payment links" -> stwórz link dla subskrypcji miesięcznej
+     4. Skopiuj wygenerowany link URL i wklej go poniżej (zastąp STRIPE_LINK_MONTHLY)
+     5. Powtórz kroki dla "Subskrypcji rocznej" (390 zł) i wklej w STRIPE_LINK_YEARLY
   ──────────────────────────────────────────────────────────────── */
-  function redirectToP24(){
-    // ↓↓↓ PODMIEŃ NA SWOJE DANE Z PANELU PRZELEWY24 ↓↓↓
-    const P24_MERCHANT_ID='TWOJ_MERCHANT_ID'; // np. "123456"
-    const P24_CRC='TWOJ_KLUCZ_CRC';           // np. "abcdef1234567890"
-    const P24_SANDBOX=true;                    // false = tryb produkcyjny
-    const P24_RETURN_URL=window.location.href.split('?')[0]+'?sukces=1';
+  function redirectToStripe(){
+    // ↓↓↓ PODMIEŃ NA SWOJE LINKI Z PANELU STRIPE ↓↓↓
+    const STRIPE_LINK_MONTHLY = 'https://buy.stripe.com/test_8x29AT4Vo2Aq4ESdk19Zm00'; // np. "https://buy.stripe.com/test_12345"
+    const STRIPE_LINK_YEARLY = 'https://buy.stripe.com/test_cNi28rdrU5MCfjwa7P9Zm01';      // np. "https://buy.stripe.com/test_67890"
     // ↑↑↑ PODMIEŃ NA SWOJE DANE ↑↑↑
 
     const name=document.getElementById('inp-name').value.trim();
     const email=document.getElementById('inp-email').value.trim();
-    const phone=document.getElementById('inp-phone').value.trim();
-    const btn=document.querySelector('.btn-p24');
+    const btn=document.querySelector('.btn-stripe');
+    const isYearly = localStorage.getItem('kz_plan') === 'yearly';
 
-    if(P24_MERCHANT_ID==='TWOJ_MERCHANT_ID'){
-      // Tryb demo – symulacja bez backendu
-      btn.innerHTML='⏳ Przetwarzam płatność…';btn.disabled=true;
+    if(STRIPE_LINK_MONTHLY === 'TWOJ_LINK_MIESIECZNY'){
+      // Tryb demo – symulacja
+      btn.innerHTML='⏳ Przetwarzam płatność... (TRYB DEMO)';
+      btn.disabled=true;
       setTimeout(()=>showStep(3),1800);
       return;
     }
 
-    // Prawdziwa integracja – wywołaj swój backend
-    btn.innerHTML='⏳ Przekierowuję do Przelewy24…';btn.disabled=true;
+    btn.innerHTML='⏳ Przekierowuję do Stripe...';
+    btn.disabled=true;
 
-
-    const base=P24_SANDBOX?'https://sandbox.przelewy24.pl':'https://secure.przelewy24.pl';
-    const isYearly = localStorage.getItem('kz_plan') === 'yearly';
-    fetch('/api/create-p24-transaction',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({merchantId:P24_MERCHANT_ID,crc:P24_CRC,amount:isYearly?39000:3900,currency:'PLN',
-        description:isYearly?'VitalFly – subskrypcja roczna':'VitalFly – subskrypcja miesięczna',
-        email,name,phone,returnUrl:P24_RETURN_URL,cancelUrl:window.location.href})
-    }).then(r=>r.json()).then(data=>{
-      if(data.token)window.location.href=`${base}/trnRequest/${data.token}`;
-      else{btn.innerHTML='❌ Błąd – spróbuj ponownie';btn.disabled=false;}
-    }).catch(()=>{btn.innerHTML='❌ Błąd połączenia';btn.disabled=false;});
+    // Przekierowanie na odpowiedni link Stripe z automatycznie uzupełnionym emailem
+    const baseUrl = isYearly ? STRIPE_LINK_YEARLY : STRIPE_LINK_MONTHLY;
+    const returnUrl = encodeURIComponent(window.location.href.split('?')[0] + '?sukces=1');
+    
+    // Stripe Payment Links pozwala przekazać e-mail jako parametr, ale powrót ustawia się w panelu
+    window.location.href = `${baseUrl}?prefilled_email=${encodeURIComponent(email)}`;
   }
 
   /* ── FAQ accordion ── */
