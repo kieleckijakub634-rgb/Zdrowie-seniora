@@ -747,9 +747,11 @@
     }
   }
   function logout(){
+    if(!confirm('Na pewno chcesz się wylogować?')) return;
     localStorage.removeItem('kz_logged_in_email');
     localStorage.removeItem('kz_logged_in_pwd');
     localStorage.removeItem('kz_logged_in_name');
+    localStorage.removeItem('kz_session');
     window.location.reload();
   }
   function handleGoogleLogin(){
@@ -1858,13 +1860,7 @@
   // Wymuszenie odświeżenia cen po wejściu na stronę główną
   window.addEventListener('DOMContentLoaded', ()=>{ switchPlan('monthly'); });
 
-  /* Logout */
-  function logout(){
-    if(!confirm('Na pewno chcesz się wylogować?')) return;
-    localStorage.removeItem('kz_session');
-    localStorage.removeItem('kz_name');
-    window.location.href = window.location.pathname; // Pełny reset sesji
-  }
+
 
   function viewTerms(page){
     document.getElementById('appShell').style.display = 'none';
