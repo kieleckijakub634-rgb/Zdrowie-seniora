@@ -268,7 +268,10 @@
       <img src="vitalfly1.jfif" alt="VitalFly Logo" style="height:48px; width:auto;" />
       <span class="font-serif text-white font-bold text-xl tracking-wide">VitalFly</span>
     </a>
-    <button onclick="openModal()" class="btn-cta" style="font-size:1rem;padding:.6rem 1.6rem;">Dołącz za 39 zł/m-c</button>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <a href="#" onclick="openLoginModal()" style="color:white;text-decoration:underline;font-weight:600;font-size:0.9rem;">Zaloguj się</a>
+      <button onclick="openModal()" class="btn-cta" style="font-size:1rem;padding:.6rem 1.6rem;">Dołącz za 39 zł/m-c</button>
+    </div>
   </div>
 </nav>
 
@@ -633,6 +636,11 @@
         <input class="form-input" id="inp-email" type="email" placeholder="np. krystyna@poczta.pl" autocomplete="email" />
         <p class="field-error" id="err-email">Proszę wpisać poprawny adres e-mail.</p>
       </div>
+      <div class="mb-4">
+        <label class="form-label" for="inp-password">Hasło</label>
+        <input class="form-input" id="inp-password" type="password" placeholder="Min. 6 znaków" />
+        <p class="field-error" id="err-password">Hasło musi mieć co najmniej 6 znaków.</p>
+      </div>
       <div class="mb-6">
         <label class="form-label" for="inp-phone">Numer telefonu <span style="font-weight:400;color:var(--warm-gray);">(opcjonalnie)</span></label>
         <input class="form-input" id="inp-phone" type="tel" placeholder="np. 600 123 456" autocomplete="tel" />
@@ -690,8 +698,31 @@
         <p>W razie pytań: <span style="color:var(--mint);">kontakt@vitalfly.pl</span></p>
         <p style="margin-top:.75rem;font-style:italic;color:#666;">Pozdrawiamy ciepło,<br/>Zespół VitalFly 🌻</p>
       </div>
-      <button onclick="closeModal()" class="btn-cta" style="width:100%;text-align:center;display:block;margin-top:1.5rem;font-size:1.1rem;">Zamknij i zacznij ćwiczyć! →</button>
+      <button onclick="closeModal();showApp(localStorage.getItem('kz_logged_in_name')||'Seniorze')" class="btn-cta" style="width:100%;text-align:center;display:block;margin-top:1.5rem;font-size:1.1rem;">Zamknij i zacznij ćwiczyć! →</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="loginModal" onclick="if(event.target===this)closeLoginModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeLoginModal()" aria-label="Zamknij">×</button>
+    <h2 class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Logowanie</h2>
+    <p style="color:var(--warm-gray);font-size:1rem;margin-bottom:1.5rem;">Zaloguj się do swojego konta.</p>
+    <div class="mb-4">
+      <label class="form-label" for="login-email">Adres e-mail</label>
+      <input class="form-input" id="login-email" type="email" placeholder="np. krystyna@poczta.pl" />
+    </div>
+    <div class="mb-4">
+      <label class="form-label" for="login-password">Hasło</label>
+      <input class="form-input" id="login-password" type="password" placeholder="Wpisz hasło" />
+      <p class="field-error" id="err-login">Nieprawidłowy e-mail lub hasło.</p>
+    </div>
+    <button onclick="handleLogin()" class="btn-cta" style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Zaloguj się →</button>
+    <div style="text-align:center;margin:1rem 0;color:#999;font-size:0.9rem;">LUB</div>
+    <button onclick="handleGoogleLogin()" style="width:100%;background:#fff;color:#333;border:1px solid #ddd;font-weight:600;font-size:1.1rem;padding:1rem;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.75rem;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" style="width:20px;height:20px;"/>
+      Zaloguj przez Google
+    </button>
   </div>
 </div>
 
@@ -700,7 +731,37 @@
   function openModal(){document.getElementById('signupModal').classList.add('open');document.body.style.overflow='hidden';showStep(1);}
   function closeModal(){document.getElementById('signupModal').classList.remove('open');document.body.style.overflow='';}
   function handleOverlayClick(e){if(e.target===document.getElementById('signupModal'))closeModal();}
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+  function openLoginModal(){document.getElementById('loginModal').classList.add('open');document.body.style.overflow='hidden';}
+  function closeLoginModal(){document.getElementById('loginModal').classList.remove('open');document.body.style.overflow='';}
+  function handleLogin(){
+    const e=document.getElementById('login-email').value.trim();
+    const p=document.getElementById('login-password').value.trim();
+    const savedEmail = localStorage.getItem('kz_logged_in_email');
+    const savedPwd = localStorage.getItem('kz_logged_in_pwd');
+    if (e && p && e === savedEmail && p === savedPwd) {
+       closeLoginModal();
+       showApp(localStorage.getItem('kz_logged_in_name') || 'Seniorze');
+    } else {
+       document.getElementById('err-login').style.display='block';
+    }
+  }
+  function logout(){
+    localStorage.removeItem('kz_logged_in_email');
+    localStorage.removeItem('kz_logged_in_pwd');
+    localStorage.removeItem('kz_logged_in_name');
+    window.location.reload();
+  }
+  function handleGoogleLogin(){
+    // Symulacja logowania Google na czas braku serwera autoryzacyjnego
+    localStorage.setItem('kz_logged_in_email', 'googleuser@gmail.com');
+    localStorage.setItem('kz_logged_in_name', 'Google');
+    closeLoginModal();
+    closeModal();
+    showApp('Google');
+  }
+
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeLoginModal();}});
 
   function showStep(n){
     [1,2,3].forEach(i=>{
@@ -716,12 +777,15 @@
     let valid=true;
     const name=document.getElementById('inp-name');
     const email=document.getElementById('inp-email');
+    const pwd=document.getElementById('inp-password');
     const consent=document.getElementById('inp-consent');
     if(!name.value.trim()||name.value.trim().split(' ').length<2){name.classList.add('error');document.getElementById('err-name').style.display='block';valid=false;}
     else{name.classList.remove('error');document.getElementById('err-name').style.display='none';}
     const emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if(!emailRe.test(email.value.trim())){email.classList.add('error');document.getElementById('err-email').style.display='block';valid=false;}
     else{email.classList.remove('error');document.getElementById('err-email').style.display='none';}
+    if(pwd.value.trim().length<6){pwd.classList.add('error');document.getElementById('err-password').style.display='block';valid=false;}
+    else{pwd.classList.remove('error');document.getElementById('err-password').style.display='none';}
     if(!consent.checked){document.getElementById('err-consent').style.display='block';valid=false;}
     else{document.getElementById('err-consent').style.display='none';}
     if(valid){document.getElementById('welcome-name').textContent=name.value.trim().split(' ')[0];showStep(2);}
@@ -758,6 +822,12 @@
     btn.innerHTML='⏳ Przekierowuję do Stripe...';
     btn.disabled=true;
 
+    // Tymczasowy zapis danych do zalogowania po udanej płatności
+    const pwd=document.getElementById('inp-password').value.trim();
+    localStorage.setItem('kz_pending_email', email);
+    localStorage.setItem('kz_pending_name', name.split(' ')[0]);
+    localStorage.setItem('kz_pending_pwd', pwd);
+
     // Przekierowanie na odpowiedni link Stripe z automatycznie uzupełnionym emailem
     const baseUrl = isYearly ? STRIPE_LINK_YEARLY : STRIPE_LINK_MONTHLY;
     const returnUrl = encodeURIComponent(window.location.href.split('?')[0] + '?sukces=1');
@@ -790,7 +860,22 @@
     navigateTo(PAGES.includes(id)?id:'');
   });
   window.addEventListener('DOMContentLoaded',()=>{
+    // Check if user is logged in
+    const loggedInEmail = localStorage.getItem('kz_logged_in_email');
+    if(loggedInEmail && new URLSearchParams(window.location.search).get('sukces')!=='1') {
+      showApp(localStorage.getItem('kz_logged_in_name') || 'Seniorze');
+    }
+
     if(new URLSearchParams(window.location.search).get('sukces')==='1'){
+      // Auto-login after successful payment
+      const pEmail = localStorage.getItem('kz_pending_email');
+      const pName = localStorage.getItem('kz_pending_name');
+      const pPwd = localStorage.getItem('kz_pending_pwd');
+      if(pEmail) {
+         localStorage.setItem('kz_logged_in_email', pEmail);
+         localStorage.setItem('kz_logged_in_pwd', pPwd);
+         localStorage.setItem('kz_logged_in_name', pName);
+      }
       openModal();showStep(3);
       history.replaceState({},'',window.location.pathname);
     }
