@@ -9,6 +9,10 @@
       "backgroundColor": "#1A2535",
       "androidSplashResourceName": "splash",
       "androidScaleType": "CENTER_CROP"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0B3934"
     }
   }
 }

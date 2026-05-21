@@ -266,7 +266,7 @@
     .app-hero-content { padding: 2rem 1.5rem 0; text-align: center; }
     .mobile-app-bar { position: absolute; top: 0; left: 0; right: 0; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; z-index: 50; }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/supabase.js"></script>
 </head>
 <body>
 
@@ -870,6 +870,29 @@
     // Check if user is logged in
     if(window.supabaseClient && new URLSearchParams(window.location.search).get('sukces')!=='1') {
       const { data: { session } } = await window.supabaseClient.auth.getSession();
+      
+      // Async Data Loading (Preferences & Supabase)
+      let sessionDataCloud = null;
+      if(session) {
+         try {
+           const { data } = await window.supabaseClient.from('user_profiles').select('app_data').eq('id', session.user.id).single();
+           if(data && data.app_data) sessionDataCloud = data.app_data;
+         } catch(e) {}
+      }
+
+      if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+         const getPref = async (k) => { const {value} = await window.Capacitor.Plugins.Preferences.get({key:k}); return value ? JSON.parse(value) : null; };
+         const meds = await getPref('kz_medications');
+         if(meds) APP_DATA.medications = meds;
+         const dt = await window.Capacitor.Plugins.Preferences.get({key:'vf_dogtag'});
+         if(dt.value) localStorage.setItem('vf_dogtag', dt.value);
+      }
+
+      if(sessionDataCloud) {
+         if(sessionDataCloud.medications) APP_DATA.medications = sessionDataCloud.medications;
+         if(sessionDataCloud.dogtag) localStorage.setItem('vf_dogtag', JSON.stringify(sessionDataCloud.dogtag));
+      }
+
       if(session) showApp(session.user?.user_metadata?.full_name || 'Seniorze');
     }
 
@@ -988,8 +1011,35 @@
     return result;
   }
 
+  // Asynchroniczna warstwa pamięci (Preferences + Supabase)
+  async function asyncSetItem(key, value) {
+    localStorage.setItem(key, value);
+    if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+      await window.Capacitor.Plugins.Preferences.set({ key, value });
+    }
+  }
+
+  async function syncToCloud() {
+    if(window.supabaseClient) {
+       const {data: sessionData} = await window.supabaseClient.auth.getSession();
+       if(sessionData?.session?.user) {
+          const userId = sessionData.session.user.id;
+          const payload = {
+            medications: APP_DATA.medications,
+            dogtag: JSON.parse(localStorage.getItem('vf_dogtag')||'null'),
+            profileName: localStorage.getItem('kz_name')||'',
+            profilePhone: localStorage.getItem('kz_phone')||''
+          };
+          window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload }).then().catch(e=>console.log('Sync err', e));
+       }
+    }
+  }
+
   // Zapis leków
-  function saveMeds(){ localStorage.setItem('kz_medications', JSON.stringify(APP_DATA.medications)); }
+  function saveMeds(){ 
+    asyncSetItem('kz_medications', JSON.stringify(APP_DATA.medications)); 
+    syncToCloud();
+  }
 
   // Sprawdź czy powiadomienia są obsługiwane
   function checkNotifSupport(){ return 'Notification' in window && 'serviceWorker' in navigator; }
@@ -1028,7 +1078,7 @@
 <!-- ══════ APP STYLES ══════ -->
 <style>
   #appShell{font-family:'Source Sans 3',sans-serif;min-height:100vh;background:linear-gradient(160deg,#EBF3FF 0%,#E8F7F4 50%,#F9F4EE 100%);}
-  .app-header{background:linear-gradient(135deg,#0B3934,#207A6C);padding:0;position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(11,57,52,.25);}
+  .app-header{background:linear-gradient(135deg,#0B3934,#207A6C);padding:0;padding-top:env(safe-area-inset-top);position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(11,57,52,.25);}
   .app-header-inner{max-width:900px;margin:auto;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;}
   .app-logo{font-family:'Lora',serif;color:white;font-size:1.15rem;font-weight:700;}
   .app-badge{background:rgba(77,191,168,.25);border:1px solid rgba(77,191,168,.5);color:#A8EDE0;font-size:.78rem;padding:.2rem .7rem;border-radius:999px;font-weight:700;letter-spacing:.08em;}
@@ -1245,6 +1295,10 @@
   <div class="tab-panel" id="tab-dogtag">
     <div class="sec-title">🚑 Mój Nieśmiertelnik (ICE)</div>
     
+    <!-- SOS BUTTON -->
+    <a href="tel:112" style="display:flex;align-items:center;justify-content:center;gap:.75rem;background:linear-gradient(135deg,#FF3B30,#E05252);color:white;font-weight:900;font-size:1.4rem;padding:1.5rem;border-radius:18px;text-decoration:none;box-shadow:0 8px 24px rgba(224,82,82,.4);margin-bottom:1.5rem;">
+      <span style="font-size:2rem;line-height:1;">🚨</span> WEZWIJ POMOC (112)
+    </a>
     <!-- View Mode -->
     <div id="dogtag-view" style="display:none; background:white; border-radius:18px; padding:1.5rem; box-shadow:0 8px 32px rgba(224,82,82,.2); border:3px solid #E05252; margin-bottom:1.5rem;">
       <div style="background:#E05252; color:white; font-weight:bold; text-align:center; padding:1rem; border-radius:12px; margin-bottom:1.5rem; font-size:1.2rem; text-transform:uppercase;">W nagłym wypadku (ICE)</div>
@@ -1448,6 +1502,8 @@
 `;
   }
 
+
+
   /* ── Tab switcher ── */
   function switchTab(name, btn){
     document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
@@ -1465,6 +1521,22 @@
     checkNotifStatus();
     startMedChecker();
     loadDogTag();
+
+    // Reakcja na fizyczny przycisk "Wstecz" na Androidzie
+    if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+      window.Capacitor.Plugins.App.addListener('backButton', ({canGoBack}) => {
+        const vp = document.getElementById('videoPlayer');
+        const medMod = document.getElementById('medModal');
+        if(vp && vp.style.display === 'flex') {
+          closePlayer();
+        } else if(medMod && medMod.classList.contains('open')) {
+          closeMedModal();
+        } else {
+          // Jeśli nie ma nic do cofnięcia, wyjdź z aplikacji
+          if(!canGoBack) window.Capacitor.Plugins.App.exitApp();
+        }
+      });
+    }
   }
 
   /* ── DOG TAG ── */
@@ -1481,7 +1553,9 @@
       illness: document.getElementById('dt-e-illness').value.trim(),
       meds: document.getElementById('dt-e-meds').value.trim()
     };
-    localStorage.setItem('vf_dogtag', JSON.stringify(data));
+    asyncSetItem('vf_dogtag', JSON.stringify(data));
+    syncToCloud();
+    toggleDogTagEdit(false);
     loadDogTag();
     showToast('🚑 Nieśmiertelnik został pomyślnie zapisany!');
   }
@@ -1729,6 +1803,7 @@
     const el = document.getElementById('med-count-stat');
     if(el) el.textContent = APP_DATA.medications.length;
   }
+
 
   async function addMedication(){
     const name = document.getElementById('med-name-input').value.trim();

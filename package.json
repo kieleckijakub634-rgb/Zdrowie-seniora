@@ -20,8 +20,11 @@
   "homepage": "https://github.com/kieleckijakub634-rgb/Zdrowie-seniora#readme",
   "dependencies": {
     "@capacitor/android": "^8.3.4",
+    "@capacitor/app": "^8.1.0",
     "@capacitor/core": "^8.3.4",
-    "@capacitor/local-notifications": "^8.2.0"
+    "@capacitor/local-notifications": "^8.2.0",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
