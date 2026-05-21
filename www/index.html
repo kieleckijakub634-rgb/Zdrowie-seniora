@@ -1454,6 +1454,7 @@
     document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
     document.getElementById('tab-'+name).classList.add('active');
     if(btn) btn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   /* ── Init App ── */
