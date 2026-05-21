@@ -1042,7 +1042,10 @@
   }
 
   // Sprawdź czy powiadomienia są obsługiwane
-  function checkNotifSupport(){ return 'Notification' in window && 'serviceWorker' in navigator; }
+  function checkNotifSupport(){ 
+    if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) return true;
+    return 'Notification' in window && 'serviceWorker' in navigator; 
+  }
 
   /* ── POKAŻ APLIKACJĘ ── */
   function showApp(userName){
@@ -1877,11 +1880,35 @@
     }
   }
 
-  function requestNotifPermission(){
+  async function requestNotifPermission(){
     if(!checkNotifSupport()){
       showToast('⚠️ Twoja przeglądarka nie obsługuje powiadomień.');
       return;
     }
+
+    if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+      const perm = await window.Capacitor.Plugins.LocalNotifications.requestPermissions();
+      if(perm.display === 'granted') {
+        APP_DATA.notifPermission=true;
+        document.getElementById('notifBanner').style.display='none';
+        const g=document.getElementById('notifGranted');
+        if(g) g.classList.add('show');
+        showToast('🔔 Powiadomienia włączone! Będę przypominał o lekach.');
+        
+        window.Capacitor.Plugins.LocalNotifications.schedule({
+          notifications: [{
+            title: "🌿 VitalFly",
+            body: "Powiadomienia działają! Będę przypominał Ci o lekach o wybranej porze.",
+            id: Date.now() % 2147483647,
+            schedule: { at: new Date(Date.now() + 1000) }
+          }]
+        });
+      } else {
+        showToast('⚠️ Nie przyznano zgody na powiadomienia.');
+      }
+      return;
+    }
+
     Notification.requestPermission().then(perm=>{
       if(perm==='granted'){
         APP_DATA.notifPermission=true;
@@ -1889,7 +1916,6 @@
         const g=document.getElementById('notifGranted');
         if(g) g.classList.add('show');
         showToast('🔔 Powiadomienia włączone! Będę przypominał o lekach.');
-        // Test notification
         setTimeout(()=>{
           new Notification('🌿 VitalFly',{
             body:'Powiadomienia działają! Będę przypominał Ci o lekach o wybranej porze.',

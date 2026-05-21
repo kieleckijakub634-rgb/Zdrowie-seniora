@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build folders
+android/app/build/
+android/.gradle/
+android/local.properties
+android/build/
+ios/App/App/build/
+build/
+dist/
+
+# IDE and OS files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# Keys and Secrets
+release.keystore
+*.keystore
+*.jks
+.env
+.env.local
