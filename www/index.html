@@ -1730,7 +1730,7 @@
     if(el) el.textContent = APP_DATA.medications.length;
   }
 
-  function addMedication(){
+  async function addMedication(){
     const name = document.getElementById('med-name-input').value.trim();
     const dose = document.getElementById('med-dose-input').value.trim();
     const time = document.getElementById('med-time-input').value;
@@ -1739,8 +1739,29 @@
     if(!time){ document.getElementById('med-time-input').style.borderColor='#E05252'; return; }
     document.getElementById('med-name-input').style.borderColor='';
     document.getElementById('med-time-input').style.borderColor='';
-    APP_DATA.medications.push({ name, dose, time, note, id: Date.now() });
+    const medId = Date.now();
+    APP_DATA.medications.push({ name, dose, time, note, id: medId });
     saveMeds();
+
+    // Powiadomienia Natywne (Capacitor)
+    if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+      try {
+        let perm = await window.Capacitor.Plugins.LocalNotifications.checkPermissions();
+        if (perm.display !== 'granted') perm = await window.Capacitor.Plugins.LocalNotifications.requestPermissions();
+        if (perm.display === 'granted') {
+          const [hh, mm] = time.split(':');
+          await window.Capacitor.Plugins.LocalNotifications.schedule({
+            notifications: [{
+              id: Math.floor(medId % 2147483647),
+              title: `💊 Czas na lek: ${name}`,
+              body: `Dawka: ${dose||'-'} ${note?'('+note+')':''}`,
+              schedule: { on: { hour: parseInt(hh), minute: parseInt(mm) }, repeats: true }
+            }]
+          });
+        }
+      } catch(e) { console.error('LocalNotifications błąd:', e); }
+    }
+
     // Clear form
     document.getElementById('med-name-input').value='';
     document.getElementById('med-dose-input').value='';
@@ -1751,13 +1772,23 @@
     showToast(`✅ Lek „${name}" dodany! Przypomnę Ci o godz. ${time}.`);
   }
 
-  function deleteMed(i){
+  async function deleteMed(i){
     const name = APP_DATA.medications[i]?.name;
+    const medId = APP_DATA.medications[i]?.id;
     APP_DATA.medications.splice(i,1);
     saveMeds();
     renderMeds();
     loadDogTag();
     if(name) showToast(`🗑 Usunięto lek „${name}"`);
+
+    // Usunięcie powiadomienia natywnego
+    if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications && medId) {
+      try {
+        await window.Capacitor.Plugins.LocalNotifications.cancel({
+          notifications: [{ id: Math.floor(medId % 2147483647) }]
+        });
+      } catch(e){}
+    }
   }
 
   /* ── NOTIFICATIONS ── */
