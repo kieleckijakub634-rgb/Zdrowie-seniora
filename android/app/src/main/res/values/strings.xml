@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Zdrowie Seniora</string>
+    <string name="title_activity_main">Zdrowie Seniora</string>
+    <string name="package_name">com.zdrowieseniora.app</string>
+    <string name="custom_url_scheme">com.zdrowieseniora.app</string>
+</resources>
