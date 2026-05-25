@@ -700,22 +700,22 @@
       <button onclick="goStep1()" style="background:none;border:none;color:var(--warm-gray);font-size:.95rem;cursor:pointer;margin-top:.75rem;text-decoration:underline;display:block;text-align:center;width:100%;">← Wróć i popraw dane</button>
     </div>
 
-    <!-- STEP 3 / SUCCESS -->
+    <!-- STEP 3 / VERIFICATION CODE -->
     <div id="step3" style="display:none;text-align:center;">
-      <div style="font-size:4rem;margin-bottom:1rem;">✉️</div>
-      <h2 class="font-serif font-bold mb-3" style="font-size:1.6rem;color:var(--navy);">Potwierdź swój e-mail</h2>
-      <p style="color:#444;font-size:1.05rem;margin-bottom:1.5rem;">Płatność przyjęta! Wysłaliśmy **link weryfikacyjny** na Twój adres e-mail. Aby aktywować konto i móc się zalogować, kliknij w otrzymany link weryfikacyjny.</p>
-      <div style="background:#F7FCFB;border:2px solid var(--mint-mid);border-radius:16px;padding:1.5rem;text-align:left;font-size:.97rem;">
-        <p style="font-weight:700;color:var(--navy);margin-bottom:.5rem;">📬 Co zrobić teraz?</p>
-        <hr style="border:none;border-top:1px solid #DFF0EC;margin:.75rem 0;"/>
-        <ol style="margin:.75rem 0 .75rem 1.25rem;list-style:decimal;color:#333;line-height:1.45;">
-          <li style="margin-bottom:.4rem;">Otwórz swoją skrzynkę pocztową (sprawdź też folder <strong>SPAM</strong> oraz Oferty).</li>
-          <li style="margin-bottom:.4rem;">Znajdź wiadomość weryfikacyjną od <strong>VitalFly</strong>.</li>
-          <li style="margin-bottom:.4rem;">Kliknij niebieski przycisk/link potwierdzający adres e-mail.</li>
-          <li style="margin-bottom:.4rem;">Po potwierdzeniu e-maila wróć tutaj i zaloguj się za pomocą swojego e-maila i hasła!</li>
-        </ol>
+      <div style="font-size:3.5rem;margin-bottom:0.75rem;">✉️</div>
+      <h2 class="font-serif font-bold mb-2" style="font-size:1.6rem;color:var(--navy);">Potwierdź swój e-mail</h2>
+      <p style="color:#444;font-size:0.98rem;margin-bottom:1.25rem;">Płatność przyjęta! Wysłaliśmy 6-cyfrowy kod weryfikacyjny na Twój adres e-mail <strong id="verify-email-display"></strong>. Wpisz go poniżej, aby aktywować konto.</p>
+      
+      <div class="mb-4">
+        <input class="form-input" id="verification-code" type="text" placeholder="np. 123456" style="text-align:center;font-size:1.4rem;letter-spacing:0.3em;font-weight:700;padding:0.75rem;" maxlength="6" autocomplete="one-time-code" />
+        <p class="field-error" id="err-verification" style="display:none;text-align:center;margin-top:0.5rem;"></p>
       </div>
-      <button onclick="closeModal();openLoginModal();" class="btn-cta" style="width:100%;text-align:center;display:block;margin-top:1.5rem;font-size:1.1rem;">Rozumiem, przejdź do logowania →</button>
+
+      <button id="btn-confirm-code" onclick="verifyVerificationCode()" class="btn-cta" style="width:100%;text-align:center;display:block;font-size:1.15rem;margin-bottom:1rem;">Potwierdź i wejdź do klubu →</button>
+      
+      <p style="font-size:0.88rem;color:var(--warm-gray);">
+        Nie otrzymałeś kodu? <a href="#" onclick="resendVerificationCode(event)" style="color:var(--mint);text-decoration:underline;font-weight:600;">Wyślij ponownie</a>
+      </p>
     </div>
   </div>
 </div>
@@ -758,8 +758,25 @@
       btn.innerHTML = 'Logowanie...'; btn.disabled = true;
       const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email: e, password: p });
       if(error) {
-         if (error.message && (error.message.includes('Email not confirmed') || error.message.toLowerCase().includes('confirm'))) {
-            errEl.textContent = 'Twój adres e-mail nie został zweryfikowany. Kliknij w link weryfikacyjny wysłany na Twój e-mail.';
+         if (error.message && (error.message.includes('Email not confirmed') || error.message.toLowerCase().includes('confirm') || error.message.toLowerCase().includes('verified'))) {
+            // Save email/password as pending and show Step 3 for code input
+            localStorage.setItem('kz_pending_email', e);
+            localStorage.setItem('kz_pending_pwd', p);
+            localStorage.setItem('kz_pending_name', 'Seniorze');
+            if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+               window.Capacitor.Plugins.Preferences.set({key:'kz_pending_email', value: e});
+               window.Capacitor.Plugins.Preferences.set({key:'kz_pending_pwd', value: p});
+               window.Capacitor.Plugins.Preferences.set({key:'kz_pending_name', value: 'Seniorze'});
+            }
+            
+            closeLoginModal();
+            openModal();
+            const emailDisp = document.getElementById('verify-email-display');
+            if (emailDisp) emailDisp.textContent = e;
+            showStep(3);
+            
+            btn.innerHTML = origText; btn.disabled = false;
+            return;
          } else {
             errEl.textContent = 'Nieprawidłowy e-mail lub hasło.';
          }
@@ -936,54 +953,40 @@
 
     if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
        try {
-          if(!pEmail) {
-             const pe = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_email'});
-             if(pe.value) pEmail = pe.value;
-          }
-          if(!pName) {
-             const pn = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_name'});
-             if(pn.value) pName = pn.value;
-          }
-          if(!pPwd) {
-             const pp = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_pwd'});
-             if(pp.value) pPwd = pp.value;
-          }
-          if(!pPhone) {
-             const ph = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_phone'});
-             if(ph.value) pPhone = ph.value;
-          }
+          if(!pEmail) { const pe = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_email'}); if(pe.value) pEmail = pe.value; }
+          if(!pName) { const pn = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_name'}); if(pn.value) pName = pn.value; }
+          if(!pPwd) { const pp = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_pwd'}); if(pp.value) pPwd = pp.value; }
+          if(!pPhone) { const ph = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_phone'}); if(ph.value) pPhone = ph.value; }
        } catch (e) {
           console.error("Preferences load error:", e);
        }
     }
 
-    if(pName) {
-       localStorage.setItem('kz_logged_in_name', pName);
-       localStorage.setItem('kz_name', pName);
-       if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
-          window.Capacitor.Plugins.Preferences.set({key:'kz_logged_in_name', value: pName});
-          window.Capacitor.Plugins.Preferences.set({key:'kz_name', value: pName});
-       }
-    }
-    if(pPhone) {
-       localStorage.setItem('kz_phone', pPhone);
-       if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
-          window.Capacitor.Plugins.Preferences.set({key:'kz_phone', value: pPhone});
-       }
-    }
-    if(pEmail) {
-       localStorage.setItem('kz_email', pEmail);
-       if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
-          window.Capacitor.Plugins.Preferences.set({key:'kz_email', value: pEmail});
-       }
+    if (!pEmail || !pPwd) {
+       console.error("No pending email or password found in processPaymentSuccess");
+       closeModal();
+       return;
     }
 
-    if(pEmail && pPwd && window.supabaseClient) {
-       let signUpData = null;
-       let signUpError = null;
-
+    // Sprawdź, czy użytkownik jest już zarejestrowany i zweryfikowany
+    if (window.supabaseClient) {
        try {
-          const res = await window.supabaseClient.auth.signUp({
+          const logRes = await window.supabaseClient.auth.signInWithPassword({
+             email: pEmail,
+             password: pPwd
+          });
+          if (!logRes.error && logRes.data && logRes.data.user) {
+             // Zalogowano pomyślnie (czyli konto już zweryfikowane!) -> wchodzimy do aplikacji
+             await saveProfileAndEnterApp(logRes.data.user.id, pEmail, pName, pPhone);
+             return;
+          }
+       } catch(e) {
+          console.log("Pre-check login error:", e);
+       }
+
+       // Inicjalizacja rejestracji (wyśle kod OTP na maila)
+       try {
+          const { data, error } = await window.supabaseClient.auth.signUp({
             email: pEmail,
             password: pPwd,
             options: { 
@@ -993,66 +996,177 @@
               } 
             }
           });
-          signUpData = res.data;
-          signUpError = res.error;
+          
+          if (error) {
+             console.error("SignUp error during payment success:", error);
+          }
        } catch (e) {
-          signUpError = e;
-       }
-       
-       // Fallback w razie błędu rejestracji (np. gdy użytkownik już istnieje w bazie)
-       if (signUpError || !signUpData || !signUpData.user) {
-          console.log("Rejestracja nie powiodła się lub nie zwróciła sesji. Próba bezpośredniego zalogowania...");
-          try {
-             const resLog = await window.supabaseClient.auth.signInWithPassword({
-                email: pEmail,
-                password: pPwd
-             });
-             if (!resLog.error && resLog.data && resLog.data.user) {
-                signUpData = resLog.data;
-                signUpError = null;
-             } else {
-                console.error("Logowanie również się nie powiodło:", resLog.error);
-             }
-          } catch(e) {
-             console.error("Logowanie rzuciło wyjątek:", e);
-          }
-       }
-
-       if (!signUpError && signUpData && signUpData.user) {
-          const userId = signUpData.user.id;
-          let dogtag = null;
-          try {
-             dogtag = JSON.parse(localStorage.getItem('vf_dogtag') || 'null');
-          } catch(e) {
-             console.error("Błąd parsowania vf_dogtag:", e);
-          }
-
-          const payload = {
-            medications: APP_DATA.medications,
-            dogtag: dogtag,
-            profileName: pName,
-            profilePhone: pPhone,
-            profileEmail: pEmail
-          };
-          await window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload });
-       } else if (signUpError) {
-          console.error("Błąd podczas automatycznej rejestracji/logowania:", signUpError);
-       }
-
-       localStorage.removeItem('kz_pending_email');
-       localStorage.removeItem('kz_pending_pwd');
-       localStorage.removeItem('kz_pending_name');
-       localStorage.removeItem('kz_pending_phone');
-       if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
-          window.Capacitor.Plugins.Preferences.remove({key:'kz_pending_email'});
-          window.Capacitor.Plugins.Preferences.remove({key:'kz_pending_pwd'});
-          window.Capacitor.Plugins.Preferences.remove({key:'kz_pending_name'});
-          window.Capacitor.Plugins.Preferences.remove({key:'kz_pending_phone'});
+          console.error("SignUp exception:", e);
        }
     }
 
-    closeModal();
-    showApp(pName || 'Seniorze');
+    // Otwórz okno rejestracji na kroku 3 (wpisanie kodu OTP)
+    openModal();
+    const emailDisp = document.getElementById('verify-email-display');
+    if (emailDisp) emailDisp.textContent = pEmail;
+    showStep(3);
+  }
+
+  async function verifyVerificationCode() {
+    let pEmail = localStorage.getItem('kz_pending_email');
+    let pName = localStorage.getItem('kz_pending_name');
+    let pPwd = localStorage.getItem('kz_pending_pwd');
+    let pPhone = localStorage.getItem('kz_pending_phone') || '';
+
+    if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+       try {
+          if(!pEmail) { const pe = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_email'}); if(pe.value) pEmail = pe.value; }
+          if(!pName) { const pn = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_name'}); if(pn.value) pName = pn.value; }
+          if(!pPwd) { const pp = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_pwd'}); if(pp.value) pPwd = pp.value; }
+          if(!pPhone) { const ph = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_phone'}); if(ph.value) pPhone = ph.value; }
+       } catch (e) {}
+    }
+
+    const codeInput = document.getElementById('verification-code');
+    const errEl = document.getElementById('err-verification');
+    const btn = document.getElementById('btn-confirm-code');
+
+    if (!codeInput || !codeInput.value.trim()) {
+       if (errEl) { errEl.textContent = "Wpisz kod weryfikacyjny."; errEl.style.display = 'block'; }
+       return;
+    }
+
+    const token = codeInput.value.trim();
+    if (btn) { btn.innerHTML = "⏳ Weryfikacja..."; btn.disabled = true; }
+    if (errEl) errEl.style.display = 'none';
+
+    if (window.supabaseClient) {
+       try {
+          const { data, error } = await window.supabaseClient.auth.verifyOtp({
+             email: pEmail,
+             token: token,
+             type: 'signup'
+          });
+
+          if (error) {
+             console.error("verifyOtp error:", error);
+             if (errEl) { errEl.textContent = "Błędny lub wygasły kod. Spróbuj ponownie."; errEl.style.display = 'block'; }
+             if (btn) { btn.innerHTML = "Potwierdź i wejdź do klubu →"; btn.disabled = false; }
+          } else if (data && data.user) {
+             await saveProfileAndEnterApp(data.user.id, pEmail, pName, pPhone);
+          } else {
+             if (errEl) { errEl.textContent = "Błąd weryfikacji. Spróbuj ponownie."; errEl.style.display = 'block'; }
+             if (btn) { btn.innerHTML = "Potwierdź i wejdź do klubu →"; btn.disabled = false; }
+          }
+       } catch (e) {
+          console.error("verifyOtp exception:", e);
+          if (errEl) { errEl.textContent = "Błąd połączenia. Spróbuj ponownie."; errEl.style.display = 'block'; }
+          if (btn) { btn.innerHTML = "Potwierdź i wejdź do klubu →"; btn.disabled = false; }
+       }
+    } else {
+       if (errEl) { errEl.textContent = "Brak połączenia z bazą danych."; errEl.style.display = 'block'; }
+       if (btn) { btn.innerHTML = "Potwierdź i wejdź do klubu →"; btn.disabled = false; }
+    }
+  }
+
+  async function saveProfileAndEnterApp(userId, email, name, phone) {
+     if (name) {
+        localStorage.setItem('kz_logged_in_name', name);
+        localStorage.setItem('kz_name', name);
+        if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+           window.Capacitor.Plugins.Preferences.set({key:'kz_logged_in_name', value: name});
+           window.Capacitor.Plugins.Preferences.set({key:'kz_name', value: name});
+        }
+     }
+     if (phone) {
+        localStorage.setItem('kz_phone', phone);
+        if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+           window.Capacitor.Plugins.Preferences.set({key:'kz_phone', value: phone});
+        }
+     }
+     if (email) {
+        localStorage.setItem('kz_email', email);
+        if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+           window.Capacitor.Plugins.Preferences.set({key:'kz_email', value: email});
+        }
+     }
+
+     if (window.supabaseClient) {
+        let dogtag = null;
+        try {
+           dogtag = JSON.parse(localStorage.getItem('vf_dogtag') || 'null');
+        } catch(e) {
+           console.error("Błąd parsowania vf_dogtag:", e);
+        }
+
+        const payload = {
+          medications: APP_DATA.medications,
+          dogtag: dogtag,
+          profileName: name,
+          profilePhone: phone,
+          profileEmail: email
+        };
+        try {
+           await window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload });
+        } catch(e) {
+           console.error("Upsert profile error:", e);
+        }
+     }
+
+     // Usuń dane tymczasowe rejestracji
+     localStorage.removeItem('kz_pending_email');
+     localStorage.removeItem('kz_pending_pwd');
+     localStorage.removeItem('kz_pending_name');
+     localStorage.removeItem('kz_pending_phone');
+     if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+        window.Capacitor.Plugins.Preferences.remove({key:'kz_pending_email'});
+        window.Capacitor.Plugins.Preferences.remove({key:'kz_pending_pwd'});
+        window.Capacitor.Plugins.Preferences.remove({key:'kz_pending_name'});
+        window.Capacitor.Plugins.Preferences.remove({key:'kz_pending_phone'});
+     }
+
+     closeModal();
+     showApp(name || 'Seniorze');
+  }
+
+  async function resendVerificationCode(event) {
+     if (event) event.preventDefault();
+     let pEmail = localStorage.getItem('kz_pending_email');
+     let pName = localStorage.getItem('kz_pending_name');
+     let pPwd = localStorage.getItem('kz_pending_pwd');
+     let pPhone = localStorage.getItem('kz_pending_phone') || '';
+
+     if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+        try {
+           if(!pEmail) { const pe = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_email'}); if(pe.value) pEmail = pe.value; }
+           if(!pPwd) { const pp = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_pwd'}); if(pp.value) pPwd = pp.value; }
+           if(!pName) { const pn = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_name'}); if(pn.value) pName = pn.value; }
+           if(!pPhone) { const ph = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_phone'}); if(ph.value) pPhone = ph.value; }
+        } catch (e) {}
+     }
+
+     if (pEmail && pPwd && window.supabaseClient) {
+        showToast("⏳ Wysyłanie nowego kodu...");
+        try {
+           const { error } = await window.supabaseClient.auth.signUp({
+             email: pEmail,
+             password: pPwd,
+             options: { 
+               data: { 
+                 full_name: pName,
+                 phone: pPhone
+               } 
+             }
+           });
+           if (error) {
+              showToast("❌ Błąd: " + error.message);
+           } else {
+              showToast("Nowy kod został wysłany!");
+           }
+        } catch(e) {
+           showToast("❌ Błąd wysyłania.");
+        }
+     }
   }
 
   if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
