@@ -746,8 +746,42 @@
          errEl.textContent = 'Nieprawidłowy e-mail lub hasło.'; errEl.style.display='block';
          btn.innerHTML = origText; btn.disabled = false; return;
       }
+      
+      // Wczytaj profil użytkownika z bazy i zsynchronizuj stan lokalny
+      let displayName = data.user?.user_metadata?.full_name || 'Seniorze';
+      try {
+         const { data: profile } = await window.supabaseClient.from('user_profiles').select('app_data').eq('id', data.user.id).single();
+         if(profile && profile.app_data) {
+            const cloud = profile.app_data;
+            if(cloud.medications) APP_DATA.medications = cloud.medications;
+            if(cloud.dogtag) localStorage.setItem('vf_dogtag', JSON.stringify(cloud.dogtag));
+            if(cloud.profileName) {
+               localStorage.setItem('kz_name', cloud.profileName);
+               localStorage.setItem('kz_logged_in_name', cloud.profileName);
+               displayName = cloud.profileName;
+            }
+            if(cloud.profilePhone) {
+               localStorage.setItem('kz_phone', cloud.profilePhone);
+            }
+            if(cloud.selectedDiet) {
+               localStorage.setItem('kz_selected_diet', cloud.selectedDiet);
+               selectedDiet = parseInt(cloud.selectedDiet);
+            }
+            if(cloud.dietPrefs) {
+               localStorage.setItem('kz_diet_prefs', JSON.stringify(cloud.dietPrefs));
+               dietPrefs = cloud.dietPrefs;
+            }
+            if(cloud.likedVideos) {
+               localStorage.setItem('kz_liked_videos', JSON.stringify(cloud.likedVideos));
+               likedVideos = cloud.likedVideos;
+            }
+         }
+      } catch(e) {
+         console.error("Błąd wczytywania profilu:", e);
+      }
+
       closeLoginModal();
-      showApp(data.user?.user_metadata?.full_name || 'Seniorze');
+      showApp(displayName);
       btn.innerHTML = origText; btn.disabled = false;
     } else {
       errEl.textContent = 'Błąd połączenia z bazą danych.'; errEl.style.display='block';
@@ -899,6 +933,18 @@
          }
          if(sessionDataCloud.profilePhone) {
             localStorage.setItem('kz_phone', sessionDataCloud.profilePhone);
+         }
+         if(sessionDataCloud.selectedDiet) {
+            localStorage.setItem('kz_selected_diet', sessionDataCloud.selectedDiet);
+            selectedDiet = parseInt(sessionDataCloud.selectedDiet);
+         }
+         if(sessionDataCloud.dietPrefs) {
+            localStorage.setItem('kz_diet_prefs', JSON.stringify(sessionDataCloud.dietPrefs));
+            dietPrefs = sessionDataCloud.dietPrefs;
+         }
+         if(sessionDataCloud.likedVideos) {
+            localStorage.setItem('kz_liked_videos', JSON.stringify(sessionDataCloud.likedVideos));
+            likedVideos = sessionDataCloud.likedVideos;
          }
       }
 
@@ -1075,7 +1121,11 @@
             medications: APP_DATA.medications,
             dogtag: JSON.parse(localStorage.getItem('vf_dogtag')||'null'),
             profileName: localStorage.getItem('kz_name')||'',
-            profilePhone: localStorage.getItem('kz_phone')||''
+            profilePhone: localStorage.getItem('kz_phone')||'',
+            profileEmail: localStorage.getItem('kz_email')||sessionData.session.user.email||'',
+            selectedDiet: selectedDiet,
+            dietPrefs: JSON.parse(localStorage.getItem('kz_diet_prefs')||'[]'),
+            likedVideos: JSON.parse(localStorage.getItem('kz_liked_videos')||'[]')
           };
           window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload }).then().catch(e=>console.log('Sync err', e));
        }
@@ -1169,6 +1219,9 @@
   .video-dur{font-size:.85rem;font-weight:600;color:var(--warm-gray);}
   .video-day{font-size:.78rem;color:#B0BEC5;}
   .video-play-btn{width:2.2rem;height:2.2rem;background:var(--mint);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:white;flex-shrink:0;}
+  .video-like-btn{background:none;border:none;font-size:1.4rem;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;transition:transform 0.15s ease;margin-right:0.25rem;}
+  .video-like-btn:hover{transform:scale(1.25);}
+  .video-like-btn:active{transform:scale(0.9);}
   /* Fake player */
   .video-player{background:linear-gradient(135deg,#062622,#0B3934);border-radius:18px;padding:2rem;margin-bottom:1.5rem;color:white;position:relative;overflow:hidden;display:none;}
   .video-player.show{display:block;animation:fadeUp .4s ease both;}
@@ -1645,6 +1698,23 @@
 
   /* ── VIDEOS ── */
   let playerState = { playing:false, current:null, elapsed:0, interval:null };
+  let likedVideos = JSON.parse(localStorage.getItem('kz_liked_videos') || '[]');
+
+  function isLiked(id){
+    return likedVideos.includes(id);
+  }
+
+  function toggleLikeVideo(id){
+    const idx = likedVideos.indexOf(id);
+    if(idx > -1){
+      likedVideos.splice(idx, 1);
+    } else {
+      likedVideos.push(id);
+    }
+    localStorage.setItem('kz_liked_videos', JSON.stringify(likedVideos));
+    renderVideos();
+    syncToCloud();
+  }
 
   function renderVideos(){
     const grid = document.getElementById('videoGrid');
@@ -1660,7 +1730,12 @@
             <div class="video-dur">⏱ ${v.duration}</div>
             <div class="video-day">${v.day}</div>
           </div>
-          <div class="video-play-btn">▶</div>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <button onclick="event.stopPropagation(); toggleLikeVideo(${v.id})" class="video-like-btn">
+              ${isLiked(v.id) ? '❤️' : '🤍'}
+            </button>
+            <div class="video-play-btn">▶</div>
+          </div>
         </div>
       </div>
     `).join('');
@@ -1758,7 +1833,7 @@
     return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
   }
 
-  let selectedDiet = null;
+  let selectedDiet = localStorage.getItem('kz_selected_diet') ? parseInt(localStorage.getItem('kz_selected_diet')) : null;
 
   function renderDiets(){
     const grid = document.getElementById('dietGrid');
@@ -1815,6 +1890,8 @@
 
   function selectDiet(id){
     selectedDiet = id;
+    asyncSetItem('kz_selected_diet', id);
+    syncToCloud();
     renderDiets();
   }
 
@@ -2164,6 +2241,7 @@
   }
   function saveDietPrefs(){
     localStorage.setItem('kz_diet_prefs', JSON.stringify(dietPrefs));
+    syncToCloud();
     showToast('✅ Preferencje diety zapisane!');
   }
   function loadDietPrefs(){
