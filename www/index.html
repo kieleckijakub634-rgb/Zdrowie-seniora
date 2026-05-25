@@ -831,9 +831,11 @@
 
     // Tymczasowy zapis danych do zalogowania po udanej płatności
     const pwd=document.getElementById('inp-password').value.trim();
+    const phone=document.getElementById('inp-phone') ? document.getElementById('inp-phone').value.trim() : '';
     localStorage.setItem('kz_pending_email', email);
-    localStorage.setItem('kz_pending_name', name.split(' ')[0]);
+    localStorage.setItem('kz_pending_name', name);
     localStorage.setItem('kz_pending_pwd', pwd);
+    localStorage.setItem('kz_pending_phone', phone);
 
     // Przekierowanie na odpowiedni link Stripe z automatycznie uzupełnionym emailem
     const baseUrl = isYearly ? STRIPE_LINK_YEARLY : STRIPE_LINK_MONTHLY;
@@ -891,9 +893,19 @@
       if(sessionDataCloud) {
          if(sessionDataCloud.medications) APP_DATA.medications = sessionDataCloud.medications;
          if(sessionDataCloud.dogtag) localStorage.setItem('vf_dogtag', JSON.stringify(sessionDataCloud.dogtag));
+         if(sessionDataCloud.profileName) {
+            localStorage.setItem('kz_name', sessionDataCloud.profileName);
+            localStorage.setItem('kz_logged_in_name', sessionDataCloud.profileName);
+         }
+         if(sessionDataCloud.profilePhone) {
+            localStorage.setItem('kz_phone', sessionDataCloud.profilePhone);
+         }
       }
 
-      if(session) showApp(session.user?.user_metadata?.full_name || 'Seniorze');
+      if(session) {
+         const displayName = (sessionDataCloud && sessionDataCloud.profileName) || session.user?.user_metadata?.full_name || localStorage.getItem('kz_name') || 'Seniorze';
+         showApp(displayName);
+      }
     }
 
     if(new URLSearchParams(window.location.search).get('sukces')==='1'){
@@ -901,15 +913,50 @@
       const pEmail = localStorage.getItem('kz_pending_email');
       const pName = localStorage.getItem('kz_pending_name');
       const pPwd = localStorage.getItem('kz_pending_pwd');
+      const pPhone = localStorage.getItem('kz_pending_phone') || '';
+      
+      if(pName) {
+         localStorage.setItem('kz_logged_in_name', pName);
+         localStorage.setItem('kz_name', pName);
+      }
+      if(pPhone) {
+         localStorage.setItem('kz_phone', pPhone);
+      }
+      if(pEmail) {
+         localStorage.setItem('kz_email', pEmail);
+      }
+
       if(pEmail && pPwd && window.supabaseClient) {
-         await window.supabaseClient.auth.signUp({
+         const { data, error } = await window.supabaseClient.auth.signUp({
            email: pEmail,
            password: pPwd,
-           options: { data: { full_name: pName } }
+           options: { 
+             data: { 
+               full_name: pName,
+               phone: pPhone
+             } 
+           }
          });
+         
+         if (!error && data && data.user) {
+            const userId = data.user.id;
+            const payload = {
+              medications: APP_DATA.medications,
+              dogtag: JSON.parse(localStorage.getItem('vf_dogtag')||'null'),
+              profileName: pName,
+              profilePhone: pPhone,
+              profileEmail: pEmail
+            };
+            // Upsert profile in Supabase table
+            await window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload });
+         } else if (error) {
+            console.error("Auto-signup error:", error);
+         }
+
          localStorage.removeItem('kz_pending_email');
          localStorage.removeItem('kz_pending_pwd');
          localStorage.removeItem('kz_pending_name');
+         localStorage.removeItem('kz_pending_phone');
       }
       openModal();showStep(3);
       history.replaceState({},'',window.location.pathname);
@@ -1065,6 +1112,9 @@
       initApp();
     } else {
       document.getElementById('appShell').style.display='block';
+      const firstName = (userName||'').split(' ')[0] || 'Seniorze';
+      const el = document.getElementById('app-username');
+      if(el) el.textContent = `${firstName}! 👋`;
     }
   }
 
@@ -2400,6 +2450,10 @@
   /* ── CLOUD DATABASE (SUPABASE) ── */
   const SUPA_URL = "https://idpwlfgicadaeqakhkqa.supabase.co/rest/v1/vitalfly_data";
   const SUPA_KEY = "sb_publishable___S6vns0m3SKvlFngRtpFA_NDUwSATq";
+
+  if (typeof supabase !== 'undefined' && !window.supabaseClient) {
+    window.supabaseClient = supabase.createClient("https://idpwlfgicadaeqakhkqa.supabase.co", SUPA_KEY);
+  }
 
   async function syncFromCloud() {
     try {
