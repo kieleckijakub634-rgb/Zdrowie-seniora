@@ -3144,14 +3144,6 @@
   window.addEventListener('DOMContentLoaded', ()=>{
     syncFromCloud(); // non-blocking fetch from Supabase
     
-    const sess = localStorage.getItem('kz_session');
-    if(sess){
-      try{
-        const s = JSON.parse(sess);
-        showApp(s.name || 'Seniorze');
-        return;
-      } catch(e){}
-    }
     /* Sprawdź hash #admin */
     if(window.location.hash === '#admin'){ openAdmin(); }
   });
