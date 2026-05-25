@@ -2194,9 +2194,16 @@
     const name = document.getElementById('s-name')?.value.trim();
     const email = document.getElementById('s-email')?.value.trim();
     const phone = document.getElementById('s-phone')?.value.trim();
-    if(name) localStorage.setItem('kz_name', name);
+    if(name) {
+       localStorage.setItem('kz_name', name);
+       localStorage.setItem('kz_logged_in_name', name);
+       const firstName = name.split(' ')[0] || 'Seniorze';
+       const el = document.getElementById('app-username');
+       if(el) el.textContent = `${firstName}! 👋`;
+    }
     if(email) localStorage.setItem('kz_email', email);
     if(phone) localStorage.setItem('kz_phone', phone);
+    syncToCloud();
     showToast('✅ Profil zapisany!');
   }
   function loadProfile(){
@@ -2301,7 +2308,7 @@
     const theme = localStorage.getItem('kz_theme')||'light';
     setFontSize(fs);
     setTheme(theme);
-    loadProfile();
+    try { loadProfile(); } catch(e) { console.error('Error loading profile:', e); }
     loadPlanSettings();
     loadDietPrefs();
     loadNotifSettings();
