@@ -949,29 +949,64 @@
     }
 
     if(pEmail && pPwd && window.supabaseClient) {
-       const { data, error } = await window.supabaseClient.auth.signUp({
-         email: pEmail,
-         password: pPwd,
-         options: { 
-           data: { 
-             full_name: pName,
-             phone: pPhone
-           } 
-         }
-       });
+       let signUpData = null;
+       let signUpError = null;
+
+       try {
+          const res = await window.supabaseClient.auth.signUp({
+            email: pEmail,
+            password: pPwd,
+            options: { 
+              data: { 
+                full_name: pName,
+                phone: pPhone
+              } 
+            }
+          });
+          signUpData = res.data;
+          signUpError = res.error;
+       } catch (e) {
+          signUpError = e;
+       }
        
-       if (!error && data && data.user) {
-          const userId = data.user.id;
+       // Fallback w razie błędu rejestracji (np. gdy użytkownik już istnieje w bazie)
+       if (signUpError || !signUpData || !signUpData.user) {
+          console.log("Rejestracja nie powiodła się lub nie zwróciła sesji. Próba bezpośredniego zalogowania...");
+          try {
+             const resLog = await window.supabaseClient.auth.signInWithPassword({
+                email: pEmail,
+                password: pPwd
+             });
+             if (!resLog.error && resLog.data && resLog.data.user) {
+                signUpData = resLog.data;
+                signUpError = null;
+             } else {
+                console.error("Logowanie również się nie powiodło:", resLog.error);
+             }
+          } catch(e) {
+             console.error("Logowanie rzuciło wyjątek:", e);
+          }
+       }
+
+       if (!signUpError && signUpData && signUpData.user) {
+          const userId = signUpData.user.id;
+          let dogtag = null;
+          try {
+             dogtag = JSON.parse(localStorage.getItem('vf_dogtag') || 'null');
+          } catch(e) {
+             console.error("Błąd parsowania vf_dogtag:", e);
+          }
+
           const payload = {
             medications: APP_DATA.medications,
-            dogtag: JSON.parse(localStorage.getItem('vf_dogtag')||'null'),
+            dogtag: dogtag,
             profileName: pName,
             profilePhone: pPhone,
             profileEmail: pEmail
           };
           await window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload });
-       } else if (error) {
-          console.error("Auto-signup error:", error);
+       } else if (signUpError) {
+          console.error("Błąd podczas automatycznej rejestracji/logowania:", signUpError);
        }
 
        localStorage.removeItem('kz_pending_email');
@@ -1023,7 +1058,11 @@
       }
 
       if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
-         const getPref = async (k) => { const {value} = await window.Capacitor.Plugins.Preferences.get({key:k}); return value ? JSON.parse(value) : null; };
+         const getPref = async (k) => { 
+            const {value} = await window.Capacitor.Plugins.Preferences.get({key:k}); 
+            if (!value) return null;
+            try { return JSON.parse(value); } catch(e) { return value; }
+         };
          const meds = await getPref('kz_medications');
          if(meds) APP_DATA.medications = meds;
          const dt = await window.Capacitor.Plugins.Preferences.get({key:'vf_dogtag'});
@@ -1194,15 +1233,22 @@
        const {data: sessionData} = await window.supabaseClient.auth.getSession();
        if(sessionData?.session?.user) {
           const userId = sessionData.session.user.id;
+          let dogtag = null;
+          let dietPrefs = [];
+          let likedVideos = [];
+          try { dogtag = JSON.parse(localStorage.getItem('vf_dogtag') || 'null'); } catch(e) { console.error("Error parsing vf_dogtag in syncToCloud:", e); }
+          try { dietPrefs = JSON.parse(localStorage.getItem('kz_diet_prefs') || '[]'); } catch(e) { console.error("Error parsing dietPrefs in syncToCloud:", e); }
+          try { likedVideos = JSON.parse(localStorage.getItem('kz_liked_videos') || '[]'); } catch(e) { console.error("Error parsing likedVideos in syncToCloud:", e); }
+
           const payload = {
             medications: APP_DATA.medications,
-            dogtag: JSON.parse(localStorage.getItem('vf_dogtag')||'null'),
+            dogtag: dogtag,
             profileName: localStorage.getItem('kz_name')||'',
             profilePhone: localStorage.getItem('kz_phone')||'',
             profileEmail: localStorage.getItem('kz_email')||sessionData.session.user.email||'',
             selectedDiet: selectedDiet,
-            dietPrefs: JSON.parse(localStorage.getItem('kz_diet_prefs')||'[]'),
-            likedVideos: JSON.parse(localStorage.getItem('kz_liked_videos')||'[]')
+            dietPrefs: dietPrefs,
+            likedVideos: likedVideos
           };
           window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload }).then().catch(e=>console.log('Sync err', e));
        }
