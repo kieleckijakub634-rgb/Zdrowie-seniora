@@ -817,7 +817,13 @@
     else{pwd.classList.remove('error');document.getElementById('err-password').style.display='none';}
     if(!consent.checked){document.getElementById('err-consent').style.display='block';valid=false;}
     else{document.getElementById('err-consent').style.display='none';}
-    if(valid){document.getElementById('welcome-name').textContent=name.value.trim().split(' ')[0];showStep(2);}
+    if(valid){
+      const welcomeEl = document.getElementById('welcome-name') || document.getElementById('app-username');
+      if(welcomeEl) {
+         welcomeEl.textContent = name.value.trim().split(' ')[0];
+      }
+      showStep(2);
+    }
   }
   function goStep1(){showStep(1);}
 
