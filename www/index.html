@@ -678,24 +678,20 @@
 
     <!-- STEP 3 / SUCCESS -->
     <div id="step3" style="display:none;text-align:center;">
-      <div style="font-size:4rem;margin-bottom:1rem;">🎉</div>
-      <h2 class="font-serif font-bold mb-3" style="font-size:1.6rem;color:var(--navy);">Witaj w Klubie!</h2>
-      <p style="color:#444;font-size:1.05rem;margin-bottom:1.5rem;">Płatność przyjęta. Za chwilę otrzymasz <strong>e-mail powitalny</strong> na podany adres z linkami do wszystkich materiałów.</p>
+      <div style="font-size:4rem;margin-bottom:1rem;">✉️</div>
+      <h2 class="font-serif font-bold mb-3" style="font-size:1.6rem;color:var(--navy);">Potwierdź swój e-mail</h2>
+      <p style="color:#444;font-size:1.05rem;margin-bottom:1.5rem;">Płatność przyjęta! Wysłaliśmy **link weryfikacyjny** na Twój adres e-mail. Aby aktywować konto i móc się zalogować, kliknij w otrzymany link weryfikacyjny.</p>
       <div style="background:#F7FCFB;border:2px solid var(--mint-mid);border-radius:16px;padding:1.5rem;text-align:left;font-size:.97rem;">
-        <p style="font-size:.78rem;color:#999;margin-bottom:.75rem;letter-spacing:.1em;text-transform:uppercase;">Podgląd e-maila który wysyłamy →</p>
-        <p style="font-weight:700;color:var(--navy);margin-bottom:.5rem;">📬 Temat: Witaj w VitalFly! Oto Twoje linki.</p>
+        <p style="font-weight:700;color:var(--navy);margin-bottom:.5rem;">📬 Co zrobić teraz?</p>
         <hr style="border:none;border-top:1px solid #DFF0EC;margin:.75rem 0;"/>
-        <p>Droga/Drogi <strong id="welcome-name">Członkini/Członku</strong>,</p>
-        <p style="margin-top:.5rem;">Cieszymy się, że jesteś z nami! 🌿 Oto co czeka na Ciebie od dziś:</p>
-        <ul style="margin:.75rem 0 .75rem 1.25rem;list-style:disc;color:#333;">
-          <li style="margin-bottom:.3rem;"><strong>Pierwsze ćwiczenie:</strong> <span style="color:var(--mint);">vitalfly.pl/dzien-1</span></li>
-          <li style="margin-bottom:.3rem;"><strong>Jadłospis na ten tydzień:</strong> <span style="color:var(--mint);">vitalfly.pl/jadlospis</span></li>
-          <li style="margin-bottom:.3rem;"><strong>Dołącz do grupy FB:</strong> <span style="color:var(--mint);">facebook.com/groups/vitalfly</span></li>
-        </ul>
-        <p>W razie pytań: <span style="color:var(--mint);">kontakt@vitalfly.pl</span></p>
-        <p style="margin-top:.75rem;font-style:italic;color:#666;">Pozdrawiamy ciepło,<br/>Zespół VitalFly 🌻</p>
+        <ol style="margin:.75rem 0 .75rem 1.25rem;list-style:decimal;color:#333;line-height:1.45;">
+          <li style="margin-bottom:.4rem;">Otwórz swoją skrzynkę pocztową (sprawdź też folder <strong>SPAM</strong> oraz Oferty).</li>
+          <li style="margin-bottom:.4rem;">Znajdź wiadomość weryfikacyjną od <strong>VitalFly</strong>.</li>
+          <li style="margin-bottom:.4rem;">Kliknij niebieski przycisk/link potwierdzający adres e-mail.</li>
+          <li style="margin-bottom:.4rem;">Po potwierdzeniu e-maila wróć tutaj i zaloguj się za pomocą swojego e-maila i hasła!</li>
+        </ol>
       </div>
-      <button onclick="closeModal();showApp(localStorage.getItem('kz_logged_in_name')||'Seniorze')" class="btn-cta" style="width:100%;text-align:center;display:block;margin-top:1.5rem;font-size:1.1rem;">Zamknij i zacznij ćwiczyć! →</button>
+      <button onclick="closeModal();openLoginModal();" class="btn-cta" style="width:100%;text-align:center;display:block;margin-top:1.5rem;font-size:1.1rem;">Rozumiem, przejdź do logowania →</button>
     </div>
   </div>
 </div>
@@ -715,11 +711,6 @@
       <p class="field-error" id="err-login">Nieprawidłowy e-mail lub hasło.</p>
     </div>
     <button onclick="handleLogin()" class="btn-cta" style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Zaloguj się →</button>
-    <div style="text-align:center;margin:1rem 0;color:#999;font-size:0.9rem;">LUB</div>
-    <button onclick="handleGoogleLogin()" style="width:100%;background:#fff;color:#333;border:1px solid #ddd;font-weight:600;font-size:1.1rem;padding:1rem;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.75rem;">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" style="width:20px;height:20px;"/>
-      Zaloguj przez Google
-    </button>
   </div>
 </div>
 
@@ -743,7 +734,12 @@
       btn.innerHTML = 'Logowanie...'; btn.disabled = true;
       const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email: e, password: p });
       if(error) {
-         errEl.textContent = 'Nieprawidłowy e-mail lub hasło.'; errEl.style.display='block';
+         if (error.message && (error.message.includes('Email not confirmed') || error.message.toLowerCase().includes('confirm'))) {
+            errEl.textContent = 'Twój adres e-mail nie został zweryfikowany. Kliknij w link weryfikacyjny wysłany na Twój e-mail.';
+         } else {
+            errEl.textContent = 'Nieprawidłowy e-mail lub hasło.';
+         }
+         errEl.style.display='block';
          btn.innerHTML = origText; btn.disabled = false; return;
       }
       
@@ -792,14 +788,6 @@
     if(window.supabaseClient) await window.supabaseClient.auth.signOut();
     localStorage.removeItem('kz_session');
     window.location.reload();
-  }
-  function handleGoogleLogin(){
-    // Symulacja logowania Google na czas braku serwera autoryzacyjnego
-    localStorage.setItem('kz_logged_in_email', 'googleuser@gmail.com');
-    localStorage.setItem('kz_logged_in_name', 'Google');
-    closeLoginModal();
-    closeModal();
-    showApp('Google');
   }
 
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeLoginModal();}});
