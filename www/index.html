@@ -265,10 +265,34 @@
     .app-hero-img { width: 100%; height: 55vh; object-fit: cover; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
     .app-hero-content { padding: 2rem 1.5rem 0; text-align: center; }
     .mobile-app-bar { position: absolute; top: 0; left: 0; right: 0; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; z-index: 50; }
+    
+    /* Loader & hide class for logged-in/loading user */
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.75; }
+      50% { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.75; }
+    }
+    body.app-loading #pg-home,
+    body.app-loading .mobile-bottom-bar,
+    body.app-loading .mobile-app-bar,
+    body.app-loading [id^="pg-"],
+    body.logged-in #pg-home,
+    body.logged-in .mobile-bottom-bar,
+    body.logged-in .mobile-app-bar,
+    body.logged-in [id^="pg-"] {
+      display: none !important;
+    }
   </style>
   <script src="assets/supabase.js"></script>
 </head>
-<body>
+<body class="app-loading">
+
+<!-- LOADING SCREEN -->
+<div id="app-loading-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0B3934; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:99999; transition: opacity 0.3s ease;">
+  <div style="font-size:4.5rem; margin-bottom:1rem; animation: pulse 1.5s infinite ease-in-out;">🌿</div>
+  <div style="color:white; font-family:'Lora', serif; font-size:1.8rem; font-weight:700; margin-bottom:0.25rem; letter-spacing:0.05em;">VitalFly</div>
+  <div style="color:rgba(255,255,255,0.65); font-size:0.95rem; font-family:'Source Sans 3', sans-serif;">Ładowanie...</div>
+</div>
 
 <!-- BOTTOM CTA BAR (Mobile) -->
 <div class="mobile-bottom-bar" id="mobileBottomBar" style="display:flex; flex-direction:column; gap:0.5rem; align-items:center;">
@@ -1050,6 +1074,7 @@
   }
 
   window.addEventListener('DOMContentLoaded', async ()=>{
+    let hasSession = false;
     // Check if user is logged in
     if(window.supabaseClient && new URLSearchParams(window.location.search).get('sukces')!=='1') {
       const { data: { session } } = await window.supabaseClient.auth.getSession();
@@ -1100,6 +1125,7 @@
       }
 
       if(session) {
+         hasSession = true;
          const displayName = (sessionDataCloud && sessionDataCloud.profileName) || session.user?.user_metadata?.full_name || localStorage.getItem('kz_name') || 'Seniorze';
          showApp(displayName);
       }
@@ -1127,8 +1153,10 @@
        }
        
        await processPaymentSuccess();
+       hasSession = true;
        history.replaceState({},'',window.location.pathname);
     }
+    hideLoadingScreen();
     const hash=window.location.hash.replace('#','');
     navigateTo(PAGES.includes(hash)?hash:'');
   });
@@ -1273,11 +1301,27 @@
     return 'Notification' in window && 'serviceWorker' in navigator; 
   }
 
+  function hideLoadingScreen() {
+    const loader = document.getElementById('app-loading-screen');
+    if (loader) {
+      loader.style.opacity = '0';
+      setTimeout(() => {
+        try { loader.remove(); } catch(e) {}
+      }, 300);
+    }
+    document.body.classList.remove('app-loading');
+  }
+
   /* ── POKAŻ APLIKACJĘ ── */
   function showApp(userName){
+    document.body.classList.add('logged-in');
+    document.body.classList.remove('app-loading');
+    
     // Ukryj całą stronę lądowania
     document.querySelectorAll('body > *:not(#appShell):not(.modal-overlay)').forEach(el=>{
-      el.style.display='none';
+      if (el.id !== 'app-loading-screen') {
+         el.style.display='none';
+      }
     });
     document.body.style.overflow='auto';
     document.body.style.background='#F0F4F8';
