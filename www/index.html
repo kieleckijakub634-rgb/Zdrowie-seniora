@@ -859,6 +859,13 @@
     localStorage.setItem('kz_pending_pwd', pwd);
     localStorage.setItem('kz_pending_phone', phone);
 
+    if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+       window.Capacitor.Plugins.Preferences.set({key:'kz_pending_email', value: email});
+       window.Capacitor.Plugins.Preferences.set({key:'kz_pending_name', value: name});
+       window.Capacitor.Plugins.Preferences.set({key:'kz_pending_pwd', value: pwd});
+       window.Capacitor.Plugins.Preferences.set({key:'kz_pending_phone', value: phone});
+    }
+
     // Przekierowanie na odpowiedni link Stripe z automatycznie uzupełnionym emailem
     const baseUrl = isYearly ? STRIPE_LINK_YEARLY : STRIPE_LINK_MONTHLY;
     const returnUrl = encodeURIComponent(window.location.href.split('?')[0] + '?sukces=1');
@@ -890,6 +897,117 @@
     const id=window.location.hash.replace('#','');
     navigateTo(PAGES.includes(id)?id:'');
   });
+  /* ── Deep Link & Payment Success Handling ── */
+  async function processPaymentSuccess() {
+    let pEmail = localStorage.getItem('kz_pending_email');
+    let pName = localStorage.getItem('kz_pending_name');
+    let pPwd = localStorage.getItem('kz_pending_pwd');
+    let pPhone = localStorage.getItem('kz_pending_phone') || '';
+
+    if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+       try {
+          if(!pEmail) {
+             const pe = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_email'});
+             if(pe.value) pEmail = pe.value;
+          }
+          if(!pName) {
+             const pn = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_name'});
+             if(pn.value) pName = pn.value;
+          }
+          if(!pPwd) {
+             const pp = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_pwd'});
+             if(pp.value) pPwd = pp.value;
+          }
+          if(!pPhone) {
+             const ph = await window.Capacitor.Plugins.Preferences.get({key:'kz_pending_phone'});
+             if(ph.value) pPhone = ph.value;
+          }
+       } catch (e) {
+          console.error("Preferences load error:", e);
+       }
+    }
+
+    if(pName) {
+       localStorage.setItem('kz_logged_in_name', pName);
+       localStorage.setItem('kz_name', pName);
+       if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+          window.Capacitor.Plugins.Preferences.set({key:'kz_logged_in_name', value: pName});
+          window.Capacitor.Plugins.Preferences.set({key:'kz_name', value: pName});
+       }
+    }
+    if(pPhone) {
+       localStorage.setItem('kz_phone', pPhone);
+       if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+          window.Capacitor.Plugins.Preferences.set({key:'kz_phone', value: pPhone});
+       }
+    }
+    if(pEmail) {
+       localStorage.setItem('kz_email', pEmail);
+       if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+          window.Capacitor.Plugins.Preferences.set({key:'kz_email', value: pEmail});
+       }
+    }
+
+    if(pEmail && pPwd && window.supabaseClient) {
+       const { data, error } = await window.supabaseClient.auth.signUp({
+         email: pEmail,
+         password: pPwd,
+         options: { 
+           data: { 
+             full_name: pName,
+             phone: pPhone
+           } 
+         }
+       });
+       
+       if (!error && data && data.user) {
+          const userId = data.user.id;
+          const payload = {
+            medications: APP_DATA.medications,
+            dogtag: JSON.parse(localStorage.getItem('vf_dogtag')||'null'),
+            profileName: pName,
+            profilePhone: pPhone,
+            profileEmail: pEmail
+          };
+          await window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload });
+       } else if (error) {
+          console.error("Auto-signup error:", error);
+       }
+
+       localStorage.removeItem('kz_pending_email');
+       localStorage.removeItem('kz_pending_pwd');
+       localStorage.removeItem('kz_pending_name');
+       localStorage.removeItem('kz_pending_phone');
+       if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+          window.Capacitor.Plugins.Preferences.remove({key:'kz_pending_email'});
+          window.Capacitor.Plugins.Preferences.remove({key:'kz_pending_pwd'});
+          window.Capacitor.Plugins.Preferences.remove({key:'kz_pending_name'});
+          window.Capacitor.Plugins.Preferences.remove({key:'kz_pending_phone'});
+       }
+    }
+
+    closeModal();
+    showApp(pName || 'Seniorze');
+  }
+
+  if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+     window.Capacitor.Plugins.App.addListener('appUrlOpen', async (data) => {
+        console.log('App opened with URL:', data.url);
+        if(data.url) {
+           try {
+              const parsedUrl = new URL(data.url);
+              if(parsedUrl.searchParams.get('sukces') === '1' || parsedUrl.href.includes('sukces=1')) {
+                 await processPaymentSuccess();
+              }
+           } catch(e) {
+              if(data.url.includes('sukces=1')) {
+                 await processPaymentSuccess();
+              }
+           }
+        }
+     });
+  }
+
   window.addEventListener('DOMContentLoaded', async ()=>{
     // Check if user is logged in
     if(window.supabaseClient && new URLSearchParams(window.location.search).get('sukces')!=='1') {
@@ -942,58 +1060,29 @@
       }
     }
 
-    if(new URLSearchParams(window.location.search).get('sukces')==='1'){
-      // Auto-login after successful payment
-      const pEmail = localStorage.getItem('kz_pending_email');
-      const pName = localStorage.getItem('kz_pending_name');
-      const pPwd = localStorage.getItem('kz_pending_pwd');
-      const pPhone = localStorage.getItem('kz_pending_phone') || '';
-      
-      if(pName) {
-         localStorage.setItem('kz_logged_in_name', pName);
-         localStorage.setItem('kz_name', pName);
-      }
-      if(pPhone) {
-         localStorage.setItem('kz_phone', pPhone);
-      }
-      if(pEmail) {
-         localStorage.setItem('kz_email', pEmail);
-      }
-
-      if(pEmail && pPwd && window.supabaseClient) {
-         const { data, error } = await window.supabaseClient.auth.signUp({
-           email: pEmail,
-           password: pPwd,
-           options: { 
-             data: { 
-               full_name: pName,
-               phone: pPhone
-             } 
-           }
-         });
-         
-         if (!error && data && data.user) {
-            const userId = data.user.id;
-            const payload = {
-              medications: APP_DATA.medications,
-              dogtag: JSON.parse(localStorage.getItem('vf_dogtag')||'null'),
-              profileName: pName,
-              profilePhone: pPhone,
-              profileEmail: pEmail
-            };
-            // Upsert profile in Supabase table
-            await window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload });
-         } else if (error) {
-            console.error("Auto-signup error:", error);
-         }
-
-         localStorage.removeItem('kz_pending_email');
-         localStorage.removeItem('kz_pending_pwd');
-         localStorage.removeItem('kz_pending_name');
-         localStorage.removeItem('kz_pending_phone');
-      }
-      openModal();showStep(3);
-      history.replaceState({},'',window.location.pathname);
+    const isSuccess = new URLSearchParams(window.location.search).get('sukces') === '1';
+    if(isSuccess){
+       const isMobileDevice = /android|iphone|ipad|ipod/i.test(navigator.userAgent || navigator.vendor || window.opera);
+       const isCapacitor = !!window.Capacitor;
+       
+       if (isMobileDevice && !isCapacitor) {
+          // Przekierowanie do natywnej aplikacji
+          window.location.href = 'com.zdrowieseniora.app://?sukces=1';
+          
+          document.body.innerHTML = `
+            <div style="font-family:'Source Sans 3',sans-serif;text-align:center;padding:3rem 1.5rem;background:#0B3934;color:#fff;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+              <div style="font-size:5rem;margin-bottom:1.5rem;">🌿</div>
+              <h1 style="font-family:'Lora',serif;font-size:2.0rem;margin-bottom:1rem;">Płatność powiodła się!</h1>
+              <p style="font-size:1.1rem;opacity:0.9;max-width:400px;margin-bottom:2rem;line-height:1.5;">Otwieramy aplikację VitalFly na Twoim telefonie, abyś mógł od razu przejść do panelu.</p>
+              <a href="com.zdrowieseniora.app://?sukces=1" style="background:#4DBFA8;color:#0B3934;padding:1rem 2rem;border-radius:12px;font-weight:700;text-decoration:none;font-size:1.2rem;display:inline-block;box-shadow:0 4px 15px rgba(0,0,0,0.2);">Przejdź do aplikacji →</a>
+              <p style="font-size:0.85rem;opacity:0.6;margin-top:2rem;">Jeśli aplikacja nie otworzyła się automatycznie, kliknij przycisk powyżej.</p>
+            </div>
+          `;
+          return;
+       }
+       
+       await processPaymentSuccess();
+       history.replaceState({},'',window.location.pathname);
     }
     const hash=window.location.hash.replace('#','');
     navigateTo(PAGES.includes(hash)?hash:'');
