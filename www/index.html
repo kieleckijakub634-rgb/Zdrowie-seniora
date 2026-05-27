@@ -4584,43 +4584,119 @@
     }
   }
 
+  /* --- DARK THEME OVERRIDES --- */
   body.theme-dark #appShell {
     background:
       radial-gradient(circle at 10% 0%, rgba(62, 174, 150, 0.16), transparent 32rem),
-      linear-gradient(180deg, #090E14 0%, #101925 48%, #0B1119 100%);
+      linear-gradient(180deg, #090E14 0%, #101925 48%, #0B1119 100%) !important;
+    color: #E2E8F0 !important;
   }
 
   body.theme-dark #appShell::before {
     background-image:
       linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) !important;
+    opacity: 0.25 !important;
   }
 
-  body.theme-dark .welcome-card,
-  body.theme-dark .tab-nav,
-  body.theme-dark .video-card,
-  body.theme-dark .diet-card,
-  body.theme-dark .med-form,
-  body.theme-dark .med-item,
-  body.theme-dark .settings-section,
-  body.theme-dark #dogtag-view,
-  body.theme-dark .diet-ai-meals-box {
-    background: rgba(17, 24, 35, 0.82) !important;
+  body.theme-dark #appShell .welcome-card,
+  body.theme-dark #appShell .tab-nav,
+  body.theme-dark #appShell .video-card,
+  body.theme-dark #appShell .diet-card,
+  body.theme-dark #appShell .med-form,
+  body.theme-dark #appShell .med-item,
+  body.theme-dark #appShell .settings-section,
+  body.theme-dark #appShell #dogtag-view,
+  body.theme-dark #appShell .diet-ai-shell,
+  body.theme-dark #appShell .diet-ai-meals-box {
+    background: rgba(17, 24, 35, 0.85) !important;
     border-color: rgba(255, 255, 255, 0.07) !important;
-    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    color: #E2E8F0 !important;
   }
 
-  body.theme-dark .stat-pill,
-  body.theme-dark .diet-ai-shopping-tag {
-    background: rgba(26, 36, 51, 0.86);
+  body.theme-dark #appShell .welcome-greeting,
+  body.theme-dark #appShell .welcome-name,
+  body.theme-dark #appShell .sec-title,
+  body.theme-dark #appShell .video-title,
+  body.theme-dark #appShell .diet-title,
+  body.theme-dark #appShell .med-name,
+  body.theme-dark #appShell .med-label,
+  body.theme-dark #appShell .settings-title,
+  body.theme-dark #appShell .settings-label,
+  body.theme-dark #appShell label,
+  body.theme-dark #appShell h3,
+  body.theme-dark #appShell h4,
+  body.theme-dark #appShell strong {
+    color: #F1F5F9 !important;
   }
 
-  body.theme-dark .form-input,
-  body.theme-dark .med-input,
-  body.theme-dark .settings-notif-time,
-  body.theme-dark .chat-input {
-    background: rgba(9, 14, 20, 0.72);
+  body.theme-dark #appShell .settings-row {
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
   }
+
+  body.theme-dark #appShell .settings-desc,
+  body.theme-dark #appShell .video-desc,
+  body.theme-dark #appShell .diet-meals,
+  body.theme-dark #appShell p,
+  body.theme-dark #appShell li {
+    color: #94A3B8 !important;
+  }
+
+  body.theme-dark #appShell .stat-pill,
+  body.theme-dark #appShell .diet-ai-shopping-tag {
+    background: rgba(26, 36, 51, 0.86) !important;
+    color: #A8C0D8 !important;
+  }
+
+  body.theme-dark #appShell .form-input,
+  body.theme-dark #appShell .med-input,
+  body.theme-dark #appShell .settings-notif-time,
+  body.theme-dark #appShell .chat-input,
+  body.theme-dark #appShell .admin-input {
+    background: rgba(9, 14, 20, 0.72) !important;
+    color: #F1F5F9 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  body.theme-dark #appShell .tab-btn {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  body.theme-dark #appShell .tab-btn.active {
+    background: var(--mint) !important;
+    color: #090E14 !important;
+  }
+
+  body.theme-dark #appShell .diet-day-pill {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  body.theme-dark #appShell .diet-day-pill.active {
+    background: var(--mint) !important;
+    color: #090E14 !important;
+    border-color: var(--mint) !important;
+  }
+
+  body.theme-dark #appShell .diet-duration-selector {
+    background: rgba(0, 0, 0, 0.2) !important;
+  }
+
+  body.theme-dark #appShell .diet-dur-btn.active {
+    background: var(--mint) !important;
+    color: #090E14 !important;
+  }
+
+  body.theme-dark #appShell .sub-tab-btn {
+    color: #94A3B8 !important;
+  }
+
+  body.theme-dark #appShell .sub-tab-btn.active {
+    color: var(--mint) !important;
+  }
+
 
 
   /* ══════ VITALFLY BEAUTY V2 - panel aplikacji, tylko wygląd ══════ */
