@@ -1147,6 +1147,33 @@
       transform: translateY(-2px);
       box-shadow: 0 8px 22px rgba(255, 107, 53, 0.5);
     }
+    .plan-cancel-btn {
+      background: #FEE2E2;
+      color: #EF4444;
+      border: 1px solid #FCA5A5;
+      border-radius: 999px;
+      padding: .7rem 1.8rem;
+      font-weight: 700;
+      font-size: .95rem;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+    .plan-cancel-btn:hover {
+      background: #FEE2E2;
+      color: #DC2626;
+      border-color: #EF4444;
+      transform: translateY(-1px);
+    }
+    body.theme-dark .plan-cancel-btn {
+      background: rgba(239, 68, 68, 0.1);
+      color: #FCA5A5;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    body.theme-dark .plan-cancel-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: #EF4444;
+      border-color: #EF4444;
+    }
     
     .diet-pref-chip {
       display: inline-flex;
@@ -3619,6 +3646,87 @@
     font-weight: 600;
   }
 
+  /* Diet Duration Selector & Pills */
+  .diet-duration-selector {
+    background: var(--beige-mid);
+    border-radius: 999px;
+    padding: 4px;
+    display: inline-flex;
+    gap: 4px;
+    border: 1px solid var(--border-light);
+  }
+  .diet-dur-btn {
+    border: none;
+    background: transparent;
+    color: var(--warm-gray);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+  }
+  .diet-dur-btn:hover {
+    color: var(--navy);
+  }
+  .diet-dur-btn.active {
+    background: var(--navy);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(11, 57, 52, 0.15);
+  }
+  body.theme-dark .diet-duration-selector {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  body.theme-dark .diet-dur-btn.active {
+    background: var(--mint);
+    color: var(--navy-dark);
+    box-shadow: 0 4px 12px rgba(62, 174, 150, 0.25);
+  }
+  .diet-days-nav {
+    scrollbar-width: thin;
+    scrollbar-color: var(--mint) transparent;
+  }
+  .diet-days-nav::-webkit-scrollbar {
+    height: 4px;
+  }
+  .diet-days-nav::-webkit-scrollbar-thumb {
+    background: var(--mint);
+    border-radius: 2px;
+  }
+  .diet-day-pill {
+    border: 1px solid var(--border-light);
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--navy);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: var(--transition-smooth);
+  }
+  .diet-day-pill:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-1px);
+  }
+  .diet-day-pill.active {
+    background: var(--mint-light);
+    border-color: var(--mint);
+    color: var(--navy);
+    box-shadow: var(--shadow-sm);
+  }
+  body.theme-dark .diet-day-pill {
+    background: rgba(255, 255, 255, 0.05);
+    color: #DDE6F0;
+  }
+  body.theme-dark .diet-day-pill.active {
+    background: rgba(62, 174, 150, 0.15);
+    border-color: var(--mint);
+    color: #fff;
+  }
+
   /* Medications */
   .med-form {
     background: rgba(255, 255, 255, 0.85);
@@ -4857,7 +4965,8 @@
     #appShell .settings-row button,
     #appShell .settings-row a,
     #appShell .settings-row .plan-current-badge,
-    #appShell .settings-row .plan-upgrade-btn {
+    #appShell .settings-row .plan-upgrade-btn,
+    #appShell .settings-row .plan-cancel-btn {
       max-width: none !important;
       width: 100% !important;
       text-align: center;
@@ -5430,6 +5539,16 @@
     </div>
     
     <div class="diet-ai-shell">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; border-bottom:1px solid var(--border-light); padding-bottom:1rem;">
+        <div style="display:flex; flex-direction:column; gap:0.25rem;">
+          <span style="font-size:0.75rem; font-weight:700; color:var(--warm-gray); text-transform:uppercase; letter-spacing:0.05em;">Okres planu dietetycznego</span>
+          <div class="diet-duration-selector">
+            <button onclick="setDietDuration(1)" id="btn-duration-1" class="diet-dur-btn active" type="button">Dzisiaj</button>
+            <button onclick="setDietDuration(3)" id="btn-duration-3" class="diet-dur-btn" type="button">3 dni</button>
+            <button onclick="setDietDuration(7)" id="btn-duration-7" class="diet-dur-btn" type="button">Tydzień</button>
+          </div>
+        </div>
+      </div>
       <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem;">
         <span style="font-size:2.2rem; line-height:1;">🧠</span>
         <div>
@@ -5618,7 +5737,7 @@
       </div>
       <div class="settings-row">
         <div><div class="settings-label">Anuluj subskrypcję</div><div class="settings-desc">Dostęp do końca opłaconego okresu.</div></div>
-        <a href="mailto:kontakt@vitalfly.pl?subject=Rezygnacja" style="color:#E05252; font-weight:700; font-size:0.95rem; text-decoration:underline;">Napisz e-mail →</a>
+        <button class="plan-cancel-btn" id="cancel-sub-btn" onclick="cancelSubscription()">Rezygnuj z subskrypcji</button>
       </div>
     </div>
 
@@ -6399,6 +6518,7 @@
 
   // Główna funkcja generująca dietę za pomocą LLM
   // Funkcja pomocnicza renderująca widok jadłospisu z obiektu JSON
+  // Funkcja pomocnicza renderująca widok jadłospisu z obiektu JSON
   function displayDietPlan(dietPlan) {
     const container = document.getElementById('diet-meals-container');
     const titleDisplay = document.getElementById('diet-title-display');
@@ -6409,26 +6529,105 @@
     statusTag.textContent = `PLAN SPERSONALIZOWANY // ZAPISANY W PAMIĘCI`;
     statusTag.className = "font-cyber text-[10px] bg-teal-500/10 text-[#00ffcc] px-2 py-0.5 border border-teal-500/30 uppercase tracking-widest";
 
-    // Generowanie posiłków
-    let htmlMeals = dietPlan.meals.map(meal => `
-      <div class="diet-ai-meal-row">
-        <span class="diet-ai-meal-type">[ ${meal.type} ]</span>
-        <span class="diet-ai-meal-content">${meal.content}</span>
-      </div>
-    `).join('');
+    // Kompatybilność wsteczna ze starą strukturą jednodniową
+    if (dietPlan.meals && !dietPlan.days) {
+      dietPlan.days = [{
+        dayName: 'Dzisiaj',
+        meals: dietPlan.meals
+      }];
+    }
 
-    // Generowanie listy zakupów
-    let htmlShopping = `
-      <div class="diet-ai-shopping-section">
-        <span class="diet-ai-shopping-title">WYGENEROWANA LISTA ZAKUPÓW</span>
-        <div class="diet-ai-shopping-tags-wrapper">
-          ${dietPlan.shopping.map(item => `<span class="diet-ai-shopping-tag">${item}</span>`).join('')}
+    if (!dietPlan.days || dietPlan.days.length === 0) {
+      container.innerHTML = `<p class="text-sm text-red-400 p-4 border border-red-500/20 bg-red-500/5 font-mono">Błąd struktury jadłospisu: Brak posiłków.</p>`;
+      return;
+    }
+
+    if (typeof window.activeDietDayIndex === 'undefined') {
+      window.activeDietDayIndex = 0;
+    }
+    if (window.activeDietDayIndex >= dietPlan.days.length) {
+      window.activeDietDayIndex = 0;
+    }
+
+    // Generowanie poziomej nawigacji dni, jeśli dni jest więcej niż 1
+    let htmlNav = '';
+    if (dietPlan.days.length > 1) {
+      htmlNav = `
+        <div class="diet-days-nav" style="display:flex; gap:0.5rem; overflow-x:auto; padding-bottom:0.75rem; margin-bottom:1.25rem; -webkit-overflow-scrolling:touch;">
+          ${dietPlan.days.map((day, idx) => `
+            <button onclick="setActiveDietDay(${idx})" class="diet-day-pill ${idx === window.activeDietDayIndex ? 'active' : ''}" type="button">
+              ${day.dayName}
+            </button>
+          `).join('')}
         </div>
+      `;
+    }
+
+    // Generowanie posiłków dla wybranego dnia
+    const activeDay = dietPlan.days[window.activeDietDayIndex];
+    let htmlMeals = `
+      <div class="diet-ai-meals-day-content">
+        ${activeDay.meals.map(meal => `
+          <div class="diet-ai-meal-row">
+            <span class="diet-ai-meal-type">[ ${meal.type} ]</span>
+            <span class="diet-ai-meal-content">${meal.content}</span>
+          </div>
+        `).join('')}
       </div>
     `;
 
-    container.innerHTML = htmlMeals + htmlShopping;
+    // Generowanie skonsolidowanej listy zakupów na cały okres
+    let htmlShopping = '';
+    if (dietPlan.shopping && dietPlan.shopping.length > 0) {
+      htmlShopping = `
+        <div class="diet-ai-shopping-section" style="margin-top:1.5rem;">
+          <span class="diet-ai-shopping-title">WYGENEROWANA LISTA ZAKUPÓW (${dietPlan.days.length > 1 ? 'NA CAŁY OKRES' : 'NA DZIŚ'})</span>
+          <div class="diet-ai-shopping-tags-wrapper">
+            ${dietPlan.shopping.map(item => `<span class="diet-ai-shopping-tag">${item}</span>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    container.innerHTML = htmlNav + htmlMeals + htmlShopping;
   }
+
+  // Funkcja zmiany wybranego dnia diety
+  window.setActiveDietDay = function(idx) {
+    window.activeDietDayIndex = idx;
+    const currentDietDuration = parseInt(localStorage.getItem('kz_diet_duration') || '1');
+    const cached = localStorage.getItem(`kz_cached_diet_${currentDietDuration}`);
+    if (cached) {
+      try {
+        displayDietPlan(JSON.parse(cached));
+      } catch(e) {
+        console.error("Błąd ładowania wybranego dnia:", e);
+      }
+    }
+  };
+
+  // Funkcja zmiany okresu trwania diety
+  window.setDietDuration = function(days) {
+    localStorage.setItem('kz_diet_duration', days);
+    window.activeDietDayIndex = 0;
+    
+    // Zmiana aktywnej klasy na przyciskach okresu
+    document.querySelectorAll('.diet-dur-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    const activeBtn = document.getElementById(`btn-duration-${days}`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    // Odświeżenie widoku
+    renderPersonalizedDiet();
+  };
+
+  // Funkcja pomocnicza chroniąca przed błędem braku definicji
+  window.renderDiets = function() {
+    if(document.getElementById('adminPanelView')?.style.display !== 'none') {
+      renderAdminContent();
+    }
+  };
 
   // Główna funkcja generująca dietę za pomocą LLM
   async function renderPersonalizedDiet(forceRefresh = false) {
@@ -6437,6 +6636,15 @@
     const statusTag = document.getElementById('diet-status-tag');
     
     if(!container) return;
+
+    const currentDietDuration = parseInt(localStorage.getItem('kz_diet_duration') || '1');
+
+    // Synchronizacja klasy active przycisków wyboru okresu na starcie
+    document.querySelectorAll('.diet-dur-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    const activeBtn = document.getElementById(`btn-duration-${currentDietDuration}`);
+    if (activeBtn) activeBtn.classList.add('active');
 
     // Pobranie konfiguracji i klucza API z systemu
     const apiKey = localStorage.getItem('kz_gemini_api_key') || '';
@@ -6449,12 +6657,24 @@
     const daysOfWeek = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'];
     const currentDay = daysOfWeek[new Date().getDay()];
 
-    // Sprawdzenie czy mamy już zapisaną dietę na dziś w pamięci lokalnej
-    const cached = localStorage.getItem('kz_cached_diet');
-    const cachedDay = localStorage.getItem('kz_cached_diet_day');
-    const cachedProfileKey = localStorage.getItem('kz_cached_diet_profile_key');
+    // Sprawdzenie czy mamy już zapisaną dietę w pamięci lokalnej dla danej długości
+    let cached = localStorage.getItem(`kz_cached_diet_${currentDietDuration}`);
+    let cachedDay = localStorage.getItem(`kz_cached_diet_day_${currentDietDuration}`);
+    let cachedProfileKey = localStorage.getItem(`kz_cached_diet_profile_key_${currentDietDuration}`);
     
-    if(!forceRefresh && cached && cachedDay === currentDay && cachedProfileKey === dietProfileCacheKey) {
+    // Migracja starej jednodniowej pamięci cache (jeśli istnieje)
+    if (currentDietDuration === 1 && !cached && localStorage.getItem('kz_cached_diet')) {
+      cached = localStorage.getItem('kz_cached_diet');
+      cachedDay = localStorage.getItem('kz_cached_diet_day');
+      cachedProfileKey = localStorage.getItem('kz_cached_diet_profile_key');
+      if (cached) {
+        localStorage.setItem('kz_cached_diet_1', cached);
+        localStorage.setItem('kz_cached_diet_day_1', cachedDay);
+        localStorage.setItem('kz_cached_diet_profile_key_1', cachedProfileKey);
+      }
+    }
+
+    if(!forceRefresh && cached && (currentDietDuration !== 1 || cachedDay === currentDay) && cachedProfileKey === dietProfileCacheKey) {
       try {
         const dietPlan = JSON.parse(cached);
         displayDietPlan(dietPlan);
@@ -6464,15 +6684,35 @@
       }
     }
 
+    // Jeśli nie ma zapisanego planu i nie wywołano ręcznego generowania
+    if (!forceRefresh && !cached) {
+      const periodName = currentDietDuration === 1 ? 'dziś' : (currentDietDuration === 3 ? '3 dni' : 'tydzień');
+      const buttonText = currentDietDuration === 1 ? 'na dziś' : (currentDietDuration === 3 ? 'na 3 dni' : 'na tydzień');
+      container.innerHTML = `
+        <div style="text-align:center; padding:2rem 0; color:var(--warm-gray);">
+          <span style="font-size:2.5rem; display:block; margin-bottom:0.75rem;">🍽️</span>
+          <p style="font-size:0.92rem; font-weight:600; margin-bottom:1rem;">Brak aktywnego planu na ${periodName}.</p>
+          <button onclick="renderPersonalizedDiet(true)" class="btn-cta" style="display:inline-block; font-size:0.88rem; padding:0.6rem 1.5rem;">
+            ⚡ Wygeneruj jadłospis ${buttonText}
+          </button>
+        </div>
+      `;
+      titleDisplay.textContent = "Twój Spersonalizowany Jadłospis";
+      statusTag.textContent = "GOTOWY DO GENERACJI";
+      statusTag.className = "font-cyber text-[10px] bg-[#4DBFA8]/10 text-[#4DBFA8] px-2 py-0.5 border border-[#4DBFA8]/30 uppercase tracking-widest";
+      return;
+    }
+
     // Stan ładowania (Loader AI)
     titleDisplay.textContent = "GENEROWANIE DIETY PRZEZ COGNITIVE AI...";
     statusTag.textContent = "SYNCHRONIZACJA Z LLM...";
     statusTag.className = "font-cyber text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 border border-amber-500/30 uppercase tracking-widest";
     
+    const durationName = currentDietDuration === 7 ? "tydzień (7 dni)" : (currentDietDuration === 3 ? "3 dni" : "dziś");
     container.innerHTML = `
       <div class="py-8 text-center space-y-3">
         <div class="inline-block w-8 h-8 border-4 border-t-transparent border-[#4DBFA8] rounded-full animate-spin"></div>
-        <p class="text-xs font-cyber text-slate-500 tracking-widest uppercase">Model LLM optymalizuje plan żywieniowy dla: ${patientName}...</p>
+        <p class="text-xs font-cyber text-slate-500 tracking-widest uppercase">Model LLM optymalizuje plan żywieniowy na ${durationName} dla: ${patientName}...</p>
       </div>
     `;
 
@@ -6498,22 +6738,130 @@
       preferencesPrompt += ` Dodatkowo pacjent zgłasza następujące dolegliwości i stan zdrowia: "${healthIssues}". Dostosuj dietę tak, aby wspierać leczenie tych dolegliwości i była bezpieczna dla pacjenta.`;
     }
 
+    let durationPrompt = "";
+    let formatPrompt = "";
+    if (currentDietDuration === 3) {
+      durationPrompt = `Wygeneruj jadłospis dokładnie na 3 dni (Dzień 1, Dzień 2, Dzień 3).`;
+      formatPrompt = `
+        "days": [
+          {
+            "dayName": "Dzień 1",
+            "meals": [
+              {"type": "Śniadanie", "content": "Dokładny opis posiłku dopasowany do restrykcji"},
+              {"type": "Obiad", "content": "Dokładny opis obiadu"},
+              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
+            ]
+          },
+          {
+            "dayName": "Dzień 2",
+            "meals": [
+              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
+              {"type": "Obiad", "content": "Dokładny opis obiadu"},
+              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
+            ]
+          },
+          {
+            "dayName": "Dzień 3",
+            "meals": [
+              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
+              {"type": "Obiad", "content": "Dokładny opis obiadu"},
+              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
+            ]
+          }
+        ]
+      `;
+    } else if (currentDietDuration === 7) {
+      durationPrompt = `Wygeneruj jadłospis dokładnie na cały tydzień (7 dni: Poniedziałek, Wtorek, Środa, Czwartek, Piątek, Sobota, Niedziela).`;
+      formatPrompt = `
+        "days": [
+          {
+            "dayName": "Poniedziałek",
+            "meals": [
+              {"type": "Śniadanie", "content": "Dokładny opis posiłlu dopasowany do restrykcji"},
+              {"type": "Obiad", "content": "Dokładny opis obiadu"},
+              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
+            ]
+          },
+          {
+            "dayName": "Wtorek",
+            "meals": [
+              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
+              {"type": "Obiad", "content": "Dokładny opis obiadu"},
+              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
+            ]
+          },
+          {
+            "dayName": "Środa",
+            "meals": [
+              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
+              {"type": "Obiad", "content": "Dokładny opis obiadu"},
+              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
+            ]
+          },
+          {
+            "dayName": "Czwartek",
+            "meals": [
+              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
+              {"type": "Obiad", "content": "Dokładny opis obiadu"},
+              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
+            ]
+          },
+          {
+            "dayName": "Piątek",
+            "meals": [
+              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
+              {"type": "Obiad", "content": "Dokładny opis obiadu"},
+              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
+            ]
+          },
+          {
+            "dayName": "Sobota",
+            "meals": [
+              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
+              {"type": "Obiad", "content": "Dokładny opis obiadu"},
+              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
+            ]
+          },
+          {
+            "dayName": "Niedziela",
+            "meals": [
+              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
+              {"type": "Obiad", "content": "Dokładny opis obiadu"},
+              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
+            ]
+          }
+        ]
+      `;
+    } else {
+      durationPrompt = `Wygeneruj jadłospis na 1 dzień (dzisiejszy dzień tygodnia to: ${currentDay}). Dieta musi być unikalna dla tego dnia.`;
+      formatPrompt = `
+        "days": [
+          {
+            "dayName": "Dzisiaj",
+            "meals": [
+              {"type": "Śniadanie", "content": "Dokładny opis posiłku dopasowany do restrykcji"},
+              {"type": "Obiad", "content": "Dokładny opis obiadu"},
+              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
+            ]
+          }
+        ]
+      `;
+    }
+
     const systemPrompt = `
       Jesteś zaawansowanym systemem dietetycznym AI w aplikacji VitalFly dla seniorów (osób 50+).
       Twoim zadaniem jest wygenerowanie zbalansowanej, łatwostrawnej i przeciwzapalnej diety dla pacjenta o imieniu: ${patientName}.
-      Dzisiejszy dzień tygodnia to: ${currentDay}. Dieta musi być unikalna dla tego dnia.
       
+      Czas trwania: ${durationPrompt}
       ${preferencesPrompt}
 
       Zwróć odpowiedź w czystym formacie JSON (bez żadnych znaczników markdown typu \`\`\`json \`\`\`), który zawiera dokładnie taką strukturę pól:
       {
-        "title": "Nazwa diety uwzględniająca preferencje i dzień tygodnia",
-        "meals": [
-          {"type": "Śniadanie", "content": "Dokładny opis posiłku dopasowany do restrykcji"},
-          {"type": "Obiad", "content": "Dokładny opis obiadu"},
-          {"type": "Kolacja", "content": "Dokładny opis kolacji"}
+        "title": "Nazwa diety uwzględniająca preferencje i wybrany okres",
+        "days": [
+          ${formatPrompt.trim()}
         ],
-        "shopping": ["Składnik 1", "Składnik 2", "Składnik 3"]
+        "shopping": ["Składnik 1", "Składnik 2", "Składnik 3", ...] // skonsolidowana, łączna lista zakupów na cały ten okres
       }
       Używaj prostych, tanich i łatwo dostępnych produktów w polskich sklepach. Podawaj krótkie opisy.
     `;
@@ -6540,9 +6888,9 @@
       const dietPlan = JSON.parse(rawJsonText);
 
       // Zapisujemy wygenerowaną dietę w localStorage
-      localStorage.setItem('kz_cached_diet', JSON.stringify(dietPlan));
-      localStorage.setItem('kz_cached_diet_day', currentDay);
-      localStorage.setItem('kz_cached_diet_profile_key', dietProfileCacheKey);
+      localStorage.setItem(`kz_cached_diet_${currentDietDuration}`, JSON.stringify(dietPlan));
+      localStorage.setItem(`kz_cached_diet_day_${currentDietDuration}`, currentDay);
+      localStorage.setItem(`kz_cached_diet_profile_key_${currentDietDuration}`, dietProfileCacheKey);
 
       displayDietPlan(dietPlan);
 
@@ -6562,7 +6910,8 @@
 
   // Funkcja drukowania i zapisywania do PDF spersonalizowanej diety AI
   function printAIDiet() {
-    const cached = localStorage.getItem('kz_cached_diet');
+    const currentDietDuration = parseInt(localStorage.getItem('kz_diet_duration') || '1');
+    const cached = localStorage.getItem(`kz_cached_diet_${currentDietDuration}`);
     if(!cached) {
       showToast('❌ Najpierw wygeneruj dietę, aby móc ją wydrukować!');
       return;
@@ -6571,15 +6920,22 @@
     try {
       const dietPlan = JSON.parse(cached);
       const patientName = localStorage.getItem('kz_name') || 'Pacjent VitalFly';
-      const currentDay = localStorage.getItem('kz_cached_diet_day') || 'Dzisiejszy';
       
+      // Kompatybilność wsteczna ze starą strukturą jednodniową
+      if (dietPlan.meals && !dietPlan.days) {
+        dietPlan.days = [{
+          dayName: 'Dzisiaj',
+          meals: dietPlan.meals
+        }];
+      }
+
       const w = window.open('','_blank');
       w.document.write(`
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
-          <title>VitalFly – Jadłospis AI (${currentDay})</title>
+          <title>VitalFly – Jadłospis AI (${dietPlan.title})</title>
           <style>
             body {
               font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
@@ -6606,6 +6962,10 @@
               font-size: 0.95rem;
               color: #666;
               margin: 0;
+            }
+            .day-section {
+              margin-bottom: 2.5rem;
+              page-break-inside: avoid;
             }
             .day-title {
               font-size: 1.3rem;
@@ -6638,11 +6998,12 @@
               font-weight: 500;
             }
             .shopping-box {
-              margin-top: 2rem;
+              margin-top: 2.5rem;
               padding: 1.5rem;
               background: #F0FAF7;
               border: 1px solid #C5EDE5;
               border-radius: 14px;
+              page-break-inside: avoid;
             }
             .shopping-title {
               font-size: 0.95rem;
@@ -6693,28 +7054,37 @@
               <p class="patient-name">Dla pacjenta: <strong>${patientName}</strong></p>
             </div>
             <div style="font-size:0.85rem; text-align:right; color:#888;">
-              Dzień: ${currentDay}<br>
+              Długość planu: ${dietPlan.days.length > 1 ? dietPlan.days.length + ' dni' : '1 dzień'}<br>
               vitalfly.pl
             </div>
           </div>
           
-          <div class="day-title">📅 ${dietPlan.title}</div>
+          <div style="font-size:1.4rem; font-weight:700; color:#0B3934; margin-bottom:1.5rem;">🥗 Plan: ${dietPlan.title}</div>
           
           <div>
-            ${dietPlan.meals.map(m => `
-              <div class="meal-box">
-                <div class="meal-type">${m.type}</div>
-                <div class="meal-content">${m.content}</div>
+            ${dietPlan.days.map(day => `
+              <div class="day-section">
+                <div class="day-title">📅 ${day.dayName}</div>
+                <div>
+                  ${day.meals.map(m => `
+                    <div class="meal-box">
+                      <div class="meal-type">${m.type}</div>
+                      <div class="meal-content">${m.content}</div>
+                    </div>
+                  `).join('')}
+                </div>
               </div>
             `).join('')}
           </div>
           
-          <div class="shopping-box">
-            <h3 class="shopping-title">🛒 Lista zakupów</h3>
-            <ul class="shopping-list">
-              ${dietPlan.shopping.map(s => `<li><span style="font-size:1.1rem; color:#bbb;">☐</span> ${s}</li>`).join('')}
-            </ul>
-          </div>
+          ${dietPlan.shopping && dietPlan.shopping.length > 0 ? `
+            <div class="shopping-box">
+              <h3 class="shopping-title">🛒 Lista zakupów (${dietPlan.days.length > 1 ? 'na cały okres' : 'na dziś'})</h3>
+              <ul class="shopping-list">
+                ${dietPlan.shopping.map(s => `<li><span style="font-size:1.1rem; color:#bbb;">☐</span> ${s}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
           
           <div class="footer-print">
             Generowane przez VitalFly Cognitive AI • Życzymy zdrowia i smacznego!
@@ -7055,16 +7425,72 @@
     if(btn){ btn.textContent = '✓ Plan roczny aktywny'; btn.disabled=true; btn.style.background='#4DBFA8'; }
     if(badge) badge.textContent = '✓ PLAN ROCZNY';
     showToast('🎉 Upgrade na plan roczny! Zaoszczędzasz 78 zł.');
+    loadPlanSettings();
+    syncToCloud();
+  }
+  function cancelSubscription() {
+    if (confirm('Czy na pewno chcesz anulować subskrypcję? Zachowasz dostęp do końca opłaconego okresu.')) {
+      localStorage.setItem('kz_plan', 'cancelled');
+      loadPlanSettings();
+      syncToCloud();
+      showToast('✅ Subskrypcja została anulowana.');
+    }
   }
   function loadPlanSettings(){
     const plan = localStorage.getItem('kz_plan')||'monthly';
     const label = document.getElementById('plan-current-label');
     const btn = document.getElementById('upgrade-btn');
     const badge = document.getElementById('app-plan-badge');
+    const cancelBtn = document.getElementById('cancel-sub-btn');
+    
+    // Przywrócenie domyślnych stanów przycisków
+    if(btn) {
+      btn.style.display = 'inline-block';
+      btn.disabled = false;
+      btn.textContent = 'Przejdź na Roczny →';
+      btn.style.background = '';
+    }
+    if(cancelBtn) {
+      cancelBtn.style.display = 'inline-block';
+      cancelBtn.disabled = false;
+      cancelBtn.textContent = 'Rezygnuj z subskrypcji';
+      cancelBtn.style.background = '';
+      cancelBtn.style.color = '';
+      cancelBtn.style.borderColor = '';
+      cancelBtn.style.cursor = 'pointer';
+    }
+
     if(plan==='yearly'){
       if(label) label.textContent='📅 Roczny • 390 zł/rok';
       if(btn){ btn.textContent='✓ Plan roczny aktywny'; btn.disabled=true; btn.style.background='#4DBFA8'; }
-      if(badge) badge.textContent='✓ PLAN ROCZNY';
+      if(badge) {
+        badge.textContent='✓ PLAN ROCZNY';
+        badge.style.display = 'inline-block';
+        badge.style.background = '';
+      }
+    } else if(plan==='cancelled') {
+      if(label) label.textContent='❌ Anulowana (wygaśnie wkrótce)';
+      if(btn) btn.style.display = 'none';
+      if(badge) {
+        badge.textContent='❌ SUB. ANULOWANA';
+        badge.style.display = 'inline-block';
+        badge.style.background = '#E05252';
+      }
+      if(cancelBtn) {
+        cancelBtn.textContent = '✓ Subskrypcja anulowana';
+        cancelBtn.disabled = true;
+        cancelBtn.style.background = 'rgba(0,0,0,0.05)';
+        cancelBtn.style.color = 'var(--warm-gray)';
+        cancelBtn.style.borderColor = 'transparent';
+        cancelBtn.style.cursor = 'default';
+      }
+    } else {
+      if(label) label.textContent='📅 Miesięczny • 39 zł/miesiąc';
+      if(badge) {
+        badge.textContent='✓ PLAN MIESIĘCZNY';
+        badge.style.display = 'inline-block';
+        badge.style.background = '';
+      }
     }
   }
 
