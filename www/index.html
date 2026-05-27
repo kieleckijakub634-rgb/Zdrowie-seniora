@@ -20,7 +20,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://klubzdrowia50.pl/" />
   <meta property="og:title" content="VitalFly" />
-  <meta property="og:description" content="Odzyskaj radość ruchu. Bez bólu, bez stresu. Codzienne ćwiczenia z fizjoterapeutą + dieta + społeczność. 39 zł/m-c, bez umowy." />
+  <meta property="og:description" content="Odzyskaj radość ruchu. Bez bólu, bez stresu. Codzienne ćwiczenia z fizjoterapeutą + dieta + społeczność. 39 zł/miesiąc, bez umowy." />
   <meta property="og:image" content="https://images.unsplash.com/photo-1607962837359-5e7e89f86776?w=1200&q=80" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -32,7 +32,7 @@
   ═══════════════════════════════════════════ -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="VitalFly" />
-  <meta name="twitter:description" content="Codzienne ćwiczenia z fizjoterapeutą + dieta + społeczność. 39 zł/m-c." />
+  <meta name="twitter:description" content="Codzienne ćwiczenia z fizjoterapeutą + dieta + społeczność. 39 zł/miesiąc." />
   <meta name="twitter:image" content="https://images.unsplash.com/photo-1607962837359-5e7e89f86776?w=1200&q=80" />
 
   <!-- ═══════════════════════════════════════════
@@ -1554,7 +1554,460 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(62, 174, 150, 0.3);
     }
-  </style>
+  
+
+    /* ══════ VITALFLY BEAUTY V2 - landing only, bez zmian funkcji ══════ */
+    :root {
+      --vf-gold: #F2B84B;
+      --vf-coral: #F07A5B;
+      --vf-sky: #DDF4EF;
+      --vf-ring: rgba(62, 174, 150, 0.28);
+    }
+
+    html, body {
+      overflow-x: hidden;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 8% 0%, rgba(62, 174, 150, 0.16), transparent 30rem),
+        radial-gradient(circle at 92% 12%, rgba(242, 184, 75, 0.14), transparent 26rem),
+        linear-gradient(180deg, #FBF8F2 0%, #F3EFE7 42%, #FFFFFF 100%);
+    }
+
+    #pg-home {
+      position: relative;
+      isolation: isolate;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(197, 237, 229, 0.52), transparent 18rem),
+        radial-gradient(circle at 86% 18%, rgba(242, 184, 75, 0.18), transparent 21rem),
+        linear-gradient(180deg, #FBF8F2 0%, #FFFFFF 54%, #F7FBF8 100%);
+    }
+
+    .mobile-bottom-bar {
+      background: rgba(255, 255, 255, 0.82) !important;
+      border: 1px solid rgba(255,255,255,0.7) !important;
+      border-left: 0 !important;
+      border-right: 0 !important;
+      box-shadow: 0 -22px 55px rgba(5, 34, 31, 0.13) !important;
+    }
+
+    .mobile-bottom-bar .btn-cta {
+      min-height: 56px;
+      background: linear-gradient(135deg, #35BBA0 0%, #167C6F 62%, #0B3934 100%) !important;
+      box-shadow: 0 14px 28px rgba(22, 124, 111, 0.28) !important;
+    }
+
+    .app-hero {
+      min-height: 100svh;
+      padding: 7.5rem 1.5rem 7rem !important;
+      justify-content: center;
+      align-items: center;
+      background:
+        radial-gradient(circle at 50% 16%, rgba(104, 206, 185, 0.28), transparent 22rem),
+        linear-gradient(145deg, #041F1D 0%, #0B3934 44%, #1E8E7C 100%) !important;
+      overflow: hidden;
+    }
+
+    .app-hero::before,
+    .app-hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .app-hero::before {
+      width: 34rem;
+      height: 34rem;
+      top: -13rem;
+      right: -10rem;
+      background: radial-gradient(circle, rgba(104, 206, 185, 0.42), transparent 68%);
+      animation: vfFloatOrb 9s ease-in-out infinite;
+    }
+
+    .app-hero::after {
+      width: 24rem;
+      height: 24rem;
+      left: -9rem;
+      bottom: 4rem;
+      background: radial-gradient(circle, rgba(242, 184, 75, 0.28), transparent 68%);
+      animation: vfFloatOrb 11s ease-in-out infinite reverse;
+    }
+
+    .app-hero-img {
+      position: absolute !important;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: 0 !important;
+      object-fit: cover;
+      opacity: 0.22;
+      filter: saturate(1.15) contrast(1.1);
+      transform: scale(1.05);
+      box-shadow: none !important;
+      z-index: 0;
+    }
+
+    .app-hero .noise-overlay {
+      opacity: 0.08;
+      z-index: 2;
+      mix-blend-mode: soft-light;
+    }
+
+    .mobile-app-bar {
+      position: fixed !important;
+      top: 0;
+      padding: calc(0.85rem + env(safe-area-inset-top)) 1rem 0.85rem !important;
+      background: linear-gradient(180deg, rgba(5, 34, 31, 0.72), rgba(5, 34, 31, 0.08));
+      backdrop-filter: blur(8px);
+    }
+
+    .mobile-app-bar > div {
+      background: rgba(255,255,255,0.12) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 10px 26px rgba(0,0,0,0.16);
+    }
+
+    .btn-login-header {
+      background: rgba(255, 255, 255, 0.92) !important;
+      color: var(--navy) !important;
+      border: 1px solid rgba(255, 255, 255, 0.72) !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12) !important;
+    }
+
+    .app-hero-content {
+      position: relative;
+      z-index: 4;
+      width: min(780px, 100%);
+      padding: clamp(1.45rem, 4vw, 3rem) !important;
+      margin: 0 auto;
+      border-radius: clamp(28px, 5vw, 46px);
+      background: linear-gradient(145deg, rgba(255,255,255,0.16), rgba(255,255,255,0.06));
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(22px);
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .app-hero-content::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: inherit;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.2) 32%, transparent 56%);
+      transform: translateX(-115%);
+      animation: vfGlassSweep 7s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .app-hero-content h1 {
+      font-size: clamp(2.65rem, 9vw, 5.75rem) !important;
+      line-height: 0.94 !important;
+      letter-spacing: -0.065em;
+      text-wrap: balance;
+      text-shadow: 0 14px 45px rgba(0, 0, 0, 0.28);
+    }
+
+    .app-hero-content p {
+      font-size: clamp(1.08rem, 2.4vw, 1.35rem) !important;
+    }
+
+    .hero-proof-rail {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+      margin: 1.6rem auto 0;
+      max-width: 680px;
+    }
+
+    .hero-proof-card {
+      position: relative;
+      overflow: hidden;
+      padding: 0.95rem 0.85rem;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: white;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
+      transition: transform 0.28s ease, background 0.28s ease, box-shadow 0.28s ease;
+    }
+
+    .hero-proof-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255,255,255,0.22);
+      box-shadow: 0 18px 38px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.18);
+    }
+
+    .hero-proof-icon {
+      display: block;
+      font-size: 1.55rem;
+      line-height: 1;
+      margin-bottom: 0.45rem;
+    }
+
+    .hero-proof-title {
+      display: block;
+      font-weight: 800;
+      font-size: 0.94rem;
+      line-height: 1.25;
+    }
+
+    .hero-proof-sub {
+      display: block;
+      margin-top: 0.22rem;
+      font-size: 0.76rem;
+      opacity: 0.75;
+      font-weight: 600;
+    }
+
+    .hero-floating-card {
+      position: absolute;
+      z-index: 4;
+      display: none;
+      max-width: 230px;
+      padding: 1rem;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.88);
+      color: var(--navy);
+      border: 1px solid rgba(255,255,255,0.72);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+      backdrop-filter: blur(16px);
+      animation: vfFloatCard 6s ease-in-out infinite;
+    }
+
+    .hero-floating-card strong {
+      display: block;
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      line-height: 1.2;
+      margin-bottom: 0.25rem;
+    }
+
+    .hero-floating-card span {
+      display: block;
+      font-size: 0.82rem;
+      color: #4A5251;
+      line-height: 1.35;
+      font-weight: 600;
+    }
+
+    .hero-float-1 { right: 7vw; top: 28%; }
+    .hero-float-2 { left: 7vw; bottom: 24%; animation-delay: -2.5s; }
+
+    .section-label {
+      box-shadow: 0 9px 20px rgba(62, 174, 150, 0.11);
+      border: 1px solid rgba(62, 174, 150, 0.12);
+    }
+
+    #pg-home section:not(.app-hero) {
+      overflow: hidden;
+    }
+
+    #pg-home section:not(.app-hero)::before {
+      content: '';
+      position: absolute;
+      width: 18rem;
+      height: 18rem;
+      border-radius: 999px;
+      right: -8rem;
+      top: -8rem;
+      background: radial-gradient(circle, rgba(62,174,150,0.1), transparent 68%);
+      pointer-events: none;
+    }
+
+    .card, .testimonial-card, .price-box, .guarantee-badge, .faq-item {
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+    }
+
+    .card, .testimonial-card, .price-box {
+      border: 1px solid rgba(255,255,255,0.72) !important;
+      box-shadow: 0 18px 54px rgba(11, 57, 52, 0.09), inset 0 1px 0 rgba(255,255,255,0.88) !important;
+    }
+
+    .card::after,
+    .testimonial-card::after,
+    .price-box::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.48) 45%, transparent 60%);
+      transform: translateX(-130%);
+      transition: transform 0.7s ease;
+      pointer-events: none;
+    }
+
+    .card:hover::after,
+    .testimonial-card:hover::after,
+    .price-box:hover::after {
+      transform: translateX(130%);
+    }
+
+    .card:hover, .testimonial-card:hover, .price-box:hover, .faq-item:hover {
+      transform: translateY(-8px) scale(1.01) !important;
+    }
+
+    .check-icon {
+      background: linear-gradient(135deg, #35BBA0 0%, #167C6F 100%) !important;
+    }
+
+    .plan-toggle {
+      padding: 0.38rem !important;
+      border-radius: 999px !important;
+      background: rgba(255, 255, 255, 0.72) !important;
+      box-shadow: 0 16px 42px rgba(11, 57, 52, 0.1), inset 0 1px 0 rgba(255,255,255,0.9) !important;
+      border: 1px solid rgba(255,255,255,0.72) !important;
+    }
+
+    .plan-toggle-btn {
+      border-radius: 999px !important;
+      transition: transform 0.24s ease, box-shadow 0.24s ease, background 0.24s ease !important;
+    }
+
+    .plan-toggle-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .price-box {
+      background:
+        radial-gradient(circle at 50% 0%, rgba(62,174,150,0.18), transparent 16rem),
+        rgba(255,255,255,0.9) !important;
+      border-radius: 38px !important;
+    }
+
+    #main-join-btn, .btn-cta {
+      background: linear-gradient(135deg, #35BBA0 0%, #187B6F 54%, #0B3934 100%) !important;
+      box-shadow: 0 15px 35px rgba(24, 123, 111, 0.28) !important;
+    }
+
+    .faq-a {
+      animation: vfSoftReveal 0.28s ease both;
+    }
+
+    @keyframes vfFloatOrb {
+      0%, 100% { transform: translate3d(0,0,0) scale(1); }
+      50% { transform: translate3d(18px, 24px, 0) scale(1.06); }
+    }
+
+    @keyframes vfFloatCard {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-14px) rotate(1deg); }
+    }
+
+    @keyframes vfGlassSweep {
+      0%, 62% { transform: translateX(-115%); }
+      82%, 100% { transform: translateX(115%); }
+    }
+
+    @keyframes vfSoftReveal {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (min-width: 980px) {
+      .hero-floating-card { display: block; }
+      .app-hero-content { margin-top: 2.5rem; }
+    }
+
+    @media (max-width: 760px) {
+      body { padding-bottom: 112px; }
+      .app-hero { padding: 6.6rem 1rem 5.4rem !important; }
+      .app-hero-content { border-radius: 30px; }
+      .hero-proof-rail { grid-template-columns: 1fr; gap: 0.65rem; }
+      .hero-proof-card { display: flex; align-items: center; gap: 0.75rem; text-align: left; }
+      .hero-proof-icon { margin-bottom: 0; }
+      .mobile-bottom-bar { padding: 0.8rem 1rem calc(0.8rem + env(safe-area-inset-bottom)) !important; }
+      .mobile-bottom-bar p { font-size: 0.82rem !important; }
+      .mobile-bottom-bar .btn-cta { font-size: 1.02rem !important; padding: 0.92rem 1rem !important; white-space: normal; }
+      .card:hover, .testimonial-card:hover, .price-box:hover, .faq-item:hover { transform: translateY(-3px) !important; }
+    }
+
+
+
+    /* ══════ FIX V4 - pomarańczowa etykieta filaru bez przycinania ══════ */
+    #pg-home .pillar-grid {
+      overflow: visible !important;
+      align-items: stretch;
+      padding-top: 1.35rem;
+    }
+
+    #pg-home .featured-pillar {
+      overflow: visible !important;
+      padding-top: 3.35rem !important;
+      isolation: isolate;
+      z-index: 2;
+    }
+
+    #pg-home .featured-pillar::after {
+      border-radius: inherit;
+      z-index: 0;
+    }
+
+    #pg-home .featured-pillar > :not(.featured-badge) {
+      position: relative;
+      z-index: 1;
+    }
+
+    #pg-home .featured-badge {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      z-index: 6;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      min-height: 2.15rem;
+      padding: 0.48rem 1.25rem;
+      border-radius: 999px;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #FF7A3D 0%, #F7A24C 100%);
+      color: #fff;
+      font-size: 0.72rem;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      box-shadow: 0 12px 26px rgba(255, 122, 61, 0.26), inset 0 1px 0 rgba(255,255,255,0.28);
+      border: 1px solid rgba(255,255,255,0.35);
+      pointer-events: none;
+      animation: vfBadgeSettle 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    #pg-home .featured-pillar:hover .featured-badge {
+      transform: translate(-50%, -56%);
+    }
+
+    @keyframes vfBadgeSettle {
+      from { opacity: 0; transform: translate(-50%, -18%) scale(0.94); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    @media (max-width: 760px) {
+      #pg-home .pillar-grid {
+        padding-top: 0.5rem;
+      }
+      #pg-home .featured-pillar {
+        margin-top: 1.35rem;
+        padding-top: 3.15rem !important;
+      }
+      #pg-home .featured-badge {
+        width: max-content;
+        max-width: calc(100vw - 3.5rem);
+        font-size: 0.68rem;
+        padding-inline: 1rem;
+      }
+    }
+
+        @media (prefers-reduced-motion: reduce) {
+      .app-hero::before, .app-hero::after, .hero-floating-card, .app-hero-content::before, .btn-cta-pulse {
+        animation: none !important;
+      }
+    }
+</style>
   <script src="assets/supabase.js"></script>
 </head>
 <body class="app-loading">
@@ -1569,13 +2022,21 @@
 <!-- BOTTOM CTA BAR (Mobile) -->
 <div class="mobile-bottom-bar" id="mobileBottomBar" style="display:flex; flex-direction:column; gap:0.5rem; align-items:center;">
   <p style="font-size:0.95rem; color:#7A8FA8; font-weight:600; margin:0; cursor:pointer;" onclick="openLoginModal()">Masz już konto? <span style="color:#4DBFA8; text-decoration:underline;">Zaloguj się</span></p>
-  <button onclick="openModal()" class="btn-cta btn-cta-pulse" style="width:100%;">Dołącz do Klubu za 39 zł/m-c</button>
+  <button onclick="openModal()" class="btn-cta btn-cta-pulse" style="width:100%;">Dołącz do Klubu za 39 zł/miesiąc</button>
 </div>
 
 <div id="pg-home">
 <!-- HERO (App Onboarding Style) -->
 <section class="app-hero relative overflow-hidden">
   <div class="noise-overlay"></div>
+  <div class="hero-floating-card hero-float-1">
+    <strong>15 minut dziennie</strong>
+    <span>Łagodne ćwiczenia z fizjoterapeutą, bez sprzętu i presji.</span>
+  </div>
+  <div class="hero-floating-card hero-float-2">
+    <strong>AI wspiera zdrowie</strong>
+    <span>Jadłospis i asystent uwzględniają Twój profil zdrowotny.</span>
+  </div>
   <div class="mobile-app-bar">
     <div style="display:flex; align-items:center; gap:0.6rem; background:rgba(11, 57, 52, 0.45); padding:0.45rem 1.1rem; border-radius:999px; backdrop-filter:blur(16px); border: 1px solid rgba(255, 255, 255, 0.15);">
       <img src="assets/logo.png" alt="VitalFly Logo" style="height:26px; width:auto; border-radius:6px;" />
@@ -1601,6 +2062,11 @@
     <div class="fade-up fade-up-d3" style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; font-size:0.88rem; color:white; opacity:0.9; font-weight:600;">
       <span style="background:rgba(255,255,255,0.12); padding:0.4rem 1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.06);">✓ Bez umowy</span>
       <span style="background:rgba(255,255,255,0.12); padding:0.4rem 1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.06);">✓ 0 ukrytych kosztów</span>
+    </div>
+    <div class="hero-proof-rail fade-up fade-up-d3" aria-label="Najważniejsze korzyści VitalFly">
+      <div class="hero-proof-card"><span class="hero-proof-icon">🎬</span><span><span class="hero-proof-title">Ćwiczenia</span><span class="hero-proof-sub">codziennie w domu</span></span></div>
+      <div class="hero-proof-card"><span class="hero-proof-icon">🥗</span><span><span class="hero-proof-title">Jadłospis AI</span><span class="hero-proof-sub">dopasowany do profilu</span></span></div>
+      <div class="hero-proof-card"><span class="hero-proof-icon">💬</span><span><span class="hero-proof-title">Asystent</span><span class="hero-proof-sub">prosty język i ostrożność</span></span></div>
     </div>
   </div>
   
@@ -1655,7 +2121,7 @@
       <h2 class="font-serif mt-4" style="font-size:clamp(1.8rem, 3.5vw, 2.5rem); color:var(--navy); font-weight:700;">Co dostajesz w Klubie?</h2>
       <p class="mt-4" style="font-size:1.1rem; color:#4A5251; max-width:580px; margin:auto; line-height:1.6;">Wszystko, czego potrzebujesz – i nic zbędnego. Prosto, bezpiecznie, w domu.</p>
     </div>
-    <div class="grid md:grid-cols-3 gap-8">
+    <div class="grid md:grid-cols-3 gap-8 pillar-grid">
       <div class="card text-center">
         <div class="pillar-icon">🎬</div>
         <h3 class="font-serif font-bold mb-3" style="font-size:1.35rem; color:var(--navy);">Codzienne 15-minutowe wideo</h3>
@@ -1666,8 +2132,8 @@
           <li class="flex items-center gap-2.5"><span class="check-icon">✓</span> Komentarze prowadzącego</li>
         </ul>
       </div>
-      <div class="card text-center" style="border:2px solid var(--mint); position:relative; background:#fff; transform: translateY(-4px); box-shadow: var(--shadow-lg);">
-        <div style="position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg, #FF6B35, #FF8C42); color:white; padding:4px 18px; border-radius:999px; font-size:0.75rem; font-weight:800; letter-spacing:0.08em; white-space:nowrap; box-shadow:0 4px 10px rgba(255, 107, 53, 0.25);">★ NAJPOPULARNIEJSZE</div>
+      <div class="card text-center featured-pillar" style="border:2px solid var(--mint); position:relative; background:#fff; transform: translateY(-4px); box-shadow: var(--shadow-lg);">
+        <div class="featured-badge">★ NAJPOPULARNIEJSZE</div>
         <div class="pillar-icon" style="background-color: var(--mint-light);">🥗</div>
         <h3 class="font-serif font-bold mb-3" style="font-size:1.35rem; color:var(--navy);">Proste jadłospisy przeciwzapalne</h3>
         <p style="color:#4A5251; font-size:1.02rem; line-height:1.65; min-height: 80px;">Co tydzień nowy jadłospis z polskich produktów dostępnych w każdym sklepie. Smaczne, tanie i skuteczne.</p>
@@ -1688,7 +2154,7 @@
         </ul>
       </div>
     </div>
-    <div class="text-center mt-14"><button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse">Chcę to wszystko – dołączam za 39 zł/m-c →</button></div>
+    <div class="text-center mt-14"><button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse">Chcę to wszystko – dołączam za 39 zł/miesiąc →</button></div>
   </div>
 </section>
 
@@ -1779,7 +2245,7 @@
         <li class="flex items-start gap-3.5" style="font-size:1.1rem;"><span class="check-icon flex-shrink-0">✓</span><span><strong>Dostęp do zamkniętej grupy</strong> na Facebooku</span></li>
         <li class="flex items-start gap-3.5" style="font-size:1.1rem;"><span class="check-icon flex-shrink-0">✓</span><span><strong>Archiwum wszystkich materiałów</strong> – wracaj kiedy chcesz</span></li>
       </ul>
-      <button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse" style="width:100%; text-align:center; display:block;" id="main-join-btn">Dołączam do Klubu za 39 zł/m-c →</button>
+      <button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse" style="width:100%; text-align:center; display:block;" id="main-join-btn">Dołączam do Klubu za 39 zł/miesiąc →</button>
       <p class="mt-5 text-center" style="font-size:0.95rem; color:var(--warm-gray); line-height:1.55; font-weight:500;">🔒 Bezpieczna płatność przez <strong>Przelewy24</strong> – BLIK, przelew lub karta.<br/>Bez umowy. Rezygnacja w każdej chwili.</p>
     </div>
   </div>
@@ -1813,7 +2279,7 @@
     <div class="text-center mt-16">
       <p class="font-serif mb-6" style="font-size:1.35rem; color:var(--navy); line-height:1.5;">Masz inne pytanie? Napisz do nas –<br/>odpowiemy w ciągu 24 godzin.</p>
       <a href="mailto:kontakt@klubzdrowia50.pl" style="color:var(--mint); font-weight:700; font-size:1.15rem; text-decoration:underline;">kontakt@klubzdrowia50.pl</a>
-      <div class="mt-10"><button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse">Dołączam do Klubu za 39 zł/m-c →</button></div>
+      <div class="mt-10"><button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse">Dołączam do Klubu za 39 zł/miesiąc →</button></div>
     </div>
   </div>
 </section>
@@ -1918,7 +2384,7 @@
   </div></div></section>
   <section style="background:#fff;padding:3.5rem 1.5rem"><div class="max-w-3xl mx-auto"><div class="text-center mb-8"><span class="section-label">Jak dołączyć</span><h2 class="font-serif mt-2" style="font-size:1.9rem;color:var(--navy);font-weight:700">3 proste kroki</h2></div>
     <div style="background:var(--beige);border-radius:20px;padding:2rem 2.5rem">
-      <div class="rule-item"><div class="rule-num">1</div><div><p style="font-weight:700;color:var(--navy);margin-bottom:.2rem">Opłać subskrypcję</p><p style="color:#555;font-size:.97rem">Musisz być aktywnym subskrybentem. <a onclick="navigateTo('')" style="cursor:pointer;color:var(--mint)">Dołącz za 39 zł/m-c →</a></p></div></div>
+      <div class="rule-item"><div class="rule-num">1</div><div><p style="font-weight:700;color:var(--navy);margin-bottom:.2rem">Opłać subskrypcję</p><p style="color:#555;font-size:.97rem">Musisz być aktywnym subskrybentem. <a onclick="navigateTo('')" style="cursor:pointer;color:var(--mint)">Dołącz za 39 zł/miesiąc →</a></p></div></div>
       <div class="rule-item"><div class="rule-num">2</div><div><p style="font-weight:700;color:var(--navy);margin-bottom:.2rem">Kliknij przycisk</p><p style="color:#555;font-size:.97rem">Przejdziesz do grupy na Facebooku. Kliknij „Dołącz do grupy".</p></div></div>
       <div class="rule-item"><div class="rule-num">3</div><div><p style="font-weight:700;color:var(--navy);margin-bottom:.2rem">Zweryfikujemy Twoje członkostwo</p><p style="color:#555;font-size:.97rem">Administratorzy zatwierdzają nowych członków w ciągu 24h.</p></div></div>
     </div>
@@ -1980,7 +2446,7 @@
         </div>
         <div class="flex justify-between items-center" style="border-top:1px solid #DDD;padding-top:.75rem;margin-top:.75rem;">
           <span style="font-weight:700;color:var(--navy);">Razem</span>
-          <span class="font-serif font-bold" style="font-size:1.4rem;color:var(--navy);">39,00 zł / m-c</span>
+          <span class="font-serif font-bold" style="font-size:1.4rem;color:var(--navy);">39,00 zł / miesiąc</span>
         </div>
       </div>
       <div style="background:#F2F2FC;border:1px solid #D9D7FA;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.97rem;color:#3C369E;">
@@ -2325,7 +2791,10 @@
           dogtag: dogtag,
           profileName: name,
           profilePhone: phone,
-          profileEmail: email
+          profileEmail: email,
+          selectedDiet: selectedDiet,
+          dietPrefs: dietPrefs,
+          healthIssues: localStorage.getItem('kz_health_issues') || ''
         };
         try {
            await window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload });
@@ -2393,6 +2862,8 @@
          if(meds) APP_DATA.medications = meds;
          const dt = await window.Capacitor.Plugins.Preferences.get({key:'vf_dogtag'});
          if(dt.value) localStorage.setItem('vf_dogtag', dt.value);
+         const healthPref = await window.Capacitor.Plugins.Preferences.get({key:'kz_health_issues'});
+         if(healthPref.value) localStorage.setItem('kz_health_issues', healthPref.value);
       }
 
       if(sessionDataCloud) {
@@ -2416,6 +2887,9 @@
          if(sessionDataCloud.likedVideos) {
             localStorage.setItem('kz_liked_videos', JSON.stringify(sessionDataCloud.likedVideos));
             likedVideos = sessionDataCloud.likedVideos;
+         }
+         if(sessionDataCloud.healthIssues) {
+            localStorage.setItem('kz_health_issues', sessionDataCloud.healthIssues);
          }
       }
 
@@ -2505,6 +2979,12 @@
       { id:4, title:'Oddech i relaksacja', duration:'15 min', tag:'Relaks', emoji:'🌬️', desc:'Techniki oddechowe i stretching całego ciała. Redukuje napięcie i stres.', day:'Niedziela', url:'' },
       { id:5, title:'Ręce i ramiona', duration:'12 min', tag:'Górna część', emoji:'💪', desc:'Ćwiczenia wzmacniające ramiona, nadgarstki i dłonie. Przydatne do codziennych czynności.', day:'Sobota', url:'' },
       { id:6, title:'Spacer w miejscu', duration:'18 min', tag:'Cardio', emoji:'🚶', desc:'Energiczne ćwiczenia w miejscu poprawiające krążenie i wydolność oddechową.', day:'Piątek', url:'' },
+    ],
+    shopVideos: JSON.parse(localStorage.getItem('kz_shop_videos') || 'null') || [
+      { id:'pack-stawy', title:'Pakiet Zdrowe Stawy', duration:'4 filmy', tag:'Stawy', emoji:'🦵', price:'19 zł', desc:'Łagodne ćwiczenia na kolana, biodra i barki z wersjami przy krześle.' },
+      { id:'pack-kregoslup', title:'Pakiet Spokojny Kręgosłup', duration:'5 filmów', tag:'Kręgosłup', emoji:'🦴', price:'24 zł', desc:'Mobilność, rozluźnianie i bezpieczne sekwencje dla pleców.' },
+      { id:'pack-rownowaga', title:'Pakiet Równowaga 50+', duration:'4 filmy', tag:'Równowaga', emoji:'⚖️', price:'19 zł', desc:'Ćwiczenia stabilizacji i koordynacji, które pomagają ograniczać ryzyko potknięć.' },
+      { id:'pack-oddech', title:'Pakiet Oddech i Sen', duration:'3 filmy', tag:'Relaks', emoji:'🌙', price:'14 zł', desc:'Spokojne sesje oddechowe, rozciąganie i wyciszenie wieczorne.' }
     ],
     diets: JSON.parse(localStorage.getItem('kz_diets')) || exp.diets || [
       { id:1, title:'Tydzień 1 – Przeciwzapalny start', emoji:'🥗', tag:'Przeciwzapalna', meals:['Śniadanie: owsianka z siemieniem lnianym i jagodami','Obiad: zupa z soczewicy, pieczone warzywa','Kolacja: twaróg z rzodkiewką i pieczywem żytnim'], shopping:['Soczewica czerwona 500g','Jagody mrożone 300g','Siemię lniane','Pieczone buraki','Twaróg półtłusty','Pieczywo żytnie'] },
@@ -3643,6 +4123,1212 @@
     color: #E2E8F0;
     box-shadow: none;
   }
+
+  /* --- APP BEAUTY OVERRIDES: tylko wygląd --- */
+  #appShell {
+    background:
+      radial-gradient(circle at 10% 0%, rgba(62, 174, 150, 0.18), transparent 32rem),
+      radial-gradient(circle at 100% 10%, rgba(11, 57, 52, 0.08), transparent 30rem),
+      linear-gradient(180deg, #F7FBF8 0%, #EEF6F3 45%, #FAF8F5 100%);
+  }
+
+  #appShell::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(11, 57, 52, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(11, 57, 52, 0.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.45), transparent 58%);
+    z-index: 0;
+  }
+
+  .app-header,
+  .app-main,
+  .chat-fab,
+  .chat-window,
+  .med-toast {
+    position: relative;
+    z-index: 1;
+  }
+
+  .app-header {
+    background: rgba(7, 42, 38, 0.82);
+    backdrop-filter: blur(22px) saturate(1.18);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 18px 50px rgba(5, 34, 31, 0.14);
+  }
+
+  .app-header-inner {
+    padding: 1rem 1.5rem;
+  }
+
+  .app-logo {
+    letter-spacing: -0.03em;
+  }
+
+  .app-logo img {
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
+  }
+
+  .app-badge {
+    background: linear-gradient(135deg, rgba(62, 174, 150, 0.28), rgba(255, 255, 255, 0.12));
+    color: #E7FFF9;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+
+  .app-logout-btn {
+    backdrop-filter: blur(10px);
+  }
+
+  .app-logout-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    transform: translateY(-2px) scale(1.04);
+  }
+
+  .app-main {
+    padding-top: 1.75rem;
+  }
+
+  .welcome-card,
+  .tab-nav,
+  .video-card,
+  .diet-card,
+  .med-form,
+  .med-item,
+  .settings-section,
+  #dogtag-view,
+  .diet-ai-meals-box {
+    background: rgba(255, 255, 255, 0.78) !important;
+    border: 1px solid rgba(255, 255, 255, 0.78) !important;
+    box-shadow: 0 16px 45px rgba(11, 57, 52, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(18px) saturate(1.08);
+    position: relative;
+  }
+
+  .video-card,
+  .diet-card,
+  .med-form,
+  .settings-section,
+  .diet-ai-meals-box {
+    overflow: hidden;
+  }
+
+  #dogtag-view {
+    border-color: rgba(224, 82, 82, 0.7) !important;
+  }
+
+  .welcome-card {
+    padding: 2.2rem;
+    border-radius: 34px;
+    animation: appFadeLift 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .welcome-card::before {
+    top: -80px;
+    right: -70px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(62, 174, 150, 0.2) 0%, transparent 68%);
+  }
+
+  .welcome-card::after {
+    content: '';
+    position: absolute;
+    inset: auto 1.25rem 1.25rem auto;
+    width: 9rem;
+    height: 9rem;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(197, 237, 229, 0.55), transparent 70%);
+    pointer-events: none;
+  }
+
+  .welcome-greeting,
+  .welcome-date {
+    position: relative;
+    z-index: 1;
+  }
+
+  .welcome-name {
+    position: relative;
+    z-index: 1;
+    font-size: clamp(1.75rem, 4vw, 2.35rem);
+  }
+
+  .stat-pill {
+    background: linear-gradient(135deg, rgba(240, 250, 247, 0.94), rgba(255, 255, 255, 0.76));
+    border-color: rgba(62, 174, 150, 0.16);
+    box-shadow: 0 8px 20px rgba(11, 57, 52, 0.04);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .stat-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(11, 57, 52, 0.08);
+  }
+
+  .tab-nav {
+    position: sticky;
+    top: calc(58px + env(safe-area-inset-top));
+    z-index: 50;
+    border-radius: 24px;
+    padding: 0.42rem;
+  }
+
+  .tab-btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tab-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.28), transparent 55%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .tab-btn:hover::before,
+  .tab-btn.active::before {
+    opacity: 1;
+  }
+
+  .tab-btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .tab-btn.active {
+    background: linear-gradient(135deg, #34B69D 0%, #227D70 58%, #0B3934 100%);
+    box-shadow: 0 12px 26px rgba(62, 174, 150, 0.26);
+  }
+
+  .tab-panel.active {
+    animation: appFadeLift 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .sec-title {
+    letter-spacing: -0.03em;
+  }
+
+  .video-grid {
+    gap: 1rem;
+  }
+
+  .video-card,
+  .diet-card,
+  .med-form,
+  .settings-section {
+    border-radius: 28px;
+  }
+
+  .video-card::before,
+  .diet-card::before,
+  .med-form::before,
+  .settings-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255,255,255,0.62), transparent 42%);
+    pointer-events: none;
+  }
+
+  .video-card:hover,
+  .diet-card:hover,
+  .med-item:hover,
+  .settings-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 22px 56px rgba(11, 57, 52, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
+  }
+
+  .video-play-btn,
+  .med-add-btn,
+  .btn-send,
+  .chat-send-btn,
+  #diet-print-btn {
+    transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+  }
+
+  .video-player,
+  .notif-banner {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 22px 60px rgba(5, 34, 31, 0.18);
+  }
+
+  .diet-ai-meals-box {
+    background: linear-gradient(135deg, rgba(240, 250, 247, 0.92), rgba(255, 255, 255, 0.76)) !important;
+    border-color: rgba(62, 174, 150, 0.22) !important;
+  }
+
+  .diet-ai-meal-row {
+    border-bottom-color: rgba(11, 57, 52, 0.07);
+  }
+
+  .diet-ai-shopping-tag,
+  .diet-pref-chip,
+  .fs-btn,
+  .sub-tab-btn {
+    transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+  }
+
+  .diet-ai-shopping-tag:hover,
+  .diet-pref-chip:hover,
+  .fs-btn:hover,
+  .sub-tab-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .med-item {
+    border-left-color: #34B69D !important;
+  }
+
+  .med-input,
+  .form-input,
+  .settings-notif-time {
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  .chat-fab {
+    background: conic-gradient(from 160deg, #0B3934, #34B69D, #68CEB9, #0B3934);
+    box-shadow: 0 18px 44px rgba(62, 174, 150, 0.36);
+  }
+
+  .chat-window {
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 26px 75px rgba(5, 34, 31, 0.18);
+  }
+
+  .chat-header {
+    background: linear-gradient(135deg, #0B3934 0%, #176C60 100%);
+  }
+
+  .chat-msg {
+    animation: appFadeLift 0.25s ease both;
+  }
+
+  @keyframes appFadeLift {
+    from { opacity: 0; transform: translateY(14px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @media(max-width: 768px) {
+    .app-main {
+      padding: 1rem;
+    }
+
+    .app-header-inner {
+      padding: 0.82rem 1rem;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .welcome-card {
+      padding: 1.45rem;
+      border-radius: 28px;
+    }
+
+    .stat-row {
+      flex-direction: row;
+      gap: 0.65rem;
+    }
+
+    .stat-pill {
+      min-width: 0;
+      padding: 0.62rem 0.75rem;
+      font-size: 0.82rem;
+    }
+
+    .tab-nav {
+      top: calc(54px + env(safe-area-inset-top));
+      border-radius: 22px;
+      gap: 0.25rem;
+    }
+
+    .tab-btn {
+      font-size: 0.72rem;
+      letter-spacing: 0.01em;
+    }
+
+    .video-card,
+    .diet-card,
+    .med-form,
+    .settings-section {
+      border-radius: 24px;
+      padding: 1.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .welcome-card,
+    .tab-panel.active,
+    .chat-msg,
+    .chat-fab {
+      animation: none !important;
+    }
+
+    * {
+      scroll-behavior: auto !important;
+    }
+  }
+
+  body.theme-dark #appShell {
+    background:
+      radial-gradient(circle at 10% 0%, rgba(62, 174, 150, 0.16), transparent 32rem),
+      linear-gradient(180deg, #090E14 0%, #101925 48%, #0B1119 100%);
+  }
+
+  body.theme-dark #appShell::before {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  }
+
+  body.theme-dark .welcome-card,
+  body.theme-dark .tab-nav,
+  body.theme-dark .video-card,
+  body.theme-dark .diet-card,
+  body.theme-dark .med-form,
+  body.theme-dark .med-item,
+  body.theme-dark .settings-section,
+  body.theme-dark #dogtag-view,
+  body.theme-dark .diet-ai-meals-box {
+    background: rgba(17, 24, 35, 0.82) !important;
+    border-color: rgba(255, 255, 255, 0.07) !important;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  }
+
+  body.theme-dark .stat-pill,
+  body.theme-dark .diet-ai-shopping-tag {
+    background: rgba(26, 36, 51, 0.86);
+  }
+
+  body.theme-dark .form-input,
+  body.theme-dark .med-input,
+  body.theme-dark .settings-notif-time,
+  body.theme-dark .chat-input {
+    background: rgba(9, 14, 20, 0.72);
+  }
+
+
+  /* ══════ VITALFLY BEAUTY V2 - panel aplikacji, tylko wygląd ══════ */
+  #appShell {
+    background:
+      radial-gradient(circle at 0% 0%, rgba(62, 174, 150, 0.26), transparent 28rem),
+      radial-gradient(circle at 100% 8%, rgba(242, 184, 75, 0.16), transparent 24rem),
+      linear-gradient(180deg, #F6F3EC 0%, #EEF8F5 48%, #F9F7F2 100%) !important;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  #appShell::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.45;
+    background-image:
+      linear-gradient(rgba(11,57,52,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(11,57,52,0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: linear-gradient(180deg, black, transparent 76%);
+  }
+
+  #appShell .app-header {
+    background: rgba(5, 34, 31, 0.78) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.12) !important;
+    box-shadow: 0 16px 46px rgba(5, 34, 31, 0.22) !important;
+  }
+
+  #appShell .app-header-inner {
+    max-width: 1180px !important;
+  }
+
+  #appShell .app-logo img {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.16);
+  }
+
+  #appShell .app-main {
+    max-width: 1180px !important;
+    position: relative;
+    z-index: 1;
+  }
+
+  #appShell .welcome-card {
+    background:
+      radial-gradient(circle at 92% 8%, rgba(104,206,185,0.36), transparent 13rem),
+      linear-gradient(145deg, rgba(255,255,255,0.96), rgba(255,255,255,0.68)) !important;
+    border: 1px solid rgba(255,255,255,0.74) !important;
+    box-shadow: 0 22px 60px rgba(11,57,52,0.12), inset 0 1px 0 rgba(255,255,255,0.96) !important;
+  }
+
+  #appShell .welcome-card::after {
+    content: '✦';
+    right: 1.4rem;
+    bottom: 1.1rem;
+    width: auto;
+    height: auto;
+    background: transparent;
+    color: rgba(62,174,150,0.32);
+    font-size: 5rem;
+    line-height: 1;
+    animation: appSpark 4.8s ease-in-out infinite;
+  }
+
+  #appShell .stat-row {
+    position: relative;
+    z-index: 2;
+  }
+
+  #appShell .stat-pill {
+    background: rgba(255,255,255,0.76) !important;
+    border: 1px solid rgba(62,174,150,0.18) !important;
+    box-shadow: 0 12px 25px rgba(11,57,52,0.07) !important;
+  }
+
+  #appShell .welcome-card a[href*="facebook"] {
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(135deg, #1877F2 0%, #1458C8 100%) !important;
+    border: 1px solid rgba(255,255,255,0.26) !important;
+    box-shadow: 0 16px 32px rgba(24,119,242,0.24) !important;
+  }
+
+  #appShell .quick-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin: -0.55rem 0 1.25rem;
+  }
+
+  #appShell .quick-actions button {
+    border: 1px solid rgba(255,255,255,0.72);
+    background: linear-gradient(145deg, rgba(255,255,255,0.94), rgba(255,255,255,0.68));
+    border-radius: 24px;
+    padding: 1rem 0.8rem;
+    cursor: pointer;
+    text-align: left;
+    box-shadow: 0 14px 36px rgba(11,57,52,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+    transition: transform 0.26s ease, box-shadow 0.26s ease, border-color 0.26s ease;
+    display: grid;
+    gap: 0.18rem;
+  }
+
+  #appShell .quick-actions button:hover {
+    transform: translateY(-5px);
+    border-color: rgba(62,174,150,0.36);
+    box-shadow: 0 22px 48px rgba(11,57,52,0.13), inset 0 1px 0 rgba(255,255,255,0.96);
+  }
+
+  #appShell .quick-actions span {
+    font-size: 1.65rem;
+    line-height: 1;
+  }
+
+  #appShell .quick-actions strong {
+    font-family: 'Lora', serif;
+    color: var(--navy);
+    font-size: 1rem;
+    line-height: 1.15;
+  }
+
+  #appShell .quick-actions small {
+    color: var(--warm-gray);
+    font-weight: 700;
+    font-size: 0.76rem;
+  }
+
+  #appShell .tab-nav {
+    background: rgba(255,255,255,0.74) !important;
+    border: 1px solid rgba(255,255,255,0.8) !important;
+    box-shadow: 0 18px 46px rgba(11,57,52,0.1), inset 0 1px 0 rgba(255,255,255,0.9) !important;
+  }
+
+  #appShell .tab-btn {
+    min-height: 72px;
+    isolation: isolate;
+  }
+
+  #appShell .tab-btn span:first-child {
+    filter: drop-shadow(0 4px 8px rgba(11,57,52,0.12));
+    transition: transform 0.24s ease;
+  }
+
+  #appShell .tab-btn:hover span:first-child,
+  #appShell .tab-btn.active span:first-child {
+    transform: scale(1.12) rotate(-4deg);
+  }
+
+  #appShell .tab-panel.active {
+    animation: appFadeLift 0.46s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+  }
+
+  #appShell .sec-title {
+    margin-bottom: 1.35rem;
+    padding: 0.9rem 1rem;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.56);
+    border: 1px solid rgba(255,255,255,0.72);
+    box-shadow: 0 12px 30px rgba(11,57,52,0.06);
+  }
+
+  #appShell .video-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+
+  #appShell .video-card,
+  #appShell .diet-card,
+  #appShell .med-form,
+  #appShell .settings-section,
+  #appShell .med-item,
+  #appShell #dogtag-view,
+  #appShell .diet-ai-shell,
+  #appShell .diet-ai-meals-box {
+    background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(255,255,255,0.68)) !important;
+    border: 1px solid rgba(255,255,255,0.76) !important;
+    box-shadow: 0 18px 50px rgba(11,57,52,0.09), inset 0 1px 0 rgba(255,255,255,0.92) !important;
+  }
+
+  #appShell .diet-ai-shell {
+    border-radius: 32px;
+    padding: 1.65rem;
+    margin: 1rem 0 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #appShell .diet-ai-shell::before {
+    content: '';
+    position: absolute;
+    width: 17rem;
+    height: 17rem;
+    right: -8rem;
+    top: -8rem;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(62,174,150,0.22), transparent 68%);
+    pointer-events: none;
+  }
+
+  #appShell .diet-ai-shell > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  #appShell .video-card:hover,
+  #appShell .diet-card:hover,
+  #appShell .med-item:hover,
+  #appShell .settings-section:hover {
+    transform: translateY(-7px) !important;
+  }
+
+  #appShell .form-input,
+  #appShell .med-input,
+  #appShell .chat-input,
+  #appShell .settings-notif-time {
+    border: 1px solid rgba(11,57,52,0.12) !important;
+    background: rgba(255,255,255,0.82) !important;
+  }
+
+  #appShell .form-input:focus,
+  #appShell .med-input:focus,
+  #appShell .chat-input:focus {
+    border-color: var(--mint) !important;
+    box-shadow: 0 0 0 5px rgba(62,174,150,0.14) !important;
+  }
+
+  #appShell .settings-row {
+    gap: 1rem;
+  }
+
+  #appShell .settings-row > div:first-child {
+    min-width: 0;
+  }
+
+  #appShell .plan-current-badge,
+  #appShell .diet-pref-chip,
+  #appShell .sub-tab-btn,
+  #appShell .fs-btn {
+    border-radius: 999px !important;
+  }
+
+  #appShell .chat-fab {
+    animation: chatBreath 2.8s ease-in-out infinite;
+  }
+
+  @keyframes appSpark {
+    0%, 100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 0.23; }
+    50% { transform: translateY(-10px) rotate(8deg) scale(1.06); opacity: 0.42; }
+  }
+
+  @keyframes chatBreath {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-4px) scale(1.04); }
+  }
+
+  @media (min-width: 980px) {
+    #appShell .app-main {
+      display: grid;
+      grid-template-columns: 330px minmax(0, 1fr);
+      gap: 1.35rem;
+      align-items: start;
+      padding-top: 1.6rem;
+    }
+
+    #appShell .welcome-card {
+      grid-column: 1;
+      margin-bottom: 0;
+      position: sticky;
+      top: 92px;
+    }
+
+    #appShell .quick-actions {
+      grid-column: 1;
+      grid-template-columns: 1fr 1fr;
+      margin: 0;
+    }
+
+    #appShell .tab-nav {
+      grid-column: 1;
+      flex-direction: column;
+      position: sticky;
+      top: 430px;
+      align-self: start;
+      margin-bottom: 0;
+    }
+
+    #appShell .tab-btn {
+      flex-direction: row;
+      justify-content: flex-start;
+      text-align: left;
+      padding: 0.9rem 1rem;
+    }
+
+    #appShell .tab-panel {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+      min-width: 0;
+    }
+  }
+
+  @media (max-width: 760px) {
+    #appShell .app-main {
+      padding: 1rem 0.85rem 2rem !important;
+    }
+
+    #appShell .quick-actions {
+      grid-template-columns: 1fr 1fr;
+      gap: 0.7rem;
+      margin-top: -0.4rem;
+    }
+
+    #appShell .quick-actions button {
+      border-radius: 20px;
+      padding: 0.9rem;
+    }
+
+    #appShell .quick-actions strong {
+      font-size: 0.92rem;
+    }
+
+    #appShell .tab-nav {
+      overflow-x: auto;
+      padding: 0.35rem;
+      gap: 0.32rem;
+      scrollbar-width: none;
+    }
+
+    #appShell .tab-nav::-webkit-scrollbar { display: none; }
+
+    #appShell .tab-btn {
+      flex: 0 0 5.8rem;
+      min-height: 68px;
+    }
+
+    #appShell .settings-row {
+      align-items: stretch !important;
+      flex-direction: column;
+    }
+
+    #appShell .settings-row input,
+    #appShell .settings-row button,
+    #appShell .settings-row a,
+    #appShell .settings-row .plan-current-badge,
+    #appShell .settings-row .plan-upgrade-btn {
+      max-width: none !important;
+      width: 100% !important;
+      text-align: center;
+      justify-content: center;
+    }
+
+    #appShell .diet-ai-shell {
+      padding: 1.15rem;
+      border-radius: 26px;
+    }
+
+    #appShell .sec-title {
+      font-size: 1.22rem;
+      padding: 0.75rem 0.85rem;
+    }
+
+    #appShell .chat-window {
+      left: 0.75rem;
+      right: 0.75rem;
+      width: auto;
+      bottom: 5.75rem;
+      max-height: 72vh;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #appShell .welcome-card::after,
+    #appShell .chat-fab {
+      animation: none !important;
+    }
+  }
+
+  /* ══════ VITALFLY BEAUTY V3 - popup, biblioteka, subtelne animacje ══════ */
+  #appShell .app-main::before,
+  #appShell .app-main::after {
+    content: '';
+    position: fixed;
+    pointer-events: none;
+    border-radius: 999px;
+    filter: blur(16px);
+    opacity: 0.5;
+    z-index: -1;
+  }
+
+  #appShell .app-main::before {
+    width: 18rem;
+    height: 18rem;
+    left: -8rem;
+    top: 14rem;
+    background: radial-gradient(circle, rgba(104,206,185,0.26), transparent 68%);
+    animation: vfFloatAura 9s ease-in-out infinite;
+  }
+
+  #appShell .app-main::after {
+    width: 14rem;
+    height: 14rem;
+    right: -6rem;
+    bottom: 9rem;
+    background: radial-gradient(circle, rgba(242,184,75,0.14), transparent 68%);
+    animation: vfFloatAura 11s ease-in-out infinite reverse;
+  }
+
+  #appShell .video-library-hero {
+    margin: -0.25rem 0 1rem;
+    padding: 1.25rem 1.35rem;
+    border-radius: 30px;
+    background: linear-gradient(135deg, rgba(11,57,52,0.96), rgba(26,119,104,0.9));
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+    box-shadow: 0 22px 54px rgba(11,57,52,0.18);
+    overflow: hidden;
+    position: relative;
+    isolation: isolate;
+  }
+
+  #appShell .video-library-hero::before {
+    content: '';
+    position: absolute;
+    inset: -45% auto auto 45%;
+    width: 18rem;
+    height: 18rem;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(104,206,185,0.42), transparent 66%);
+    animation: vfSlowDrift 10s ease-in-out infinite;
+    z-index: -1;
+  }
+
+  #appShell .video-library-kicker {
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #A8EDE0;
+    font-weight: 800;
+    margin-bottom: 0.35rem;
+  }
+
+  #appShell .video-library-hero h3 {
+    font-family: 'Lora', serif;
+    font-size: clamp(1.25rem, 3vw, 1.65rem);
+    line-height: 1.15;
+    margin: 0 0 0.4rem;
+  }
+
+  #appShell .video-library-hero p {
+    margin: 0;
+    color: rgba(255,255,255,0.78);
+    font-weight: 600;
+    line-height: 1.55;
+  }
+
+  #appShell .video-library-orb {
+    width: 4.2rem;
+    height: 4.2rem;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    background: rgba(255,255,255,0.13);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #D7FFF7;
+    font-size: 2rem;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+    animation: vfSoftSpin 12s linear infinite;
+  }
+
+  #appShell .video-library-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.55rem;
+    margin-bottom: 1.1rem;
+  }
+
+  #appShell .video-library-tab {
+    border: 1px solid rgba(255,255,255,0.78);
+    background: rgba(255,255,255,0.72);
+    color: var(--navy);
+    border-radius: 999px;
+    min-height: 46px;
+    padding: 0.65rem 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(11,57,52,0.06), inset 0 1px 0 rgba(255,255,255,0.88);
+    transition: transform 0.24s ease, box-shadow 0.24s ease, background 0.24s ease, color 0.24s ease;
+  }
+
+  #appShell .video-library-tab:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(11,57,52,0.1), inset 0 1px 0 rgba(255,255,255,0.92);
+  }
+
+  #appShell .video-library-tab.active {
+    background: linear-gradient(135deg, #34B69D, #0B3934);
+    color: #fff;
+    box-shadow: 0 16px 34px rgba(62,174,150,0.24);
+  }
+
+  #appShell .video-reason,
+  #appShell .shop-match {
+    margin-top: 0.8rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 14px;
+    background: rgba(240,250,247,0.88);
+    border: 1px solid rgba(62,174,150,0.14);
+    color: #2A6B5A;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+
+  #appShell .video-empty-state {
+    grid-column: 1 / -1;
+    padding: 2.2rem 1.5rem;
+    text-align: center;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.78);
+    border: 1px solid rgba(255,255,255,0.74);
+    box-shadow: 0 16px 42px rgba(11,57,52,0.08);
+    color: var(--warm-gray);
+    font-weight: 700;
+  }
+
+  #appShell .video-shop-card .video-play-btn {
+    width: auto;
+    min-width: 6.6rem;
+    padding: 0 0.85rem;
+    border-radius: 999px;
+    font-size: 0.86rem;
+    font-weight: 800;
+  }
+
+  #appShell .video-card {
+    animation: vfCardIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  #appShell .video-card:nth-child(2) { animation-delay: 0.04s; }
+  #appShell .video-card:nth-child(3) { animation-delay: 0.08s; }
+  #appShell .video-card:nth-child(4) { animation-delay: 0.12s; }
+  #appShell .video-card:nth-child(5) { animation-delay: 0.16s; }
+  #appShell .video-card:nth-child(6) { animation-delay: 0.2s; }
+
+  #appShell .chat-fab {
+    position: fixed !important;
+    right: max(1rem, env(safe-area-inset-right)) !important;
+    bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+    left: auto !important;
+    top: auto !important;
+    z-index: 1200 !important;
+    width: 4.15rem !important;
+    height: 4.15rem !important;
+    border: 1px solid rgba(255,255,255,0.3) !important;
+  }
+
+  #appShell .chat-fab::after {
+    content: '';
+    position: absolute;
+    inset: -0.45rem;
+    border-radius: inherit;
+    border: 1px solid rgba(62,174,150,0.32);
+    opacity: 0.65;
+    animation: vfChatRing 2.6s ease-out infinite;
+  }
+
+  #appShell .chat-window {
+    position: fixed !important;
+    right: max(1rem, env(safe-area-inset-right)) !important;
+    left: auto !important;
+    top: auto !important;
+    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 5.05rem) !important;
+    width: min(392px, calc(100vw - 2rem)) !important;
+    height: min(620px, calc(100dvh - 7rem)) !important;
+    max-height: calc(100dvh - 7rem) !important;
+    z-index: 1190 !important;
+    transform-origin: bottom right !important;
+    border-radius: 30px !important;
+    overflow: hidden !important;
+  }
+
+  #appShell .chat-window.open {
+    transform: translate3d(0, 0, 0) scale(1) !important;
+  }
+
+  #appShell .chat-header {
+    min-height: 82px;
+  }
+
+  #appShell .chat-messages {
+    background:
+      radial-gradient(circle at 0% 0%, rgba(62,174,150,0.08), transparent 15rem),
+      linear-gradient(180deg, rgba(255,255,255,0.95), rgba(247,251,248,0.96));
+  }
+
+  #appShell .chat-input-area {
+    background: rgba(255,255,255,0.96) !important;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom) * 0.35) !important;
+  }
+
+  #appShell .chat-msg.bot {
+    background: rgba(240,250,247,0.98) !important;
+  }
+
+  #appShell .chat-msg.user {
+    background: linear-gradient(135deg, #34B69D, #176C60) !important;
+  }
+
+  #appShell .live-help-popup {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 5.25rem);
+    width: min(360px, calc(100vw - 2rem));
+    border-radius: 26px;
+    padding: 1rem;
+    background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(240,250,247,0.88));
+    border: 1px solid rgba(255,255,255,0.82);
+    box-shadow: 0 22px 58px rgba(11,57,52,0.18), inset 0 1px 0 rgba(255,255,255,0.92);
+    z-index: 1140;
+    display: none;
+    overflow: hidden;
+    animation: vfLiveSlide 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  #appShell .live-help-popup::before {
+    content: '';
+    position: absolute;
+    width: 8rem;
+    height: 8rem;
+    right: -4rem;
+    top: -4rem;
+    background: radial-gradient(circle, rgba(224,82,82,0.16), transparent 70%);
+    border-radius: 999px;
+  }
+
+  #appShell .live-help-kicker {
+    color: #E05252;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    margin-bottom: 0.28rem;
+    position: relative;
+  }
+
+  #appShell .live-help-title {
+    font-family: 'Lora', serif;
+    color: var(--navy);
+    font-weight: 800;
+    font-size: 1.06rem;
+    margin-bottom: 0.38rem;
+    position: relative;
+  }
+
+  #appShell .live-help-body {
+    color: #4A5251;
+    font-size: 0.86rem;
+    font-weight: 650;
+    line-height: 1.5;
+    padding-right: 1.2rem;
+    position: relative;
+  }
+
+  #appShell .live-help-action {
+    margin-top: 0.75rem;
+    width: 100%;
+    border: none;
+    border-radius: 999px;
+    padding: 0.72rem 1rem;
+    background: linear-gradient(135deg, #E05252, #B73232);
+    color: #fff;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 12px 24px rgba(224,82,82,0.22);
+  }
+
+  #appShell .live-help-close {
+    position: absolute;
+    right: 0.65rem;
+    top: 0.52rem;
+    width: 1.9rem;
+    height: 1.9rem;
+    border: none;
+    border-radius: 999px;
+    background: rgba(11,57,52,0.07);
+    color: var(--navy);
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  body.chat-open #appShell .live-help-popup {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+    pointer-events: none;
+  }
+
+  @media (min-width: 761px) {
+    #appShell .live-help-popup {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 760px) {
+    #appShell .live-help-popup:not(.dismissed) {
+      display: block;
+    }
+
+    #appShell .video-library-hero {
+      border-radius: 24px;
+      padding: 1.05rem;
+    }
+
+    #appShell .video-library-orb {
+      display: none;
+    }
+
+    #appShell .video-library-tabs {
+      grid-template-columns: 1fr 1fr;
+      gap: 0.45rem;
+    }
+
+    #appShell .video-library-tab {
+      min-height: 44px;
+      font-size: 0.9rem;
+      padding: 0.62rem 0.5rem;
+    }
+
+    #appShell .chat-window {
+      right: 0.78rem !important;
+      left: 0.78rem !important;
+      width: auto !important;
+      height: min(560px, 72dvh) !important;
+      max-height: 72dvh !important;
+      bottom: calc(max(0.85rem, env(safe-area-inset-bottom)) + 5.05rem) !important;
+      border-radius: 28px !important;
+    }
+
+    #appShell .chat-fab {
+      right: max(0.9rem, env(safe-area-inset-right)) !important;
+      bottom: max(0.9rem, env(safe-area-inset-bottom)) !important;
+    }
+  }
+
+  @media (min-width: 980px) {
+    #appShell .welcome-card {
+      position: relative !important;
+      top: auto !important;
+    }
+
+    #appShell .tab-nav {
+      top: 92px !important;
+    }
+  }
+
+  @media (max-width: 460px) {
+    #appShell .chat-window {
+      height: min(540px, 68dvh) !important;
+      max-height: 68dvh !important;
+    }
+
+    #appShell .live-help-popup {
+      right: 0.75rem;
+      left: 0.75rem;
+      width: auto;
+      bottom: calc(max(0.9rem, env(safe-area-inset-bottom)) + 5rem);
+    }
+  }
+
+  @keyframes vfCardIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes vfFloatAura {
+    0%, 100% { transform: translate3d(0,0,0) scale(1); }
+    50% { transform: translate3d(18px,-12px,0) scale(1.05); }
+  }
+
+  @keyframes vfSlowDrift {
+    0%, 100% { transform: translate3d(0,0,0) scale(1); }
+    50% { transform: translate3d(-28px,18px,0) scale(1.08); }
+  }
+
+  @keyframes vfSoftSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes vfChatRing {
+    0% { transform: scale(0.78); opacity: 0.55; }
+    100% { transform: scale(1.28); opacity: 0; }
+  }
+
+  @keyframes vfLiveSlide {
+    from { opacity: 0; transform: translateY(18px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #appShell .app-main::before,
+    #appShell .app-main::after,
+    #appShell .video-library-hero::before,
+    #appShell .video-library-orb,
+    #appShell .chat-fab::after,
+    #appShell .live-help-popup,
+    #appShell .video-card {
+      animation: none !important;
+    }
+  }
+
 </style>
 
 <!-- ══════ APP HEADER ══════ -->
@@ -3683,17 +5369,38 @@
     </a>
   </div>
 
+  <div class="quick-actions" aria-label="Szybkie akcje">
+    <button type="button" onclick="switchTab('videos', document.querySelector('.tab-btn:nth-child(1)'))"><span>🎬</span><strong>Ćwicz teraz</strong><small>otwórz filmy</small></button>
+    <button type="button" onclick="switchTab('diets', document.querySelector('.tab-btn:nth-child(2)'))"><span>🥗</span><strong>Jadłospis</strong><small>plan na dziś</small></button>
+    <button type="button" onclick="switchTab('meds', document.querySelector('.tab-btn:nth-child(3)'))"><span>💊</span><strong>Leki</strong><small>przypomnienia</small></button>
+    <button type="button" onclick="toggleChat(event)"><span>💬</span><strong>Asystent</strong><small>zapytaj AI</small></button>
+  </div>
+
   <!-- Tab navigation -->
   <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('videos',this)"><span style="font-size:1.45rem; line-height:1;">🎬</span><span>Ćwiczenia</span></button>
-    <button class="tab-btn" onclick="switchTab('diets',this)"><span style="font-size:1.45rem; line-height:1;">🥗</span><span>Dieta</span></button>
-    <button class="tab-btn" onclick="switchTab('meds',this)"><span style="font-size:1.45rem; line-height:1;">💊</span><span>Leki</span></button>
-    <button class="tab-btn" onclick="switchTab('dogtag',this)"><span style="font-size:1.45rem; line-height:1;">🚑</span><span>Ratunek</span></button>
+    <button class="tab-btn active" data-tab="videos" onclick="switchTab('videos',this)"><span style="font-size:1.45rem; line-height:1;">🎬</span><span>Ćwiczenia</span></button>
+    <button class="tab-btn" data-tab="diets" onclick="switchTab('diets',this)"><span style="font-size:1.45rem; line-height:1;">🥗</span><span>Dieta</span></button>
+    <button class="tab-btn" data-tab="meds" onclick="switchTab('meds',this)"><span style="font-size:1.45rem; line-height:1;">💊</span><span>Leki</span></button>
+    <button class="tab-btn" data-tab="dogtag" onclick="switchTab('dogtag',this)"><span style="font-size:1.45rem; line-height:1;">🚑</span><span>Ratunek</span></button>
   </div>
 
   <!-- TAB: VIDEOS -->
   <div class="tab-panel active" id="tab-videos">
     <div class="sec-title">🎬 Dzisiejsze i archiwalne ćwiczenia</div>
+    <div class="video-library-hero">
+      <div>
+        <div class="video-library-kicker">Biblioteka dopasowana do Ciebie</div>
+        <h3>Filmy, które warto zrobić dzisiaj</h3>
+        <p id="videoLibraryNotice">Prosty algorytm bierze pod uwagę dzień tygodnia, polubione filmy i profil zdrowotny.</p>
+      </div>
+      <div class="video-library-orb" aria-hidden="true">✦</div>
+    </div>
+    <div class="video-library-tabs" role="tablist" aria-label="Biblioteka filmów">
+      <button class="video-library-tab active" type="button" onclick="setVideoLibraryView('recommended', this)">✨ Proponowane</button>
+      <button class="video-library-tab" type="button" onclick="setVideoLibraryView('liked', this)">❤️ Polubione</button>
+      <button class="video-library-tab" type="button" onclick="setVideoLibraryView('shop', this)">🛒 Do kupienia</button>
+      <button class="video-library-tab" type="button" onclick="setVideoLibraryView('all', this)">🎬 Wszystkie</button>
+    </div>
     <!-- Video player -->
     <div class="video-player" id="videoPlayer">
       <button class="vp-close" onclick="closePlayer()">✕</button>
@@ -3722,7 +5429,7 @@
       </span>
     </div>
     
-    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:24px; padding:1.75rem; backdrop-filter:blur(24px); box-shadow:var(--shadow-md); margin-top:1rem; margin-bottom:1.5rem;">
+    <div class="diet-ai-shell">
       <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem;">
         <span style="font-size:2.2rem; line-height:1;">🧠</span>
         <div>
@@ -3903,7 +5610,7 @@
       <div class="settings-title">🏦 Mój plan</div>
       <div class="settings-row">
         <div><div class="settings-label">Aktualny plan</div><div class="settings-desc" id="plan-renewal-info">Odnawia się automatycznie</div></div>
-        <span class="plan-current-badge" id="plan-current-label">📅 Miesięczny &bull; 39 zł/m-c</span>
+        <span class="plan-current-badge" id="plan-current-label">📅 Miesięczny &bull; 39 zł/miesiąc</span>
       </div>
       <div class="settings-row">
         <div><div class="settings-label">Upgrade do planu rocznego</div><div class="settings-desc">390 zł/rok zamiast 468 zł — 2 miesiące gratis!</div></div>
@@ -4033,9 +5740,18 @@
   <span id="medToastText">Powiadomienie</span>
 </div>
 
+<!-- Live Help Popup: karta pomocy na telefonie -->
+<div id="liveHelpPopup" class="live-help-popup" aria-live="polite">
+  <button type="button" class="live-help-close" onclick="dismissLiveHelpPopup(event)" aria-label="Zamknij komunikat">×</button>
+  <div class="live-help-kicker">Live pomoc</div>
+  <div class="live-help-title">Najnowsze informacje o użytkowniku</div>
+  <div class="live-help-body" id="liveHelpBody">Ładowanie danych...</div>
+  <button type="button" class="live-help-action" onclick="openDogTagFromLive(event)">Otwórz kartę ratunkową</button>
+</div>
+
 <!-- Floating Chatbot FAB -->
-<button id="chatFab" class="chat-fab" onclick="toggleChat(event)">
-  💬
+<button id="chatFab" class="chat-fab" onclick="toggleChat(event)" aria-label="Otwórz wirtualnego asystenta">
+  <span aria-hidden="true">💬</span>
 </button>
 
 <!-- Chat Window -->
@@ -4077,6 +5793,7 @@
     if(!win) return;
     chatIsOpen = !chatIsOpen;
     win.classList.toggle('open', chatIsOpen);
+    document.body.classList.toggle('chat-open', chatIsOpen);
     if(chatIsOpen) {
       const msgList = document.getElementById('chatMessages');
       if(msgList && msgList.children.length === 0) {
@@ -4093,9 +5810,12 @@
     const name = localStorage.getItem('kz_name') || 'Seniorze';
     const firstName = name.split(' ')[0];
     
+    const healthIssues = localStorage.getItem('kz_health_issues') || '';
     const botMsg = document.createElement('div');
     botMsg.className = 'chat-msg bot';
-    botMsg.textContent = `Witaj ${firstName}! Jestem Twoim wirtualnym asystentem VitalFly. Pomogę Ci w zdrowym stylu życia, ćwiczeniach fizycznych, diecie przeciwzapalnej lub w obsłudze aplikacji. O co chciałbyś mnie zapytać?`;
+    botMsg.textContent = healthIssues
+      ? `Witaj ${firstName}! Jestem Twoim asystentem VitalFly. Widzę zapisany profil zdrowotny, więc będę odpowiadać ostrożnie i dopasuję porady do Twoich ograniczeń. Mogę pomóc w ćwiczeniach, diecie, lekach przypominanych w aplikacji i obsłudze panelu. Przy objawach, chorobach lub lekach zawsze warto skonsultować się z lekarzem.`
+      : `Witaj ${firstName}! Jestem Twoim asystentem VitalFly. Mogę pomóc w ćwiczeniach, diecie, przypomnieniach o lekach i obsłudze aplikacji. Nie zastępuję lekarza, ale pomogę Ci przygotować bezpieczne pytania i kolejne kroki.`;
     msgList.appendChild(botMsg);
     
     chatHistory = [
@@ -4156,9 +5876,9 @@
     try {
       const patientName = localStorage.getItem('kz_name') || 'Senior';
       const healthIssues = localStorage.getItem('kz_health_issues') || '';
-      let systemInstructionText = `Jesteś przyjaznym, empatycznym i cierpliwym wirtualnym asystentem dla seniorów w aplikacji VitalFly. Twoim celem jest pomoc w zdrowym stylu życia, ćwiczeniach fizycznych, diecie przeciwzapalnej oraz obsłudze aplikacji. Odpowiadaj prostym, jasnym językiem. Pisz przejrzyście, w razie potrzeby stosuj wypunktowania. Unikaj skomplikowanego żargonu medycznego. Zawsze przypominaj dyskretnie w razie pytań o dawki leków lub poważne dolegliwości, że nie zastępujesz porady prawdziwego lekarza. Pacjent ma na imię: ${patientName}.`;
+      let systemInstructionText = `Jesteś przyjaznym, empatycznym i cierpliwym wirtualnym asystentem dla seniorów w aplikacji VitalFly. Pomagasz w zdrowym stylu życia, ćwiczeniach, diecie przeciwzapalnej, przypomnieniach o lekach i obsłudze aplikacji. Odpowiadaj po polsku, krótko, jasno i spokojnie. Najpierw podawaj praktyczną odpowiedź, potem 1-3 bezpieczne kroki. Nie diagnozuj, nie zmieniaj dawek leków, nie odstawiaj leków i nie zastępuj lekarza. Przy objawach alarmowych, chorobach, lekach, dawkowaniu, pogorszeniu samopoczucia albo diecie przy schorzeniach zalecaj kontakt z lekarzem, farmaceutą lub dietetykiem klinicznym. Pacjent ma na imię: ${patientName}.`;
       if (healthIssues) {
-        systemInstructionText += ` Pacjent zgłasza następujące dolegliwości i stan zdrowia: "${healthIssues}". Wykorzystaj tę wiedzę, aby dostosować swoje odpowiedzi dotyczące aktywności fizycznej, diety i samopoczucia do jego stanu zdrowia, dbając o jego bezpieczeństwo i oferując dopasowane wsparcie.`;
+        systemInstructionText += ` Pacjent zgłasza następujące dolegliwości i stan zdrowia: "${healthIssues}". Dostosuj język, poziom ostrożności, propozycje aktywności, diety i codziennego wsparcia do tych ograniczeń. Przy ruchu proponuj łagodniejsze warianty i przerwanie ćwiczeń przy bólu, duszności, zawrotach głowy lub nietypowych objawach. Nie przedstawiaj zaleceń jako leczenia.`;
       }
       
       const payload = {
@@ -4235,11 +5955,13 @@
     document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
     document.getElementById('tab-'+name).classList.add('active');
+    if(!btn) btn = document.querySelector(`.tab-btn[data-tab="${name}"]`);
     if(btn) btn.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if(name === 'diets') {
       renderPersonalizedDiet();
     }
+    updateLiveHelpPopup();
   }
 
   /* ── Init App ── */
@@ -4251,13 +5973,17 @@
     startMedChecker();
     loadDogTag();
     loadModuleSettings();
+    initChatPopupGuards();
+    initLiveHelpPopup();
 
     // Reakcja na fizyczny przycisk "Wstecz" na Androidzie
     if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
       window.Capacitor.Plugins.App.addListener('backButton', ({canGoBack}) => {
         const vp = document.getElementById('videoPlayer');
         const medMod = document.getElementById('medModal');
-        if(vp && vp.style.display === 'flex') {
+        if(chatIsOpen) {
+          toggleChat();
+        } else if(vp && vp.style.display === 'flex') {
           closePlayer();
         } else if(medMod && medMod.classList.contains('open')) {
           closeMedModal();
@@ -4267,6 +5993,81 @@
         }
       });
     }
+  }
+
+  function initChatPopupGuards(){
+    if(window.vfChatGuardsInit) return;
+    window.vfChatGuardsInit = true;
+    document.addEventListener('click', (ev) => {
+      if(!chatIsOpen) return;
+      const win = document.getElementById('chatWindow');
+      const fab = document.getElementById('chatFab');
+      if(win && !win.contains(ev.target) && fab && !fab.contains(ev.target)) {
+        toggleChat();
+      }
+    });
+    document.addEventListener('keydown', (ev) => {
+      if(ev.key === 'Escape' && chatIsOpen) toggleChat();
+    });
+  }
+
+  function initLiveHelpPopup(){
+    updateLiveHelpPopup();
+    if(window.vfLiveHelpTimer) clearInterval(window.vfLiveHelpTimer);
+    window.vfLiveHelpTimer = setInterval(updateLiveHelpPopup, 30000);
+  }
+
+  function updateLiveHelpPopup(){
+    const box = document.getElementById('liveHelpPopup');
+    const body = document.getElementById('liveHelpBody');
+    if(!box || !body) return;
+    if(sessionStorage.getItem('kz_live_help_dismissed') === '1') {
+      box.classList.add('dismissed');
+      return;
+    }
+
+    let dog = {};
+    try { dog = JSON.parse(localStorage.getItem('vf_dogtag') || '{}'); } catch(e) { dog = {}; }
+    const name = dog.name || localStorage.getItem('kz_name') || 'Użytkownik VitalFly';
+    const health = localStorage.getItem('kz_health_issues') || dog.illness || 'brak wpisanych schorzeń';
+    const ice = dog.ice || 'brak kontaktu ICE';
+    const medsCount = APP_DATA.medications.length;
+    const nextMed = getNextMedicationLabel();
+
+    body.innerHTML = `
+      <strong>${name}</strong><br>
+      ICE: ${ice}<br>
+      Leki: ${medsCount} ${medsCount === 1 ? 'pozycja' : 'pozycji'}${nextMed ? ` • najbliżej: ${nextMed}` : ''}<br>
+      Zdrowie: ${String(health).slice(0, 72)}${String(health).length > 72 ? '…' : ''}
+    `;
+  }
+
+  function getNextMedicationLabel(){
+    if(!APP_DATA.medications.length) return '';
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    const sorted = APP_DATA.medications
+      .filter(m => m.time)
+      .map(m => {
+        const [h, min] = String(m.time).split(':').map(Number);
+        const total = (h || 0) * 60 + (min || 0);
+        return { ...m, sort: total >= nowMinutes ? total - nowMinutes : total + 1440 - nowMinutes };
+      })
+      .sort((a,b) => a.sort - b.sort);
+    if(!sorted.length) return '';
+    return `${sorted[0].time} ${sorted[0].name}`;
+  }
+
+  function dismissLiveHelpPopup(e){
+    if(e) e.stopPropagation();
+    sessionStorage.setItem('kz_live_help_dismissed', '1');
+    const box = document.getElementById('liveHelpPopup');
+    if(box) box.classList.add('dismissed');
+  }
+
+  function openDogTagFromLive(e){
+    if(e) e.stopPropagation();
+    switchTab('dogtag', null);
   }
 
   /* ── DOG TAG ── */
@@ -4287,6 +6088,7 @@
     syncToCloud();
     toggleDogTagEdit(false);
     loadDogTag();
+    updateLiveHelpPopup();
     showToast('🚑 Nieśmiertelnik został pomyślnie zapisany!');
   }
 
@@ -4318,11 +6120,14 @@
       // Brak danych, wymuszamy tryb edycji
       toggleDogTagEdit(true);
     }
+    updateLiveHelpPopup();
   }
 
   /* ── VIDEOS ── */
   let playerState = { playing:false, current:null, elapsed:0, interval:null };
   let likedVideos = JSON.parse(localStorage.getItem('kz_liked_videos') || '[]');
+  let videoLibraryView = localStorage.getItem('kz_video_library_view') || 'recommended';
+  let videoCart = JSON.parse(localStorage.getItem('kz_video_cart') || '[]');
 
   function isLiked(id){
     return likedVideos.includes(id);
@@ -4340,29 +6145,157 @@
     syncToCloud();
   }
 
-  function renderVideos(){
-    const grid = document.getElementById('videoGrid');
-    if(!grid) return;
-    grid.innerHTML = APP_DATA.videos.map(v=>`
+  function setVideoLibraryView(view, btn){
+    videoLibraryView = view;
+    localStorage.setItem('kz_video_library_view', view);
+    document.querySelectorAll('.video-library-tab').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    renderVideos();
+  }
+
+  function getVideoRecommendationData(){
+    const health = (localStorage.getItem('kz_health_issues') || '').toLowerCase();
+    const likedTags = APP_DATA.videos
+      .filter(v => isLiked(v.id))
+      .map(v => (v.tag || '').toLowerCase());
+    const day = new Date().getDay();
+    const dayMap = ['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'];
+    const todayName = dayMap[day];
+
+    return APP_DATA.videos.map(v => {
+      const tag = (v.tag || '').toLowerCase();
+      const title = (v.title || '').toLowerCase();
+      let score = 0;
+      const reasons = [];
+
+      if(v.day === 'Dzisiaj' || v.day === todayName) {
+        score += 4;
+        reasons.push('pasuje na dziś');
+      }
+      if(likedTags.includes(tag)) {
+        score += 3;
+        reasons.push('podobne do polubionych');
+      }
+      if(/kolan|biodr|staw|bark|łok|lok/.test(health) && /staw|równowaga|rownowaga|górna|gorna/.test(tag + ' ' + title)) {
+        score += 3;
+        reasons.push('uwzględnia stawy');
+      }
+      if(/kręgos|kregos|plec|lędź|ledz|szyj/.test(health) && /kręgos|kregos|relaks|oddech/.test(tag + ' ' + title)) {
+        score += 3;
+        reasons.push('łagodniejsze dla pleców');
+      }
+      if(/nadciś|nadcis|serc|cukrzyc|krąż|kraz/.test(health) && /oddech|relaks|cardio|spacer/.test(tag + ' ' + title)) {
+        score += 2;
+        reasons.push('spokojne tempo');
+      }
+      if(score === 0) {
+        score = 1;
+        reasons.push('dobry wybór ogólny');
+      }
+      return { video: v, score, reason: reasons.slice(0, 2).join(' • ') };
+    }).sort((a,b) => b.score - a.score || a.video.id - b.video.id);
+  }
+
+  function renderVideoCard(v, reason=''){
+    return `
       <div class="video-card" id="vcard-${v.id}" onclick="playVideo(${v.id})">
         <span class="video-emoji">${v.emoji}</span>
         <div class="video-tag">${v.tag}</div>
         <div class="video-title">${v.title}</div>
         <div class="video-desc">${v.desc}</div>
+        ${reason ? `<div class="video-reason">✨ ${reason}</div>` : ''}
         <div class="video-meta">
           <div>
             <div class="video-dur">⏱ ${v.duration}</div>
             <div class="video-day">${v.day}</div>
           </div>
           <div style="display:flex; gap:0.5rem; align-items:center;">
-            <button onclick="event.stopPropagation(); toggleLikeVideo(${v.id})" class="video-like-btn">
+            <button onclick="event.stopPropagation(); toggleLikeVideo(${v.id})" class="video-like-btn" aria-label="Polub film">
               ${isLiked(v.id) ? '❤️' : '🤍'}
             </button>
             <div class="video-play-btn">▶</div>
           </div>
         </div>
       </div>
-    `).join('');
+    `;
+  }
+
+  function getShopVideoMatch(item){
+    const health = (localStorage.getItem('kz_health_issues') || '').toLowerCase();
+    const tag = (item.tag || '').toLowerCase();
+    const likedTags = APP_DATA.videos.filter(v=>isLiked(v.id)).map(v=>(v.tag || '').toLowerCase());
+    if(likedTags.includes(tag)) return 'Dopasowane do polubionych filmów';
+    if(/kolan|biodr|staw|bark|łok|lok/.test(health) && /staw|równowaga|rownowaga/.test(tag)) return 'Polecane przy dolegliwościach stawów';
+    if(/kręgos|kregos|plec|lędź|ledz|szyj/.test(health) && /kręgos|kregos/.test(tag)) return 'Polecane przy napięciach pleców';
+    if(/sen|stres|nadciś|nadcis/.test(health) && /relaks/.test(tag)) return 'Spokojny pakiet regeneracyjny';
+    return 'Popularny dodatek do biblioteki';
+  }
+
+  function toggleVideoCart(id){
+    const idx = videoCart.indexOf(id);
+    if(idx > -1){
+      videoCart.splice(idx, 1);
+      showToast('🛒 Usunięto pakiet z listy zakupów');
+    } else {
+      videoCart.push(id);
+      showToast('🛒 Dodano pakiet do listy zakupów');
+    }
+    localStorage.setItem('kz_video_cart', JSON.stringify(videoCart));
+    renderVideos();
+  }
+
+  function renderShopVideoCard(item){
+    const inCart = videoCart.includes(item.id);
+    return `
+      <div class="video-card video-shop-card">
+        <span class="video-emoji">${item.emoji}</span>
+        <div class="video-tag">${item.tag}</div>
+        <div class="video-title">${item.title}</div>
+        <div class="video-desc">${item.desc}</div>
+        <div class="shop-match">${getShopVideoMatch(item)}</div>
+        <div class="video-meta">
+          <div>
+            <div class="video-dur">${item.duration}</div>
+            <div class="video-day">${item.price}</div>
+          </div>
+          <button type="button" onclick="toggleVideoCart('${item.id}')" class="video-play-btn">${inCart ? '✓ Na liście' : 'Dodaj'}</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderVideos(){
+    const grid = document.getElementById('videoGrid');
+    if(!grid) return;
+    document.querySelectorAll('.video-library-tab').forEach(b=>b.classList.remove('active'));
+    const activeBtn = document.querySelector(`.video-library-tab[onclick*="${videoLibraryView}"]`);
+    if(activeBtn) activeBtn.classList.add('active');
+
+    const notice = document.getElementById('videoLibraryNotice');
+    if(videoLibraryView === 'recommended') {
+      const recs = getVideoRecommendationData().slice(0, 4);
+      if(notice) notice.textContent = 'Propozycje powstają z dnia tygodnia, profilu zdrowotnego i polubionych filmów.';
+      grid.innerHTML = recs.map(x => renderVideoCard(x.video, x.reason)).join('');
+      return;
+    }
+
+    if(videoLibraryView === 'liked') {
+      const liked = APP_DATA.videos.filter(v=>isLiked(v.id));
+      if(notice) notice.textContent = liked.length ? 'Twoje polubione filmy są zawsze pod ręką.' : 'Polub film serduszkiem, a pojawi się tutaj.';
+      grid.innerHTML = liked.length
+        ? liked.map(v=>renderVideoCard(v, 'zapisane w ulubionych')).join('')
+        : `<div class="video-empty-state">❤️ Nie masz jeszcze polubionych filmów.<br><span style="font-weight:600; color:#8A9BB0;">Kliknij serduszko na dowolnym ćwiczeniu.</span></div>`;
+      return;
+    }
+
+    if(videoLibraryView === 'shop') {
+      if(notice) notice.textContent = `Pakiety do kupienia są dopasowane prostym algorytmem do profilu i polubionych tematów. Na liście zakupów: ${videoCart.length}.`;
+      grid.innerHTML = (APP_DATA.shopVideos || []).map(renderShopVideoCard).join('');
+      return;
+    }
+
+    if(notice) notice.textContent = 'Pełna biblioteka ćwiczeń dostępnych w Twojej subskrypcji.';
+    grid.innerHTML = APP_DATA.videos.map(v=>renderVideoCard(v)).join('');
   }
 
   function playVideo(id){
@@ -4453,6 +6386,17 @@
        AUTONOMICZNY MODUŁ DIETETYCZNY AI (LLM GEMINI OS)
     ══════════════════════════════════════════════════════════════════ */
 
+  function getDietProfileCacheKey(activePrefs, healthIssues) {
+    const prefs = Array.isArray(activePrefs) ? [...activePrefs].sort() : [];
+    return JSON.stringify({ prefs, health: (healthIssues || '').trim().toLowerCase() });
+  }
+
+  function clearDietCache() {
+    localStorage.removeItem('kz_cached_diet');
+    localStorage.removeItem('kz_cached_diet_day');
+    localStorage.removeItem('kz_cached_diet_profile_key');
+  }
+
   // Główna funkcja generująca dietę za pomocą LLM
   // Funkcja pomocnicza renderująca widok jadłospisu z obiektu JSON
   function displayDietPlan(dietPlan) {
@@ -4499,6 +6443,7 @@
     const activePrefs = JSON.parse(localStorage.getItem('kz_diet_prefs') || '[]');
     const patientName = localStorage.getItem('kz_name') || 'Pacjent VitalFly';
     const healthIssues = localStorage.getItem('kz_health_issues') || '';
+    const dietProfileCacheKey = getDietProfileCacheKey(activePrefs, healthIssues);
     
     // Pobranie aktualnego dnia, aby LLM wiedział, na jaki dzień generuje dietę
     const daysOfWeek = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'];
@@ -4507,8 +6452,9 @@
     // Sprawdzenie czy mamy już zapisaną dietę na dziś w pamięci lokalnej
     const cached = localStorage.getItem('kz_cached_diet');
     const cachedDay = localStorage.getItem('kz_cached_diet_day');
+    const cachedProfileKey = localStorage.getItem('kz_cached_diet_profile_key');
     
-    if(!forceRefresh && cached && cachedDay === currentDay) {
+    if(!forceRefresh && cached && cachedDay === currentDay && cachedProfileKey === dietProfileCacheKey) {
       try {
         const dietPlan = JSON.parse(cached);
         displayDietPlan(dietPlan);
@@ -4596,6 +6542,7 @@
       // Zapisujemy wygenerowaną dietę w localStorage
       localStorage.setItem('kz_cached_diet', JSON.stringify(dietPlan));
       localStorage.setItem('kz_cached_diet_day', currentDay);
+      localStorage.setItem('kz_cached_diet_profile_key', dietProfileCacheKey);
 
       displayDietPlan(dietPlan);
 
@@ -4813,6 +6760,7 @@
   function updateMedStatPill(){
     const el = document.getElementById('med-count-stat');
     if(el) el.textContent = APP_DATA.medications.length;
+    updateLiveHelpPopup();
   }
 
 
@@ -5024,7 +6972,7 @@
     if(pSub) pSub.textContent = isYearly ? `2 miesiące gratis! Oszczędzasz ${pM*12 - pY} zł 🎉` : 'To mniej niż dwie kawy tygodniowo ☕';
     
     const mBtn = document.getElementById('main-join-btn');
-    if(mBtn) mBtn.textContent = isYearly ? `Dołączam na rok za ${pY} zł →` : `Dołączam do VitalFly za ${pM} zł/m-c →`;
+    if(mBtn) mBtn.textContent = isYearly ? `Dołączam na rok za ${pY} zł →` : `Dołączam do VitalFly za ${pM} zł/miesiąc →`;
     
     localStorage.setItem('kz_plan', plan);
   }
@@ -5129,6 +7077,7 @@
   }
   function saveDietPrefs(){
     localStorage.setItem('kz_diet_prefs', JSON.stringify(dietPrefs));
+    clearDietCache();
     syncToCloud();
     showToast('✅ Preferencje diety zapisane!');
   }
@@ -5182,14 +7131,22 @@
   function saveHealthProfile() {
     const text = document.getElementById('health-issues-input')?.value.trim() || '';
     localStorage.setItem('kz_health_issues', text);
+    clearDietCache();
     if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
       window.Capacitor.Plugins.Preferences.set({key:'kz_health_issues', value: text});
     }
     syncToCloud();
     showToast('🩺 Profil zdrowotny został zaktualizowany w pamięci AI!');
   }
-  function loadHealthProfile() {
-    const text = localStorage.getItem('kz_health_issues') || '';
+  async function loadHealthProfile() {
+    let text = localStorage.getItem('kz_health_issues') || '';
+    if(!text && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+      const stored = await window.Capacitor.Plugins.Preferences.get({key:'kz_health_issues'});
+      if(stored.value) {
+        text = stored.value;
+        localStorage.setItem('kz_health_issues', text);
+      }
+    }
     const input = document.getElementById('health-issues-input');
     if (input) input.value = text;
   }
