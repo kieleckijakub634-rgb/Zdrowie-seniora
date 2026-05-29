@@ -2,6 +2,9 @@
   "appId": "com.zdrowieseniora.app",
   "appName": "Zdrowie Seniora",
   "webDir": "www",
+  "ios": {
+    "allowsInlineMediaPlayback": true
+  },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 3000,
