@@ -1880,6 +1880,10 @@
 
     body.logged-in {
       padding-bottom: 0 !important;
+      overflow-y: auto !important;
+      height: auto !important;
+      min-height: 100% !important;
+      -webkit-overflow-scrolling: touch;
     }
 
     .btn-login-header {
@@ -1915,8 +1919,11 @@
     html,
     body {
       overflow-x: hidden !important;
+      overflow-y: auto !important;
       -webkit-overflow-scrolling: touch;
       max-width: 100vw;
+      height: auto !important;
+      min-height: 100% !important;
     }
 
     body {
@@ -5525,7 +5532,10 @@
       linear-gradient(180deg, #F6F3EC 0%, #EEF8F5 48%, #F9F7F2 100%) !important;
     position: relative;
     overflow-x: hidden !important;
+    overflow-y: visible !important;
     max-width: 100vw;
+    height: auto !important;
+    min-height: 100% !important;
   }
 
   #appShell::before {
@@ -5895,6 +5905,25 @@
 
     #appShell .sub-tab-btn.active::after {
       display: none !important;
+    }
+
+    #appShell .tab-panel.active {
+      animation: none !important;
+      transform: none !important;
+    }
+
+    #appShell .welcome-card,
+    #appShell .tab-nav,
+    #appShell .video-card,
+    #appShell .diet-card,
+    #appShell .med-form,
+    #appShell .settings-section,
+    #appShell .med-item,
+    #appShell #dogtag-view,
+    #appShell .diet-ai-shell,
+    #appShell .diet-ai-meals-box {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
     }
 
     #appShell .diet-ai-shell {
