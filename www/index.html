@@ -3441,6 +3441,9 @@
       if (!confirm('Na pewno chcesz się wylogować?')) return;
       if (window.supabaseClient) await window.supabaseClient.auth.signOut();
       localStorage.removeItem('kz_session');
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+        await window.Capacitor.Plugins.Preferences.remove({ key: 'kz_session' });
+      }
       window.location.reload();
     }
 
@@ -9088,13 +9091,37 @@
     /* Patch showApp — zapisz sesję i init ustawień */
     const _origShowApp = showApp;
     window.showApp = function (userName) {
-      localStorage.setItem('kz_session', JSON.stringify({ name: userName, plan: localStorage.getItem('kz_plan') || 'monthly', ts: Date.now() }));
+      asyncSetItem('kz_session', JSON.stringify({ name: userName, plan: localStorage.getItem('kz_plan') || 'monthly', ts: Date.now() }));
       _origShowApp(userName);
       setTimeout(() => { initSettings(); showAnnounceIfExists(); }, 100);
     };
 
     /* Przy starcie sprawdź czy jest aktywna sesja */
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', async () => {
+      let sessionStr = localStorage.getItem('kz_session');
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+        try {
+          const capSession = await window.Capacitor.Plugins.Preferences.get({ key: 'kz_session' });
+          if (capSession && capSession.value) {
+            sessionStr = capSession.value;
+            localStorage.setItem('kz_session', sessionStr);
+          }
+        } catch (e) {
+          console.error("Błąd odczytu sesji z Preferences:", e);
+        }
+      }
+
+      if (sessionStr) {
+        try {
+          const session = JSON.parse(sessionStr);
+          if (session && session.name) {
+            showApp(session.name);
+          }
+        } catch (e) {
+          console.error("Błąd wczytywania sesji:", e);
+        }
+      }
+
       syncFromCloud(); // non-blocking fetch from Supabase
 
       /* Sprawdź hash #admin */
