@@ -1915,6 +1915,7 @@
     html,
     body {
       overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
     }
 
     body {
@@ -3712,6 +3713,17 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
       let hasSession = false;
+      if (localStorage.getItem('kz_session')) {
+        hasSession = true;
+      } else if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+        try {
+          const capSession = await window.Capacitor.Plugins.Preferences.get({ key: 'kz_session' });
+          if (capSession && capSession.value) {
+            hasSession = true;
+            localStorage.setItem('kz_session', capSession.value);
+          }
+        } catch (e) {}
+      }
       // Check if user is logged in
       if (window.supabaseClient && new URLSearchParams(window.location.search).get('sukces') !== '1') {
         const { data: { session } } = await window.supabaseClient.auth.getSession();
@@ -3800,7 +3812,9 @@
       }
       hideLoadingScreen();
       const hash = window.location.hash.replace('#', '');
-      navigateTo(PAGES.includes(hash) ? hash : '');
+      if (!hasSession) {
+        navigateTo(PAGES.includes(hash) ? hash : '');
+      }
     });
 
     /* ── Formularz kontaktowy ── */
@@ -3965,6 +3979,7 @@
     function showApp(userName) {
       document.body.classList.add('logged-in');
       document.body.classList.remove('app-loading');
+      hideLoadingScreen();
 
       // Ukryj całą stronę lądowania
       document.querySelectorAll('body > *:not(#appShell):not(.modal-overlay)').forEach(el => {
@@ -3972,7 +3987,8 @@
           el.style.display = 'none';
         }
       });
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
       document.body.style.background = '#F0F4F8';
 
       // Utwórz powłokę aplikacji jeśli nie istnieje
