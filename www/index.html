@@ -3988,6 +3988,7 @@
     function hideLoadingScreen() {
       const loader = document.getElementById('app-loading-screen');
       if (loader) {
+        loader.style.pointerEvents = 'none';
         loader.style.opacity = '0';
         setTimeout(() => {
           try { loader.remove(); } catch (e) { }
@@ -5941,8 +5942,6 @@
     }
 
     /* Prevent mobile horizontal page scroll wiggling */
-    html,
-    body,
     #appShell,
     .tab-panel,
     .settings-section,
