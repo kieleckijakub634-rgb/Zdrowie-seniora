@@ -466,19 +466,6 @@
       }, 1200);
     }
 
-    function setFontSize(size) {
-      document.documentElement.className = document.documentElement.className.replace(/fs-(sm|md|lg|xl)/g, '') + ' fs-' + size;
-      document.body.className = document.body.className.replace(/fs-(sm|md|lg|xl)/g, '') + ' fs-' + size;
-      document.querySelectorAll('.fs-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('fs-' + size).classList.add('active');
-    }
-
-    function setTheme(theme) {
-      document.body.classList.toggle('theme-dark', theme === 'dark');
-      document.getElementById('theme-light').classList.toggle('active', theme === 'light');
-      document.getElementById('theme-dark').classList.toggle('active', theme === 'dark');
-    }
-
     /* ══════════════════════════════════════════════════════════════════
        APP ENGINE – Panel Członkowski
     ══════════════════════════════════════════════════════════════════ */

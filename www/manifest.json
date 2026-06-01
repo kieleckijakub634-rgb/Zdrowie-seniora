@@ -2,6 +2,7 @@
   "name": "VitalFly",
   "short_name": "VitalFly",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0B3934",
   "theme_color": "#0B3934",

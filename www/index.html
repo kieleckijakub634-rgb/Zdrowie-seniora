@@ -1,391 +1,363 @@
 <!DOCTYPE html>
 <html lang="pl">
-
 <head>
-  <!-- ═══════════════════════════════════════════
-       SEO & META
-  ═══════════════════════════════════════════ -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="robots" content="index, follow" />
   <title>VitalFly | Ćwiczenia i dieta dla seniorów</title>
-  <meta name="description"
-    content="Codzienne 15-minutowe ćwiczenia z fizjoterapeutą, prosta dieta przeciwzapalna i wspierająca społeczność. Tylko 39 zł miesięcznie. Bez umowy, rezygnacja w każdej chwili." />
-  <meta name="keywords"
-    content="ćwiczenia dla seniorów, fitness 50+, fizjoterapeuta online, dieta przeciwzapalna, aktywność senior, vitalfly" />
+  <meta name="description" content="Codzienne ćwiczenia dla seniorów, jadłospisy, przypomnienia o lekach i prosty panel użytkownika." />
+  <meta name="keywords" content="ćwiczenia dla seniorów, dieta dla seniora, przypomnienia o lekach, zdrowie seniora, VitalFly" />
   <link rel="canonical" href="https://vitalfly.pl/" />
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#0B3934" />
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <link rel="apple-touch-icon" href="assets/logo.png" />
-  <!-- ═══════════════════════════════════════════
-       OPEN GRAPH
-  ═══════════════════════════════════════════ -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://vitalfly.pl/" />
   <meta property="og:title" content="VitalFly" />
-  <meta property="og:description"
-    content="Odzyskaj radość ruchu. Bez bólu, bez stresu. Codzienne ćwiczenia z fizjoterapeutą + dieta + społeczność. 39 zł/miesiąc, bez umowy." />
-  <meta property="og:image" content="https://images.unsplash.com/photo-1607962837359-5e7e89f86776?w=1200&q=80" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
+  <meta property="og:description" content="Ćwiczenia, dieta i przypomnienia o lekach dla seniorów." />
+  <meta property="og:image" content="assets/logo.png" />
   <meta property="og:locale" content="pl_PL" />
-  <meta property="og:site_name" content="VitalFly" />
-
-  <!-- ═══════════════════════════════════════════
-       TWITTER CARD
-  ═══════════════════════════════════════════ -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="VitalFly" />
-  <meta name="twitter:description"
-    content="Codzienne ćwiczenia z fizjoterapeutą + dieta + społeczność. 39 zł/miesiąc." />
-  <meta name="twitter:image" content="https://images.unsplash.com/photo-1607962837359-5e7e89f86776?w=1200&q=80" />
-
-  <!-- ═══════════════════════════════════════════
-       STRUCTURED DATA
-  ═══════════════════════════════════════════ -->
-  <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"Service","name":"Cyfrowy Klub Zdrowia i Sprawności 50+","description":"Subskrypcja zdrowotna dla seniorów: codzienne ćwiczenia z fizjoterapeutą, dieta przeciwzapalna i społeczność wsparcia.","offers":{"@type":"Offer","price":"39","priceCurrency":"PLN","billingIncrement":"P1M"},"provider":{"@type":"Organization","name":"Klub Zdrowia 50+","email":"kontakt@klubzdrowia50.pl"}}
-  </script>
-
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"VitalFly","description":"Subskrypcja zdrowotna dla seniorów: ćwiczenia, dieta, przypomnienia o lekach i społeczność wsparcia.","offers":{"@type":"Offer","price":"39","priceCurrency":"PLN"},"provider":{"@type":"Organization","name":"VitalFly"}}</script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet" />
-
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/style.css" />
-  <script src="assets/supabase.js"></script>
+  <link rel="stylesheet" href="assets/style-overrides.css" />
+  <script src="assets/js/early-boot.js"></script>
 </head>
-
 <body class="app-loading">
-
-  <!-- LOADING SCREEN -->
-  <div id="app-loading-screen"
-    style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0B3934; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:99999; transition: opacity 0.3s ease;">
-    <video id="loader-video" src="assets/loader.mp4" autoplay loop muted playsinline style="width: 140px; height: 140px; object-fit: contain; margin-bottom: 1rem; pointer-events: none;"></video>
-    <script>
-      (function() {
-        try {
-          const v = document.getElementById('loader-video');
-          if (v) {
-            v.muted = true;
-            v.load();
-            const playPromise = v.play();
-            if (playPromise !== undefined) {
-              playPromise.catch(err => {
-                console.log('Autoplay deferred, adding user-interaction listeners: ', err);
-                const forcePlay = () => {
-                  v.play().catch(e => console.log(e));
-                  document.removeEventListener('touchstart', forcePlay);
-                  document.removeEventListener('click', forcePlay);
-                };
-                document.addEventListener('touchstart', forcePlay, { passive: true });
-                document.addEventListener('click', forcePlay, { passive: true });
-              });
-            }
-          }
-        } catch (e) {
-          console.error('Error starting loader video:', e);
-        }
-      })();
-    </script>
-    <div
-      style="color:white; font-family:'Lora', serif; font-size:1.8rem; font-weight:700; margin-bottom:0.25rem; letter-spacing:0.05em;">
-      VitalFly</div>
-    <div style="color:rgba(255,255,255,0.65); font-size:0.95rem; font-family:'Source Sans 3', sans-serif;">Ładowanie...
-    </div>
+  <div id="app-loading-screen" class="vf-loading-screen" role="status" aria-live="polite">
+    <img src="assets/logo.png" alt="" class="vf-loading-logo" />
+    <div class="vf-loading-title">VitalFly</div>
+    <div class="vf-loading-subtitle">Ładowanie...</div>
   </div>
 
-  <!-- BOTTOM CTA BAR (Mobile) -->
-  <div class="mobile-bottom-bar" id="mobileBottomBar"
-    style="display:flex; flex-direction:column; gap:0.5rem; align-items:center;">
-    <p style="font-size:0.95rem; color:#7A8FA8; font-weight:600; margin:0; cursor:pointer;" onclick="openLoginModal()">
-      Masz już konto? <span style="color:#4DBFA8; text-decoration:underline;">Zaloguj się</span></p>
-    <button onclick="openModal()" class="btn-cta btn-cta-pulse" style="width:100%;">Dołącz do Klubu za 39
-      zł/miesiąc</button>
+  <div class="mobile-bottom-bar" id="mobileBottomBar">
+    <p onclick="openLoginModal()">Masz już konto? <span>Zaloguj się</span></p>
+    <button onclick="openModal()" class="btn-cta btn-cta-pulse" type="button">Dołącz do Klubu za 39 zł/miesiąc</button>
   </div>
 
-  <main id="page-content"></main>
+  <main id="page-content" tabindex="-1"></main>
 
-
-  <div class="modal-overlay" id="signupModal" onclick="handleOverlayClick(event)">
-    <div class="modal-box" id="modalBox">
+  <div class="modal-overlay" id="signupModal" onclick="handleOverlayClick(event)" aria-hidden="true">
+    <div class="modal-box" id="modalBox" role="dialog" aria-modal="true" aria-labelledby="signup-title">
       <button class="modal-close" onclick="closeModal()" aria-label="Zamknij">×</button>
       <div class="flex justify-center gap-2 mb-6" id="stepDots">
         <div class="step-dot active" id="dot1"></div>
         <div class="step-dot" id="dot2"></div>
         <div class="step-dot" id="dot3"></div>
       </div>
-
-      <!-- STEP 1 -->
       <div id="step1">
-        <h2 class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Dołącz do Klubu</h2>
-        <p style="color:var(--warm-gray);font-size:1rem;margin-bottom:1.5rem;">Wypełnij poniższe dane – to zajmie tylko
-          chwilę.</p>
+        <h2 id="signup-title" class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Dołącz do Klubu</h2>
+        <p style="color:var(--warm-gray);font-size:1rem;margin-bottom:1.5rem;">Wypełnij poniższe dane. To zajmie tylko chwilę.</p>
         <div class="mb-4">
           <label class="form-label" for="inp-name">Imię i nazwisko</label>
-          <input class="form-input" id="inp-name" type="text" placeholder="np. Krystyna Wiśniewska"
-            autocomplete="name" />
+          <input class="form-input" id="inp-name" type="text" placeholder="np. Krystyna Wiśniewska" autocomplete="name" />
           <p class="field-error" id="err-name">Proszę wpisać imię i nazwisko.</p>
         </div>
         <div class="mb-4">
           <label class="form-label" for="inp-email">Adres e-mail</label>
-          <input class="form-input" id="inp-email" type="email" placeholder="np. krystyna@poczta.pl"
-            autocomplete="email" />
+          <input class="form-input" id="inp-email" type="email" placeholder="np. krystyna@poczta.pl" autocomplete="email" />
           <p class="field-error" id="err-email">Proszę wpisać poprawny adres e-mail.</p>
         </div>
         <div class="mb-4">
           <label class="form-label" for="inp-password">Hasło</label>
-          <input class="form-input" id="inp-password" type="password" placeholder="Min. 6 znaków" />
+          <input class="form-input" id="inp-password" type="password" placeholder="Min. 6 znaków" autocomplete="new-password" />
           <p class="field-error" id="err-password">Hasło musi mieć co najmniej 6 znaków.</p>
         </div>
         <div class="mb-6">
-          <label class="form-label" for="inp-phone">Numer telefonu <span
-              style="font-weight:400;color:var(--warm-gray);">(opcjonalnie)</span></label>
+          <label class="form-label" for="inp-phone">Numer telefonu <span style="font-weight:400;color:var(--warm-gray);">(opcjonalnie)</span></label>
           <input class="form-input" id="inp-phone" type="tel" placeholder="np. 600 123 456" autocomplete="tel" />
         </div>
         <div class="mb-4 flex items-start gap-3">
-          <input type="checkbox" id="inp-consent"
-            style="width:1.3rem;height:1.3rem;margin-top:3px;accent-color:var(--mint);flex-shrink:0;" />
-          <label for="inp-consent" style="font-size:.92rem;color:#555;cursor:pointer;">Wyrażam zgodę na przetwarzanie
-            moich danych osobowych w celu obsługi subskrypcji zgodnie z <a href="#" style="color:var(--mint);">Polityką
-              prywatności</a> i <a href="#" style="color:var(--mint);">Regulaminem</a>.</label>
+          <input type="checkbox" id="inp-consent" style="width:1.3rem;height:1.3rem;margin-top:3px;accent-color:var(--mint);flex-shrink:0;" />
+          <label for="inp-consent" style="font-size:.92rem;color:#555;cursor:pointer;">Wyrażam zgodę na przetwarzanie danych zgodnie z <a href="#/polityka" data-route="polityka" style="color:var(--mint);">Polityką prywatności</a> i <a href="#/regulamin" data-route="regulamin" style="color:var(--mint);">Regulaminem</a>.</label>
         </div>
         <p class="field-error" id="err-consent">Proszę zaznaczyć zgodę.</p>
-        <button onclick="goStep2()" class="btn-cta"
-          style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Dalej – do płatności
-          →</button>
+        <button onclick="goStep2()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Dalej - do płatności →</button>
       </div>
-
-      <!-- STEP 2 -->
       <div id="step2" style="display:none;">
         <h2 class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Podsumowanie zamówienia</h2>
-        <p style="color:var(--warm-gray);font-size:1rem;margin-bottom:1.5rem;">Sprawdź dane i przejdź do bezpiecznej
-          płatności.</p>
-        <div style="background:var(--beige);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;">
-          <div class="flex justify-between items-center mb-2">
-            <span style="font-size:1.05rem;color:#444;">Subskrypcja miesięczna</span>
-            <span class="font-serif font-bold" style="font-size:1.2rem;color:var(--navy);">39,00 zł</span>
-          </div>
-          <div class="flex justify-between items-center"
-            style="border-top:1px solid #DDD;padding-top:.75rem;margin-top:.75rem;">
-            <span style="font-weight:700;color:var(--navy);">Razem</span>
-            <span class="font-serif font-bold" style="font-size:1.4rem;color:var(--navy);">39,00 zł / miesiąc</span>
-          </div>
+        <p style="color:var(--warm-gray);font-size:1rem;margin-bottom:1.5rem;">Sprawdź dane i przejdź do bezpiecznej płatności.</p>
+        <div class="vf-order-summary">
+          <div><span>Subskrypcja</span><strong id="modal-plan-label">39,00 zł</strong></div>
+          <div><span>Razem</span><strong id="modal-total-label">39,00 zł / miesiąc</strong></div>
         </div>
-        <div
-          style="background:#F2F2FC;border:1px solid #D9D7FA;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.97rem;color:#3C369E;">
-          💳 Zostaniesz przekierowany do bezpiecznej bramki <strong>Stripe</strong> – BLIK, karta, Apple Pay lub Google
-          Pay.
-        </div>
-        <!-- STRIPE CONFIG: podmień linki w skrypcie poniżej -->
-        <button onclick="redirectToStripe()" class="btn-stripe">
-          <svg width="28" height="20" viewBox="0 0 28 20" fill="none" style="margin-right:8px;">
-            <rect width="28" height="20" rx="4" fill="#635BFF" />
-            <path
-              d="M11.66 12.58c0-1.63 1.34-2.12 3.8-2.33v-1.1c0-.68-.53-1.05-1.5-1.05-1.04 0-2.1.37-3.08.93l-.84-2.16c1.23-.74 2.87-1.1 4.56-1.1 2.65 0 4.14 1.32 4.14 3.52v4.8h-2.6v-1.17h-.08c-.76 1.1-2.1 1.4-3.4 1.4-1.9 0-3.15-1.15-3.15-2.7zm5.54-1.1v-1.08c-1.37.15-2.2.4-2.2 1.08 0 .58.54.95 1.25.95 1.03 0 1.8-.57 2.1-1.4l-.15.45z"
-              fill="#fff" />
-          </svg>
-          Płacę przez Stripe – 39 zł
-        </button>
-        <p style="text-align:center;font-size:.85rem;color:#999;margin-top:.75rem;">🔒 Szyfrowane połączenie SSL</p>
-        <button onclick="goStep1()"
-          style="background:none;border:none;color:var(--warm-gray);font-size:.95rem;cursor:pointer;margin-top:.75rem;text-decoration:underline;display:block;text-align:center;width:100%;">←
-          Wróć i popraw dane</button>
+        <div class="vf-info-box">Zostaniesz przekierowany do bezpiecznej bramki Stripe: BLIK, karta, Apple Pay lub Google Pay.</div>
+        <button onclick="redirectToStripe()" class="btn-stripe" type="button">Płacę przez Stripe</button>
+        <p style="text-align:center;font-size:.85rem;color:#999;margin-top:.75rem;">Szyfrowane połączenie SSL</p>
+        <button onclick="goStep1()" type="button" class="vf-link-button">← Wróć i popraw dane</button>
       </div>
-
-      <!-- STEP 3 / VERIFICATION CODE -->
       <div id="step3" style="display:none;text-align:center;">
         <div style="font-size:3.5rem;margin-bottom:0.75rem;">✉️</div>
         <h2 class="font-serif font-bold mb-2" style="font-size:1.6rem;color:var(--navy);">Potwierdź swój e-mail</h2>
-        <p style="color:#444;font-size:0.98rem;margin-bottom:1.25rem;">Płatność przyjęta! Wysłaliśmy 6-cyfrowy kod
-          weryfikacyjny na Twój adres e-mail <strong id="verify-email-display"></strong>. Wpisz go poniżej, aby
-          aktywować konto.</p>
-
-        <div class="mb-4">
-          <input class="form-input" id="verification-code" type="text" placeholder="np. 123456"
-            style="text-align:center;font-size:1.4rem;letter-spacing:0.3em;font-weight:700;padding:0.75rem;"
-            maxlength="6" autocomplete="one-time-code" />
-          <p class="field-error" id="err-verification" style="display:none;text-align:center;margin-top:0.5rem;"></p>
-        </div>
-
-        <button id="btn-confirm-code" onclick="verifyVerificationCode()" class="btn-cta"
-          style="width:100%;text-align:center;display:block;font-size:1.15rem;margin-bottom:1rem;">Potwierdź i wejdź do
-          klubu →</button>
-
-        <p style="font-size:0.88rem;color:var(--warm-gray);">
-          Nie otrzymałeś kodu? <a href="#" onclick="resendVerificationCode(event)"
-            style="color:var(--mint);text-decoration:underline;font-weight:600;">Wyślij ponownie</a>
-        </p>
+        <p style="color:#444;font-size:0.98rem;margin-bottom:1.25rem;">Płatność przyjęta. Wpisz 6-cyfrowy kod wysłany na <strong id="verify-email-display"></strong>.</p>
+        <input class="form-input" id="verification-code" type="text" placeholder="np. 123456" maxlength="6" autocomplete="one-time-code" style="text-align:center;font-size:1.4rem;letter-spacing:0.3em;font-weight:700;padding:0.75rem;" />
+        <p class="field-error" id="err-verification" style="display:none;text-align:center;margin-top:0.5rem;"></p>
+        <button id="btn-confirm-code" onclick="verifyVerificationCode()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.15rem;margin:1rem 0;">Potwierdź i wejdź do klubu →</button>
+        <p style="font-size:0.88rem;color:var(--warm-gray);">Nie otrzymałeś kodu? <a href="#" onclick="resendVerificationCode(event)" style="color:var(--mint);text-decoration:underline;font-weight:600;">Wyślij ponownie</a></p>
       </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="loginModal" onclick="if(event.target===this)closeLoginModal()">
-    <div class="modal-box">
+  <div class="modal-overlay" id="loginModal" onclick="if(event.target===this)closeLoginModal()" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="login-title">
       <button class="modal-close" onclick="closeLoginModal()" aria-label="Zamknij">×</button>
-      <h2 class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Logowanie</h2>
+      <h2 id="login-title" class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Logowanie</h2>
       <p style="color:var(--warm-gray);font-size:1rem;margin-bottom:1.5rem;">Zaloguj się do swojego konta.</p>
       <div class="mb-4">
         <label class="form-label" for="login-email">Adres e-mail</label>
-        <input class="form-input" id="login-email" type="email" placeholder="np. krystyna@poczta.pl" />
+        <input class="form-input" id="login-email" type="email" placeholder="np. krystyna@poczta.pl" autocomplete="email" />
       </div>
       <div class="mb-4">
         <label class="form-label" for="login-password">Hasło</label>
-        <input class="form-input" id="login-password" type="password" placeholder="Wpisz hasło" />
+        <input class="form-input" id="login-password" type="password" placeholder="Wpisz hasło" autocomplete="current-password" />
         <p class="field-error" id="err-login">Nieprawidłowy e-mail lub hasło.</p>
       </div>
-      <button onclick="handleLogin()" class="btn-cta"
-        style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Zaloguj się →</button>
+      <button onclick="handleLogin()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Zaloguj się →</button>
     </div>
   </div>
 
-  <script src="assets/app.js" defer></script>
-  <!-- ═══════════ ADMIN SHELL ═══════════ -->
   <div id="adminShell">
     <div id="adminLoginView">
       <div class="admin-login-box">
-        <div style="font-size:3rem;margin-bottom:1rem;">🔐</div>
         <div class="admin-login-title">Panel Administratora</div>
         <p style="color:#6A8FB0;font-size:.95rem;margin-bottom:1.5rem;">Zaloguj się aby zarządzać treścią.</p>
-        <input type="password" id="admin-pass-input" class="admin-input" placeholder="Hasło administratora"
-          style="margin-bottom:1rem;" onkeydown="if(event.key==='Enter')adminLogin()" />
-        <button class="admin-btn" style="width:100%;padding:.85rem;" onclick="adminLogin()">Zaloguj się →</button>
-        <p id="admin-login-err" style="color:#E05252;font-size:.88rem;margin-top:.75rem;display:none;">Błędne hasło.
-          Spróbuj ponownie.</p>
-        <button onclick="closeAdmin()"
-          style="margin-top:1.25rem;background:none;border:none;color:#6A8FB0;cursor:pointer;font-size:.9rem;">← Wróć do
-          strony</button>
+        <input type="password" id="admin-pass-input" class="admin-input" placeholder="Hasło administratora" style="margin-bottom:1rem;" onkeydown="if(event.key==='Enter')adminLogin()" />
+        <button class="admin-btn" style="width:100%;padding:.85rem;" onclick="adminLogin()" type="button">Zaloguj się →</button>
+        <p id="admin-login-err" style="color:#E05252;font-size:.88rem;margin-top:.75rem;display:none;">Błędne hasło. Spróbuj ponownie.</p>
+        <button onclick="closeAdmin()" type="button" style="margin-top:1.25rem;background:none;border:none;color:#6A8FB0;cursor:pointer;font-size:.9rem;">← Wróć do strony</button>
       </div>
     </div>
     <div id="adminPanelView" style="display:none;">
       <div class="admin-header">
-        <div class="admin-logo"><img src="assets/logo.png"
-            style="height:24px;vertical-align:middle;margin-right:8px" />VitalFly <span class="admin-badge">ADMIN</span>
-        </div>
-        <div style="display:flex;gap:.75rem;align-items:center;">
-          <button class="app-logout-btn" onclick="closeAdmin()">← Wróć do strony</button>
-          <button class="app-logout-btn" style="background:rgba(255,100,100,.15);" onclick="adminLogout()">Wyloguj
-            admina</button>
+        <div class="admin-logo"><img src="assets/logo.png" alt="" style="height:24px;vertical-align:middle;margin-right:8px" />VitalFly <span class="admin-badge">ADMIN</span></div>
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+          <button class="app-logout-btn" onclick="closeAdmin()" type="button">← Wróć do strony</button>
+          <button class="app-logout-btn" style="background:rgba(255,100,100,.15);" onclick="adminLogout()" type="button">Wyloguj admina</button>
         </div>
       </div>
       <div class="admin-main">
-        <!-- Stats -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;">
-          <div class="admin-stat">
-            <div class="admin-stat-num" id="a-stat-users">—</div>
-            <div class="admin-stat-label">Aktywnych użytkowników</div>
-          </div>
-          <div class="admin-stat">
-            <div class="admin-stat-num">6</div>
-            <div class="admin-stat-label">Filmów dostępnych</div>
-          </div>
-          <div class="admin-stat">
-            <div class="admin-stat-num">4</div>
-            <div class="admin-stat-label">Jadłospisów</div>
-          </div>
-          <div class="admin-stat">
-            <div class="admin-stat-num" id="a-stat-meds">—</div>
-            <div class="admin-stat-label">Zapisanych leków</div>
-          </div>
+        <div class="vf-admin-stats">
+          <div class="admin-stat"><div class="admin-stat-num" id="a-stat-users">—</div><div class="admin-stat-label">Aktywnych użytkowników</div></div>
+          <div class="admin-stat"><div class="admin-stat-num">6</div><div class="admin-stat-label">Filmów dostępnych</div></div>
+          <div class="admin-stat"><div class="admin-stat-num">4</div><div class="admin-stat-label">Jadłospisów</div></div>
+          <div class="admin-stat"><div class="admin-stat-num" id="a-stat-meds">—</div><div class="admin-stat-label">Zapisanych leków</div></div>
         </div>
-        <!-- Admin tabs -->
         <div class="admin-tabs">
-          <button class="admin-tab active" onclick="switchAdminTab('content',this)">📝 Treść</button>
-          <button class="admin-tab" onclick="switchAdminTab('prices',this)">💰 Cennik</button>
-          <button class="admin-tab" onclick="switchAdminTab('modules',this)">🔧 Moduły</button>
-          <button class="admin-tab" onclick="switchAdminTab('announce',this)">📢 Ogłoszenia</button>
+          <button class="admin-tab active" onclick="switchAdminTab('content',this)" type="button">Treść</button>
+          <button class="admin-tab" onclick="switchAdminTab('prices',this)" type="button">Cennik</button>
+          <button class="admin-tab" onclick="switchAdminTab('modules',this)" type="button">Moduły</button>
+          <button class="admin-tab" onclick="switchAdminTab('announce',this)" type="button">Ogłoszenia</button>
         </div>
-        <!-- TAB: CONTENT -->
         <div class="admin-panel active" id="atab-content">
-          <div class="admin-card">
-            <div style="font-family:'Lora',serif;color:#4DBFA8;font-size:1.05rem;font-weight:700;margin-bottom:1rem;">🎬
-              Edytuj filmy ćwiczeniowe</div>
-            <div id="admin-videos-list"></div>
-          </div>
-          <div class="admin-card">
-            <div style="font-family:'Lora',serif;color:#4DBFA8;font-size:1.05rem;font-weight:700;margin-bottom:1rem;">🥗
-              Edytuj jadłospisy</div>
-            <div id="admin-diets-list"></div>
-          </div>
+          <div class="admin-card"><div class="vf-admin-card-title">Edytuj filmy ćwiczeniowe</div><div id="admin-videos-list"></div></div>
+          <div class="admin-card"><div class="vf-admin-card-title">Edytuj jadłospisy</div><div id="admin-diets-list"></div></div>
         </div>
-        <!-- TAB: MODULES -->
         <div class="admin-panel" id="atab-modules">
           <div class="admin-card">
-            <div style="font-family:'Lora',serif;color:#4DBFA8;font-size:1.05rem;font-weight:700;margin-bottom:1rem;">🔧
-              Dostępne moduły dla użytkowników</div>
-            <div class="module-toggle-row"><span style="color:#DDE6F0;">🎬 Zakładka Ćwiczenia</span><label
-                class="toggle-sw"><input type="checkbox" id="mod-videos" checked
-                  onchange="toggleModule('videos',this.checked)"><span class="toggle-sw-slider"></span></label></div>
-            <div class="module-toggle-row"><span style="color:#DDE6F0;">🥗 Zakładka Dieta</span><label
-                class="toggle-sw"><input type="checkbox" id="mod-diets" checked
-                  onchange="toggleModule('diets',this.checked)"><span class="toggle-sw-slider"></span></label></div>
-            <div class="module-toggle-row"><span style="color:#DDE6F0;">💊 Zakładka Leki</span><label
-                class="toggle-sw"><input type="checkbox" id="mod-meds" checked
-                  onchange="toggleModule('meds',this.checked)"><span class="toggle-sw-slider"></span></label></div>
-            <div class="module-toggle-row"><span style="color:#DDE6F0;">⚙️ Zakładka Ustawienia</span><label
-                class="toggle-sw"><input type="checkbox" id="mod-settings" checked
-                  onchange="toggleModule('settings',this.checked)"><span class="toggle-sw-slider"></span></label></div>
-            <div class="module-toggle-row"><span style="color:#DDE6F0;">🛒 Opcja Zakupy</span><label
-                class="toggle-sw"><input type="checkbox" id="mod-shop" checked
-                  onchange="toggleModule('shop',this.checked)"><span class="toggle-sw-slider"></span></label></div>
+            <div class="vf-admin-card-title">Dostępne moduły dla użytkowników</div>
+            <div class="module-toggle-row"><span>Zakładka Ćwiczenia</span><label class="toggle-sw"><input type="checkbox" id="mod-videos" checked onchange="toggleModule('videos',this.checked)"><span class="toggle-sw-slider"></span></label></div>
+            <div class="module-toggle-row"><span>Zakładka Dieta</span><label class="toggle-sw"><input type="checkbox" id="mod-diets" checked onchange="toggleModule('diets',this.checked)"><span class="toggle-sw-slider"></span></label></div>
+            <div class="module-toggle-row"><span>Zakładka Leki</span><label class="toggle-sw"><input type="checkbox" id="mod-meds" checked onchange="toggleModule('meds',this.checked)"><span class="toggle-sw-slider"></span></label></div>
+            <div class="module-toggle-row"><span>Zakładka Ustawienia</span><label class="toggle-sw"><input type="checkbox" id="mod-settings" checked onchange="toggleModule('settings',this.checked)"><span class="toggle-sw-slider"></span></label></div>
+            <div class="module-toggle-row"><span>Opcja Zakupy</span><label class="toggle-sw"><input type="checkbox" id="mod-shop" checked onchange="toggleModule('shop',this.checked)"><span class="toggle-sw-slider"></span></label></div>
           </div>
           <div class="admin-card" style="margin-top:1rem;">
-            <div style="font-family:'Lora',serif;color:#4DBFA8;font-size:1.05rem;font-weight:700;margin-bottom:0.5rem;">
-              🤖 Sztuczna Inteligencja (Google Gemini AI)</div>
-            <p style="color:#A0AEC0;font-size:0.85rem;margin-bottom:0.75rem;line-height:1.4;">Wklej swój klucz API
-              Gemini (np. z Google AI Studio), aby aktywować czat asystenta zdrowotnego i dietetycznego dla seniorów.
-            </p>
-            <input type="password" id="admin-gemini-key" class="admin-input" placeholder="Wklej klucz API Gemini..."
-              style="margin-bottom:0.75rem; width:100%;" />
-            <button class="admin-btn" onclick="saveGeminiKey()">Zapisz klucz API</button>
+            <div class="vf-admin-card-title">Sztuczna Inteligencja (Google Gemini AI)</div>
+            <p style="color:#A0AEC0;font-size:0.85rem;margin-bottom:0.75rem;line-height:1.4;">Wklej swój klucz API Gemini, aby aktywować czat asystenta zdrowotnego.</p>
+            <input type="password" id="admin-gemini-key" class="admin-input" placeholder="Wklej klucz API Gemini..." style="margin-bottom:0.75rem;width:100%;" />
+            <button class="admin-btn" onclick="saveGeminiKey()" type="button">Zapisz klucz API</button>
           </div>
-          <div class="admin-card">
-            <div style="font-family:'Lora',serif;color:#4DBFA8;font-size:1.05rem;font-weight:700;margin-bottom:1rem;">👁
-              Podgląd jako użytkownik</div>
-            <button class="admin-btn" onclick="closeAdmin();showApp('Podgląd Admin')">Przełącz na widok użytkownika
-              →</button>
-          </div>
+          <div class="admin-card"><div class="vf-admin-card-title">Podgląd jako użytkownik</div><button class="admin-btn" onclick="closeAdmin();showApp('Podgląd Admin')" type="button">Przełącz na widok użytkownika →</button></div>
         </div>
-        <!-- TAB: ANNOUNCE -->
         <div class="admin-panel" id="atab-announce">
           <div class="admin-card">
-            <div style="font-family:'Lora',serif;color:#4DBFA8;font-size:1.05rem;font-weight:700;margin-bottom:1rem;">📢
-              Ogłoszenie w panelu użytkownika</div>
-            <textarea id="announce-text" class="admin-input"
-              style="min-height:120px;resize:vertical;margin-bottom:.75rem;"
-              placeholder="Wpisz ogłoszenie widoczne na ekranie głównym aplikacji..."></textarea>
-            <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-              <button class="admin-btn" onclick="saveAnnounce()">Zapisz ogłoszenie</button>
-              <button class="admin-btn admin-btn-danger" onclick="clearAnnounce()">Usuń ogłoszenie</button>
-            </div>
+            <div class="vf-admin-card-title">Ogłoszenie w panelu użytkownika</div>
+            <textarea id="announce-text" class="admin-input" style="min-height:120px;resize:vertical;margin-bottom:.75rem;" placeholder="Wpisz ogłoszenie widoczne na ekranie głównym aplikacji..."></textarea>
+            <div style="display:flex;gap:.75rem;flex-wrap:wrap;"><button class="admin-btn" onclick="saveAnnounce()" type="button">Zapisz ogłoszenie</button><button class="admin-btn admin-btn-danger" onclick="clearAnnounce()" type="button">Usuń ogłoszenie</button></div>
           </div>
         </div>
-        <!-- TAB: PRICES -->
         <div class="admin-panel" id="atab-prices">
           <div class="admin-card">
-            <div style="font-family:'Lora',serif;color:#4DBFA8;font-size:1.05rem;font-weight:700;margin-bottom:1rem;">💰
-              Edytuj ceny subskrypcji</div>
-            <p style="font-size:.85rem;color:var(--warm-gray);margin-bottom:1rem;">Zapisane tu ceny zaktualizują się
-              automatycznie na stronie głównej oraz w panelu rejestracji użytkownika.</p>
+            <div class="vf-admin-card-title">Edytuj ceny subskrypcji</div>
+            <p style="font-size:.85rem;color:var(--warm-gray);margin-bottom:1rem;">Zapisane tu ceny zaktualizują się automatycznie na stronie głównej oraz w panelu rejestracji użytkownika.</p>
             <div style="display:flex;gap:1rem;margin-bottom:.75rem;flex-wrap:wrap;">
-              <div style="flex:1;min-width:200px;">
-                <label style="font-size:.85rem;font-weight:600;">Cena miesięczna (zł)</label>
-                <input type="number" id="admin-price-monthly" class="admin-input" placeholder="np. 39" />
-              </div>
-              <div style="flex:1;min-width:200px;">
-                <label style="font-size:.85rem;font-weight:600;">Cena roczna (zł)</label>
-                <input type="number" id="admin-price-yearly" class="admin-input" placeholder="np. 390" />
-              </div>
+              <div style="flex:1;min-width:200px;"><label style="font-size:.85rem;font-weight:600;">Cena miesięczna (zł)</label><input type="number" id="admin-price-monthly" class="admin-input" placeholder="np. 39" /></div>
+              <div style="flex:1;min-width:200px;"><label style="font-size:.85rem;font-weight:600;">Cena roczna (zł)</label><input type="number" id="admin-price-yearly" class="admin-input" placeholder="np. 390" /></div>
             </div>
-            <button class="admin-btn" onclick="saveAdminPrices()">Zapisz cennik</button>
+            <button class="admin-btn" onclick="saveAdminPrices()" type="button">Zapisz cennik</button>
           </div>
         </div>
       </div>
     </div>
   </div>
-</body>
 
+  <template id="tpl-page-home">
+<section class="vf-public-shell" data-page="home">
+  <header class="vf-public-nav" aria-label="Nawigacja główna">
+    <a class="vf-brand" href="#/" data-route="home" aria-label="VitalFly - strona główna">
+      <img src="assets/logo.png" alt="VitalFly" />
+      <span>VitalFly</span>
+    </a>
+    <nav class="vf-public-links" aria-label="Podstrony">
+      <a href="#/kontakt" data-route="kontakt">Kontakt</a>
+      <a href="#/regulamin" data-route="regulamin">Regulamin</a>
+      <a href="#/polityka" data-route="polityka">Prywatność</a>
+      <button type="button" onclick="openLoginModal()">Zaloguj się</button>
+    </nav>
+  </header>
+
+  <section class="vf-hero section-wrap">
+    <div class="vf-hero-copy">
+      <span class="vf-kicker">Klub zdrowia 50+</span>
+      <h1>Ćwiczenia, dieta i przypomnienia o lekach w jednej prostej aplikacji.</h1>
+      <p>VitalFly pomaga seniorom ruszać się bezpiecznie, lepiej planować posiłki i pamiętać o codziennych lekach. Prosty panel, duże przyciski i spokojny język.</p>
+      <div class="vf-hero-actions">
+        <button id="main-join-btn" class="btn-cta btn-cta-pulse" type="button" onclick="openModal()">Dołącz za <span id="price-num">39</span> zł<span id="price-period">/miesiąc</span></button>
+        <button class="vf-secondary-btn" type="button" onclick="openLoginModal()">Mam już konto</button>
+      </div>
+      <p class="vf-trust" id="price-sub">Bez umowy. Możesz zrezygnować w każdej chwili.</p>
+    </div>
+    <aside class="vf-hero-card" aria-label="Najważniejsze moduły">
+      <div class="vf-card-logo"><img src="assets/logo.png" alt="" /></div>
+      <h2>Twój plan dnia</h2>
+      <ul>
+        <li><strong>09:00</strong> łagodne ćwiczenia przy krześle</li>
+        <li><strong>13:00</strong> obiad z jadłospisu przeciwzapalnego</li>
+        <li><strong>18:30</strong> przypomnienie o leku</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section class="section-wrap vf-feature-grid" aria-label="Funkcje aplikacji">
+    <article class="vf-feature-card">
+      <span>🎥</span>
+      <h2>Biblioteka ćwiczeń</h2>
+      <p>Filmy z opisami, polubieniami, koszykiem propozycji i rekomendacjami zależnymi od potrzeb użytkownika.</p>
+    </article>
+    <article class="vf-feature-card">
+      <span>🥗</span>
+      <h2>Dieta i AI</h2>
+      <p>Jadłospisy, preferencje żywieniowe, alergeny, druk planu oraz asystent Gemini po wklejeniu klucza w panelu administratora.</p>
+    </article>
+    <article class="vf-feature-card">
+      <span>💊</span>
+      <h2>Leki i powiadomienia</h2>
+      <p>Lista leków, godziny przyjmowania, notatki, powiadomienia oraz karta ICE z danymi awaryjnymi.</p>
+    </article>
+    <article class="vf-feature-card">
+      <span>⚙️</span>
+      <h2>Panel administratora</h2>
+      <p>Edycja filmów, jadłospisów, cen, ogłoszeń, modułów i klucza AI bez grzebania w kodzie strony.</p>
+    </article>
+  </section>
+
+  <section class="section-wrap vf-pricing" aria-label="Cennik">
+    <div>
+      <span class="vf-kicker">Cennik</span>
+      <h2>Prosty abonament dla użytkownika.</h2>
+      <p>Panel cen jest zsynchronizowany z administracją. Po zmianie ceny przyciski i rejestracja aktualizują się automatycznie.</p>
+    </div>
+    <div class="vf-price-card">
+      <button id="btn-monthly" class="diet-dur-btn active" type="button" onclick="switchPlan('monthly')">Miesięcznie</button>
+      <button id="btn-yearly" class="diet-dur-btn" type="button" onclick="switchPlan('yearly')">Rocznie</button>
+      <strong id="price-current-label">39 zł / miesiąc</strong>
+      <button class="btn-cta" type="button" onclick="openModal()">Rozpocznij</button>
+    </div>
+  </section>
+
+  <section class="section-wrap vf-faq" aria-label="Najczęstsze pytania">
+    <h2>Pytania i odpowiedzi</h2>
+    <div class="faq-item">
+      <button class="faq-q" type="button" onclick="toggleFaq(this)">Czy aplikacja działa na telefonie?</button>
+      <div class="faq-a">Tak. Projekt jest gotowy jako strona web i jako aplikacja Capacitor dla Android/iOS po synchronizacji platform.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" onclick="toggleFaq(this)">Czy potrzebny jest internet?</button>
+      <div class="faq-a">Landing, dane lokalne i podstawowa obsługa działają lokalnie. Logowanie, synchronizacja i AI wymagają internetu oraz dostępnych usług zewnętrznych.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" onclick="toggleFaq(this)">Czy administrator może zmieniać treści?</button>
+      <div class="faq-a">Tak. Panel administratora pozwala zmieniać filmy, jadłospisy, ceny, ogłoszenia, moduły i klucz Gemini.</div>
+    </div>
+  </section>
+
+  <footer class="vf-public-footer section-wrap">
+    <span>© VitalFly</span>
+    <a href="#/kontakt" data-route="kontakt">Kontakt</a>
+    <a href="#/regulamin" data-route="regulamin">Regulamin</a>
+    <a href="#/polityka" data-route="polityka">Polityka prywatności</a>
+    <a href="#/facebook" data-route="facebook">Facebook</a>
+  </footer>
+</section>
+
+</template>
+<template id="tpl-page-kontakt">
+<section class="vf-public-shell vf-page section-wrap" data-page="kontakt">
+  <a class="vf-back-link" href="#/" data-route="home">← Wróć na stronę główną</a>
+  <h1>Kontakt</h1>
+  <p>Masz pytanie o VitalFly, płatności lub konto? Napisz do nas przez formularz.</p>
+  <form id="contactForm" class="vf-form-card" onsubmit="handleContact(event)">
+    <label class="form-label" for="contact-name">Imię i nazwisko</label>
+    <input id="contact-name" class="form-input" name="name" autocomplete="name" required />
+    <label class="form-label" for="contact-email">Adres e-mail</label>
+    <input id="contact-email" class="form-input" name="email" type="email" autocomplete="email" required />
+    <label class="form-label" for="contact-message">Wiadomość</label>
+    <textarea id="contact-message" class="form-input" name="message" rows="6" required></textarea>
+    <button class="btn-cta btn-send" type="submit">Wyślij wiadomość</button>
+  </form>
+  <div id="contactSuccess" class="vf-success-box" style="display:none;">Dziękujemy. Wiadomość została przyjęta lokalnie. Podłącz backend formularza, aby wysyłać ją na skrzynkę.</div>
+</section>
+
+</template>
+<template id="tpl-page-polityka">
+<section class="vf-public-shell vf-page section-wrap" data-page="polityka">
+  <a class="vf-back-link" href="#/" data-route="home">← Wróć na stronę główną</a>
+  <h1>Polityka prywatności</h1>
+  <p>VitalFly przechowuje dane użytkownika głównie lokalnie w przeglądarce lub w pamięci aplikacji. Synchronizacja z chmurą jest używana dla konta, profilu i danych aplikacji, gdy dostępny jest Supabase.</p>
+  <h2>Jakie dane są używane</h2>
+  <p>Imię, e-mail, telefon, preferencje diety, lista leków, karta awaryjna, polubione filmy, ustawienia powiadomień oraz ustawienia aplikacji.</p>
+  <h2>Cel przetwarzania</h2>
+  <p>Dane służą do obsługi konta, personalizacji aplikacji, przypomnień, płatności i działania modułów zdrowotnych.</p>
+  <h2>Bezpieczeństwo</h2>
+  <p>Hasła obsługuje dostawca autoryzacji. Nie zapisuj w aplikacji danych, których nie chcesz synchronizować. W produkcji skonfiguruj własne regulaminy, adres firmy i pełne klauzule RODO.</p>
+</section>
+
+</template>
+<template id="tpl-page-regulamin">
+<section class="vf-public-shell vf-page section-wrap" data-page="regulamin">
+  <a class="vf-back-link" href="#/" data-route="home">← Wróć na stronę główną</a>
+  <h1>Regulamin</h1>
+  <p>VitalFly jest aplikacją wspierającą zdrowe nawyki seniorów. Nie zastępuje lekarza, fizjoterapeuty ani dietetyka klinicznego.</p>
+  <h2>Zasady korzystania</h2>
+  <p>Użytkownik korzysta z ćwiczeń i jadłospisów odpowiedzialnie, zgodnie ze swoim stanem zdrowia. W razie bólu, zawrotów głowy lub pogorszenia samopoczucia należy przerwać ćwiczenia i skontaktować się ze specjalistą.</p>
+  <h2>Płatności</h2>
+  <p>Płatności są realizowane przez zewnętrzny system Stripe. Linki płatności można zmienić w pliku aplikacji lub docelowo przenieść do panelu backendowego.</p>
+  <h2>Treści administratora</h2>
+  <p>Administrator odpowiada za filmy, jadłospisy, ogłoszenia, ceny i moduły udostępniane użytkownikom.</p>
+</section>
+
+</template>
+<template id="tpl-page-facebook">
+<section class="vf-public-shell vf-page section-wrap" data-page="facebook">
+  <a class="vf-back-link" href="#/" data-route="home">← Wróć na stronę główną</a>
+  <h1>Facebook</h1>
+  <p>Tu możesz dodać link do grupy lub profilu VitalFly na Facebooku.</p>
+  <div class="vf-form-card">
+    <h2>Społeczność VitalFly</h2>
+    <p>Dodaj docelowy adres strony Facebook w tym pliku: <code>www/pages/facebook.html</code>.</p>
+    <a class="btn-cta" href="https://facebook.com" rel="noopener" target="_blank">Otwórz Facebook</a>
+  </div>
+</section>
+
+</template>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.106.1/dist/umd/supabase.min.js" onerror="window.__VF_SUPABASE_FAILED=true"></script>
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="assets/js/router.js"></script>
+  <script defer src="assets/app.js"></script>
+  <script defer src="assets/js/patches.js"></script>
+</body>
 </html>

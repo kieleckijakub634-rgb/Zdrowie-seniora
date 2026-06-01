@@ -1,103 +1,15 @@
-  <div id="pg-kontakt" style="display:none">
-    <div class="subpage-breadcrumb">
-      <div class="max-w-5xl mx-auto"><a onclick="navigateTo('')" style="cursor:pointer">Strona główna</a> › Kontakt
-      </div>
-    </div>
-    <div class="subpage-hero"><span class="section-label">Jesteśmy tutaj dla Ciebie</span>
-      <h1 class="font-serif text-white mt-3" style="font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700">Kontakt</h1>
-      <p class="text-white mt-3" style="opacity:.8;max-width:480px;margin:1rem auto 0">Masz pytanie? Odpiszemy w ciągu
-        24 godzin w dni robocze.</p>
-    </div>
-    <section style="background:var(--beige);padding:3rem 1.5rem">
-      <div class="max-w-4xl mx-auto">
-        <div class="grid md:grid-cols-3 gap-6">
-          <div class="contact-card">
-            <div class="contact-icon">✉️</div>
-            <h2 class="font-serif font-bold mb-2" style="font-size:1.2rem;color:var(--navy)">E-mail</h2>
-            <p style="color:#555;font-size:.97rem;margin-bottom:1rem">Główna forma kontaktu. Odpowiadamy do 24h w dni
-              robocze.</p><a href="mailto:kontakt@klubzdrowia50.pl"
-              style="color:var(--mint);font-weight:700;word-break:break-all">kontakt@klubzdrowia50.pl</a>
-          </div>
-          <div class="contact-card">
-            <div class="contact-icon">👥</div>
-            <h2 class="font-serif font-bold mb-2" style="font-size:1.2rem;color:var(--navy)">Grupa Facebook</h2>
-            <p style="color:#555;font-size:.97rem;margin-bottom:1rem">Pytania do fizjoterapeuty i wsparcie społeczności.
-            </p><a onclick="navigateTo('facebook')" style="color:var(--mint);font-weight:700;cursor:pointer">Dołącz do
-              grupy →</a>
-          </div>
-          <div class="contact-card">
-            <div class="contact-icon">🕐</div>
-            <h2 class="font-serif font-bold mb-2" style="font-size:1.2rem;color:var(--navy)">Czas odpowiedzi</h2>
-            <p style="color:#555;font-size:.97rem">Odpowiadamy <strong style="color:var(--navy)">w ciągu 24 h</strong> w
-              dni robocze (pon.–pt.).</p>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section style="background:#fff;padding:3rem 1.5rem">
-      <div class="max-w-4xl mx-auto">
-        <div class="md:flex md:gap-12">
-          <div class="md:w-1/2 mb-10 md:mb-0">
-            <span class="section-label">Napisz do nas</span>
-            <h2 class="font-serif mt-2 mb-5" style="font-size:1.6rem;color:var(--navy);font-weight:700">Formularz
-              kontaktowy</h2>
-            <form id="contactForm" onsubmit="handleContact(event)">
-              <div class="mb-4"><label class="form-label" for="c-name">Imię i nazwisko</label><input class="form-input"
-                  id="c-name" type="text" placeholder="np. Krystyna Wiśniewska" required /></div>
-              <div class="mb-4"><label class="form-label" for="c-email">E-mail</label><input class="form-input"
-                  id="c-email" type="email" placeholder="np. krystyna@poczta.pl" required /></div>
-              <div class="mb-4"><label class="form-label" for="c-subject">Temat</label><select class="form-input"
-                  id="c-subject">
-                  <option value="">Wybierz temat...</option>
-                  <option>Pytanie o subskrypcję</option>
-                  <option>Problem z płatnością</option>
-                  <option>Problem z dostępem</option>
-                  <option>Pytanie do fizjoterapeuty</option>
-                  <option>Rezygnacja</option>
-                  <option>Inne</option>
-                </select></div>
-              <div class="mb-5"><label class="form-label" for="c-msg">Wiadomość</label><textarea class="form-input"
-                  id="c-msg" placeholder="Opisz swoje pytanie..." required></textarea></div>
-              <button type="submit" class="btn-send">Wyślij wiadomość →</button>
-            </form>
-            <div class="contact-success" id="contactSuccess">✅ <strong>Wiadomość wysłana!</strong> Odpiszemy w ciągu 24
-              godzin na podany adres e-mail.</div>
-          </div>
-          <div class="md:w-1/2">
-            <span class="section-label">Szybkie odpowiedzi</span>
-            <h2 class="font-serif mt-2 mb-5" style="font-size:1.6rem;color:var(--navy);font-weight:700">Najczęstsze
-              pytania</h2>
-            <div class="faq-quick">
-              <h3>Jak zrezygnować?</h3>
-              <p>E-mail na kontakt@klubzdrowia50.pl z tytułem „Rezygnacja". Potwierdzimy w 24h.</p>
-            </div>
-            <div class="faq-quick">
-              <h3>Nie dostałem e-maila powitalnego</h3>
-              <p>Sprawdź folder Spam. Jeśli brak – napisz do nas, wyślemy ponownie.</p>
-            </div>
-            <div class="faq-quick">
-              <h3>Nie mogę dołączyć do grupy FB</h3>
-              <p>Prześlij nam link do profilu – ręcznie dodamy Cię do grupy.</p>
-            </div>
-            <div class="faq-quick">
-              <h3>Chcę fakturę VAT</h3>
-              <p>Wyślij dane firmy (NIP, nazwa, adres) – fakturę prześlemy w 3 dni robocze.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <footer style="background:var(--navy-dark);padding:2.5rem 1.5rem;color:rgba(255,255,255,.65);font-size:.92rem;">
-      <div class="max-w-4xl mx-auto text-center">
-        <p class="font-serif text-white font-bold text-lg mb-2">🌿 Cyfrowy Klub Zdrowia i Sprawności 50+</p>
-        <p class="mb-3"><a onclick="navigateTo('polityka')"
-            style="color:rgba(255,255,255,.6);margin:0 .75rem;cursor:pointer">Polityka prywatności</a><a
-            onclick="navigateTo('regulamin')"
-            style="color:rgba(255,255,255,.6);margin:0 .75rem;cursor:pointer">Regulamin</a><a
-            onclick="navigateTo('kontakt')" style="color:var(--mint);margin:0 .75rem;cursor:pointer">Kontakt</a><a
-            onclick="navigateTo('facebook')" style="color:rgba(255,255,255,.6);margin:0 .75rem;cursor:pointer">Grupa na
-            Facebooku</a></p>
-        <p style="opacity:.5">© 2025 Klub Zdrowia 50+. Wszelkie prawa zastrzeżone.</p>
-      </div>
-    </footer>
-  </div>
+<section class="vf-public-shell vf-page section-wrap" data-page="kontakt">
+  <a class="vf-back-link" href="#/" data-route="home">← Wróć na stronę główną</a>
+  <h1>Kontakt</h1>
+  <p>Masz pytanie o VitalFly, płatności lub konto? Napisz do nas przez formularz.</p>
+  <form id="contactForm" class="vf-form-card" onsubmit="handleContact(event)">
+    <label class="form-label" for="contact-name">Imię i nazwisko</label>
+    <input id="contact-name" class="form-input" name="name" autocomplete="name" required />
+    <label class="form-label" for="contact-email">Adres e-mail</label>
+    <input id="contact-email" class="form-input" name="email" type="email" autocomplete="email" required />
+    <label class="form-label" for="contact-message">Wiadomość</label>
+    <textarea id="contact-message" class="form-input" name="message" rows="6" required></textarea>
+    <button class="btn-cta btn-send" type="submit">Wyślij wiadomość</button>
+  </form>
+  <div id="contactSuccess" class="vf-success-box" style="display:none;">Dziękujemy. Wiadomość została przyjęta lokalnie. Podłącz backend formularza, aby wysyłać ją na skrzynkę.</div>
+</section>

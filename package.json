@@ -1,23 +1,25 @@
 {
   "name": "zdrowie-seniora",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "1.1.0-production-ready",
+  "description": "VitalFly - statyczna aplikacja web/Capacitor dla seniorów",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node tools/serve.mjs",
+    "check": "node tools/check.mjs",
+    "test": "npm run check"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kieleckijakub634-rgb/Zdrowie-seniora.git"
   },
-  "keywords": [],
+  "keywords": [
+    "vitalfly",
+    "seniorzy",
+    "capacitor",
+    "static-web-app"
+  ],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/kieleckijakub634-rgb/Zdrowie-seniora/issues"
-  },
-  "homepage": "https://github.com/kieleckijakub634-rgb/Zdrowie-seniora#readme",
   "dependencies": {
     "@capacitor/android": "^8.3.4",
     "@capacitor/app": "^8.1.0",
