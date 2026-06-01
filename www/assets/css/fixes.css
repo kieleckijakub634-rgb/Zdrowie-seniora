@@ -1,0 +1,61 @@
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+video,
+svg,
+canvas {
+  max-width: 100%;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+#page-content {
+  min-height: 100vh;
+}
+
+.modal-overlay:not(.open) {
+  pointer-events: none;
+}
+
+.modal-box,
+.admin-card,
+.card,
+.price-box,
+.guarantee-badge,
+.testimonial-card,
+.contact-card {
+  max-width: 100%;
+}
+
+.form-input,
+.admin-input,
+textarea,
+select {
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .hero-floating-card {
+    max-width: min(82vw, 280px);
+  }
+
+  .app-hero-content {
+    width: min(92vw, 560px);
+  }
+
+  .plan-toggle,
+  .price-box,
+  .modal-box {
+    width: min(92vw, 620px);
+  }
+}

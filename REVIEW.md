@@ -1,31 +1,28 @@
-# Code review - wykonane poprawki
+# Code review i zakres poprawek
 
-## Krytyczne problemy
+## Naprawione
 
-1. Ekran ładowania mógł zostać na zawsze, gdy Supabase lub ładowanie podstron nie odpowiadało. Dodano `early-boot.js`, timeouty Supabase i awaryjne renderowanie strony.
-2. Router używał `pushState` także podczas `popstate`, co mogło psuć cofanie w przeglądarce. Dodano nowy router hash z rozróżnieniem `push`, `replace` i `popstate`.
-3. Podstrony były zależne od `fetch('pages/...')`, co często psuje się przy lokalnym pliku, Capacitor lub błędnej ścieżce. Dodano fallback przez szablony w `index.html`.
-4. `app.js` miał podwójną deklarację `setFontSize` i `setTheme`. Usunięto starszą, mniej kompletną wersję.
-5. Formularz weryfikacji miał odwołania do brakujących funkcji. Dodano `verifyVerificationCode` i `resendVerificationCode`.
+- Przywrócony oryginalny styl landing page z wersji `0c1cc9b` bez zastępowania go nowym designem.
+- Przywrócony loader jako wideo `assets/loader.mp4`.
+- Loader nie znika przed końcem animacji. Ma fallback na błąd wideo, żeby strona nie zawisła.
+- Router działa po adresach `/kontakt`, `/regulamin`, `/polityka`, `/facebook`.
+- Dodano obsługę przycisków wstecz i dalej w przeglądarce.
+- Dodano fallbacki dla statycznego hostingu: `_redirects`, `.htaccess`, `404.html`.
+- Usunięto ryzyko błędu składni przez zduplikowane funkcje `setFontSize` i `setTheme`.
+- Formularz kontaktowy zachowuje istniejący handler `handleContact(event)`.
+- Poprawki overflow i modali przeniesione do `www/assets/css/fixes.css`.
+- Dodano `tools/check.mjs`, żeby przed commitem sprawdzać strukturę i krytyczne punkty funkcjonalne.
 
-## Uporządkowanie
+## Celowy brak zmian
 
-- Publiczne podstrony przeniesione do `www/pages`.
-- Routing, boot, konfiguracja i poprawki runtime są w osobnych plikach w `www/assets/js`.
-- Style naprawcze są w `style-overrides.css`, żeby nie mieszać ich z dużym istniejącym arkuszem.
-- Dodano `tools/serve.mjs` i `tools/check.mjs` bez dodatkowych zależności.
+- Nie przepisywałem całej aplikacji na framework.
+- Nie zmieniałem designu na nowy.
+- Nie usuwałem istniejących funkcji panelu użytkownika, admina, logowania, diet, wideo, leków, ustawień i integracji zapisanych w `app.js`.
+- Nie usuwałem folderów platformowych i binarek. Ta paczka jest bezpiecznym overlayem na istniejące repo.
 
-## Zachowane funkcje
+## Pliki do edycji w przyszłości
 
-- Rejestracja, logowanie i płatność Stripe.
-- Panel użytkownika z ćwiczeniami, dietą, lekami, ustawieniami i kartą ICE.
-- Asystent Gemini po skonfigurowaniu klucza.
-- Panel administratora z edycją treści, cen, modułów i ogłoszeń.
-- LocalStorage, Capacitor Preferences, powiadomienia i synchronizacja z Supabase, gdy usługi są dostępne.
-
-## Rekomendacje produkcyjne na później
-
-- Przenieść linki Stripe, hasło administratora i klucze usług do bezpiecznego backendu lub zmiennych środowiskowych.
-- Dodać prawdziwy endpoint formularza kontaktowego.
-- Uzupełnić finalne dane firmy, pełne RODO i regulamin prawny.
-- Dodać testy E2E na login, routing, panel admina i ścieżkę płatności.
+- Nowe sekcje strony głównej: `www/pages/home.html`.
+- Nowa podstrona statyczna: dodaj plik w `www/pages/` i dopisz jej nazwę w tablicy `PAGES` w `www/assets/app.js`.
+- Poprawki layoutu: `www/assets/css/fixes.css`.
+- Zmiany logiki aplikacji: konkretna funkcja w `www/assets/app.js`.

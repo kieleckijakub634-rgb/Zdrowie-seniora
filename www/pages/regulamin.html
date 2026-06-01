@@ -1,11 +1,76 @@
-<section class="vf-public-shell vf-page section-wrap" data-page="regulamin">
-  <a class="vf-back-link" href="#/" data-route="home">← Wróć na stronę główną</a>
-  <h1>Regulamin</h1>
-  <p>VitalFly jest aplikacją wspierającą zdrowe nawyki seniorów. Nie zastępuje lekarza, fizjoterapeuty ani dietetyka klinicznego.</p>
-  <h2>Zasady korzystania</h2>
-  <p>Użytkownik korzysta z ćwiczeń i jadłospisów odpowiedzialnie, zgodnie ze swoim stanem zdrowia. W razie bólu, zawrotów głowy lub pogorszenia samopoczucia należy przerwać ćwiczenia i skontaktować się ze specjalistą.</p>
-  <h2>Płatności</h2>
-  <p>Płatności są realizowane przez zewnętrzny system Stripe. Linki płatności można zmienić w pliku aplikacji lub docelowo przenieść do panelu backendowego.</p>
-  <h2>Treści administratora</h2>
-  <p>Administrator odpowiada za filmy, jadłospisy, ogłoszenia, ceny i moduły udostępniane użytkownikom.</p>
-</section>
+<div id="pg-regulamin">
+  <div class="subpage-breadcrumb"><a href="/" onclick="event.preventDefault();navigateTo('')">Strona główna</a> › Regulamin</div>
+
+  <section class="subpage-hero">
+    <div class="max-w-4xl mx-auto">
+      <span class="section-label" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.2);">ZASADY KORZYSTANIA Z USŁUGI</span>
+      <h1 class="font-serif text-white mt-4 mb-4" style="font-size:clamp(2.1rem,5vw,3.8rem);font-weight:700;">Regulamin</h1>
+      <p class="text-white" style="opacity:.9;font-size:1.15rem;max-width:720px;margin:0 auto;line-height:1.7;">Regulamin obowiązuje od 1 maja 2025 r. Korzystając z usługi akceptujesz poniższe warunki.</p>
+    </div>
+  </section>
+
+  <section style="background:var(--beige);padding:4.5rem 1.5rem;">
+    <div class="max-w-4xl mx-auto card content-body" style="background:#fff;">
+      <h2>§1. Definicje</h2>
+      <ol>
+        <li>Usługodawca - Klub Zdrowia 50+, e-mail: kontakt@klubzdrowia50.pl.</li>
+        <li>Subskrybent - osoba fizyczna korzystająca z usługi.</li>
+        <li>Usługa - Cyfrowy Klub Zdrowia 50+ (wideo, jadłospisy, grupa FB).</li>
+        <li>Subskrypcja - odpłatny abonament miesięczny.</li>
+      </ol>
+
+      <h2>§2. Zakres usługi</h2>
+      <ol>
+        <li>Usługa obejmuje: codzienne wideo z fizjoterapeutą, cotygodniowe jadłospisy oraz dostęp do zamkniętej grupy na Facebooku.</li>
+        <li>Wymagany jest dostęp do internetu i aktywne konto e-mail.</li>
+      </ol>
+
+      <h2>§3. Płatności</h2>
+      <ol>
+        <li>Opłata wynosi 39,00 zł brutto miesięcznie.</li>
+        <li>Płatność przez Przelewy24 (BLIK, karta, przelew).</li>
+        <li>Subskrypcja odnawia się automatycznie co miesiąc.</li>
+        <li>Faktura wysyłana jest e-mailem po płatności.</li>
+      </ol>
+
+      <h2>§4. Rezygnacja</h2>
+      <ol>
+        <li>Rezygnacja: e-mail na kontakt@klubzdrowia50.pl z tytułem „Rezygnacja”.</li>
+        <li>Bezpłatna, bez podania przyczyny, bez okresu wypowiedzenia.</li>
+        <li>Dostęp zachowany do końca opłaconego okresu.</li>
+      </ol>
+
+      <h2>§5. Prawo odstąpienia</h2>
+      <ol>
+        <li>Konsumentowi przysługuje prawo odstąpienia w ciągu 14 dni od pierwszej płatności.</li>
+        <li>Oświadczenie: kontakt@klubzdrowia50.pl.</li>
+      </ol>
+
+      <h2>§6. Prawa autorskie</h2>
+      <p>Wszystkie materiały objęte są ochroną prawa autorskiego. Dozwolony jest wyłącznie użytek osobisty.</p>
+
+      <h2>§7. Odpowiedzialność</h2>
+      <div class="warning-note">Materiały mają charakter informacyjny i edukacyjny. Przed ćwiczeniami skonsultuj się z lekarzem.</div>
+
+      <h2>§8. Reklamacje</h2>
+      <p>Reklamacje: kontakt@klubzdrowia50.pl. Rozpatrujemy w ciągu 14 dni roboczych.</p>
+
+      <h2>§9. Postanowienia końcowe</h2>
+      <p>Stosuje się prawo polskie. Zmiany Regulaminu ogłaszane są 14 dni przed wejściem w życie.</p>
+      <div class="highlight-box">Aktualizacja: maj 2025</div>
+    </div>
+  </section>
+
+  <footer style="background:var(--navy-dark);padding:3.5rem 1.5rem;color:rgba(255,255,255,.65);font-size:.92rem;border-top:1px solid rgba(255,255,255,.05);">
+    <div class="max-w-4xl mx-auto text-center">
+      <p class="font-serif text-white font-bold text-xl mb-3">VitalFly</p>
+      <p class="mb-5">
+        <a href="/polityka" onclick="event.preventDefault();navigateTo('polityka')" style="color:rgba(255,255,255,.7);text-decoration:none;margin:0 .85rem;font-weight:500;">Polityka prywatności</a>
+        <a href="/regulamin" onclick="event.preventDefault();navigateTo('regulamin')" style="color:rgba(255,255,255,.7);text-decoration:none;margin:0 .85rem;font-weight:500;">Regulamin</a>
+        <a href="/kontakt" onclick="event.preventDefault();navigateTo('kontakt')" style="color:rgba(255,255,255,.7);text-decoration:none;margin:0 .85rem;font-weight:500;">Kontakt</a>
+        <a href="/facebook" onclick="event.preventDefault();navigateTo('facebook')" style="color:rgba(255,255,255,.7);text-decoration:none;margin:0 .85rem;font-weight:500;">Grupa na Facebooku</a>
+      </p>
+      <p style="opacity:.6;">© 2025 VitalFly. Wszelkie prawa zastrzeżone.</p>
+    </div>
+  </footer>
+</div>

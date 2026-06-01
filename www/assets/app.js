@@ -176,28 +176,74 @@
     /* ── Router podstron ── */
     const PAGES = ['polityka', 'regulamin', 'kontakt', 'facebook'];
     const pageCache = {};
-    async function navigateTo(id) {
+    const cleanPathRouting = window.location.protocol !== 'file:' && !window.Capacitor;
+
+    function routeFromLocation() {
+      const hashRoute = window.location.hash.replace('#', '').replace(/^\//, '');
+      if (PAGES.includes(hashRoute)) return hashRoute;
+
+      const path = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean).pop() || '';
+      return PAGES.includes(path) ? path : '';
+    }
+
+    function routePath(id) {
+      if (!cleanPathRouting) return id ? '#' + id : '#';
+      return id ? '/' + id : '/';
+    }
+
+    function pageFilePath(pageId) {
+      if (window.Capacitor || window.location.protocol === 'file:') return 'pages/' + pageId + '.html';
+      return '/pages/' + pageId + '.html';
+    }
+
+    function normalizeInternalLinks(root) {
+      if (!root) return;
+      root.querySelectorAll('a[href^="#"], a[data-route]').forEach((link) => {
+        const attrRoute = link.dataset.route || '';
+        const hrefRoute = (link.getAttribute('href') || '').replace('#', '').replace(/^\//, '');
+        const route = attrRoute || hrefRoute;
+        if (route === '' || PAGES.includes(route)) {
+          link.setAttribute('href', routePath(route));
+          link.onclick = function (event) {
+            event.preventDefault();
+            navigateTo(route);
+          };
+        }
+      });
+    }
+
+    async function navigateTo(id, options = {}) {
       const pageId = id || 'home';
+      const routeId = pageId === 'home' ? '' : pageId;
       const container = document.getElementById('page-content');
       if (!container) return;
-      
+
       try {
         if (!pageCache[pageId]) {
-          const res = await fetch('pages/' + pageId + '.html');
+          const res = await fetch(pageFilePath(pageId));
           if (!res.ok) throw new Error('Błąd ładowania: ' + res.statusText);
           pageCache[pageId] = await res.text();
         }
+
         container.innerHTML = pageCache[pageId];
+        normalizeInternalLinks(container);
         window.scrollTo(0, 0);
-        history.pushState({}, '', '#' + (id || ''));
+
+        const nextUrl = routePath(routeId);
+        const currentUrl = cleanPathRouting ? window.location.pathname : window.location.hash || '#';
+        if (!options.skipHistory && currentUrl !== nextUrl) {
+          history.pushState({ page: routeId }, '', nextUrl);
+        } else if (options.replace && currentUrl !== nextUrl) {
+          history.replaceState({ page: routeId }, '', nextUrl);
+        }
       } catch (err) {
         console.error('Błąd nawigacji:', err);
-        container.innerHTML = '<div style="padding:4rem 1.5rem;text-align:center;"><h2 style="font-size:1.5rem;color:#0B3934;margin-bottom:1rem;">Wystąpił błąd</h2><p>Sprawdź połączenie z internetem i spróbuj ponownie.</p><button onclick="navigateTo(\'\')" style="margin-top:1.5rem;padding:0.75rem 1.5rem;background:#35BBA0;color:white;border:none;border-radius:8px;cursor:pointer;">Wróć na stronę główną</button></div>';
+        container.innerHTML = '<div style="padding:4rem 1.5rem;text-align:center;"><h2 style="font-size:1.5rem;color:#0B3934;margin-bottom:1rem;">Wystąpił błąd</h2><p>Nie udało się wczytać podstrony.</p><button onclick="navigateTo(\'\')" style="margin-top:1.5rem;padding:0.75rem 1.5rem;background:#35BBA0;color:white;border:none;border-radius:8px;cursor:pointer;">Wróć na stronę główną</button></div>';
       }
     }
+
     window.addEventListener('popstate', () => {
-      const id = window.location.hash.replace('#', '');
-      navigateTo(PAGES.includes(id) ? id : '');
+      navigateTo(routeFromLocation(), { skipHistory: true });
     });
     /* ── Deep Link & Payment Success Handling ── */
     async function processPaymentSuccess() {
@@ -449,9 +495,8 @@
         history.replaceState({}, '', window.location.pathname);
       }
       hideLoadingScreen();
-      const hash = window.location.hash.replace('#', '');
       if (!hasSession) {
-        navigateTo(PAGES.includes(hash) ? hash : '');
+        navigateTo(routeFromLocation(), { replace: true });
       }
     });
 
@@ -590,6 +635,11 @@
     }
 
     function hideLoadingScreen() {
+      if (window.VFLoader && typeof window.VFLoader.hideWhenReady === 'function') {
+        window.VFLoader.hideWhenReady();
+        return;
+      }
+
       const loader = document.getElementById('app-loading-screen');
       if (loader) {
         loader.style.pointerEvents = 'none';

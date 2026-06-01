@@ -23,14 +23,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/style.css" />
-  <link rel="stylesheet" href="assets/style-overrides.css" />
-  <script src="assets/js/early-boot.js"></script>
+  <link rel="stylesheet" href="assets/css/fixes.css" />
+  <script src="assets/js/loader.js" defer></script>
 </head>
 <body class="app-loading">
-  <div id="app-loading-screen" class="vf-loading-screen" role="status" aria-live="polite">
-    <img src="assets/logo.png" alt="" class="vf-loading-logo" />
-    <div class="vf-loading-title">VitalFly</div>
-    <div class="vf-loading-subtitle">Ładowanie...</div>
+  <div id="app-loading-screen" role="status" aria-live="polite" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0B3934;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:99999;transition:opacity .3s ease;">
+    <video id="loader-video" src="assets/loader.mp4" autoplay muted playsinline preload="auto" style="width:140px;height:140px;object-fit:contain;margin-bottom:1rem;pointer-events:none;"></video>
+    <div style="color:white;font-family:'Lora',serif;font-size:1.8rem;font-weight:700;margin-bottom:.25rem;letter-spacing:.05em;">VitalFly</div>
+    <div style="color:rgba(255,255,255,.65);font-size:.95rem;font-family:'Plus Jakarta Sans',sans-serif;">Ładowanie...</div>
   </div>
 
   <div class="mobile-bottom-bar" id="mobileBottomBar">
@@ -72,7 +72,7 @@
         </div>
         <div class="mb-4 flex items-start gap-3">
           <input type="checkbox" id="inp-consent" style="width:1.3rem;height:1.3rem;margin-top:3px;accent-color:var(--mint);flex-shrink:0;" />
-          <label for="inp-consent" style="font-size:.92rem;color:#555;cursor:pointer;">Wyrażam zgodę na przetwarzanie danych zgodnie z <a href="#/polityka" data-route="polityka" style="color:var(--mint);">Polityką prywatności</a> i <a href="#/regulamin" data-route="regulamin" style="color:var(--mint);">Regulaminem</a>.</label>
+          <label for="inp-consent" style="font-size:.92rem;color:#555;cursor:pointer;">Wyrażam zgodę na przetwarzanie danych zgodnie z <a href="/polityka" data-route="polityka" style="color:var(--mint);">Polityką prywatności</a> i <a href="/regulamin" data-route="regulamin" style="color:var(--mint);">Regulaminem</a>.</label>
         </div>
         <p class="field-error" id="err-consent">Proszę zaznaczyć zgodę.</p>
         <button onclick="goStep2()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Dalej - do płatności →</button>
@@ -194,170 +194,7 @@
     </div>
   </div>
 
-  <template id="tpl-page-home">
-<section class="vf-public-shell" data-page="home">
-  <header class="vf-public-nav" aria-label="Nawigacja główna">
-    <a class="vf-brand" href="#/" data-route="home" aria-label="VitalFly - strona główna">
-      <img src="assets/logo.png" alt="VitalFly" />
-      <span>VitalFly</span>
-    </a>
-    <nav class="vf-public-links" aria-label="Podstrony">
-      <a href="#/kontakt" data-route="kontakt">Kontakt</a>
-      <a href="#/regulamin" data-route="regulamin">Regulamin</a>
-      <a href="#/polityka" data-route="polityka">Prywatność</a>
-      <button type="button" onclick="openLoginModal()">Zaloguj się</button>
-    </nav>
-  </header>
-
-  <section class="vf-hero section-wrap">
-    <div class="vf-hero-copy">
-      <span class="vf-kicker">Klub zdrowia 50+</span>
-      <h1>Ćwiczenia, dieta i przypomnienia o lekach w jednej prostej aplikacji.</h1>
-      <p>VitalFly pomaga seniorom ruszać się bezpiecznie, lepiej planować posiłki i pamiętać o codziennych lekach. Prosty panel, duże przyciski i spokojny język.</p>
-      <div class="vf-hero-actions">
-        <button id="main-join-btn" class="btn-cta btn-cta-pulse" type="button" onclick="openModal()">Dołącz za <span id="price-num">39</span> zł<span id="price-period">/miesiąc</span></button>
-        <button class="vf-secondary-btn" type="button" onclick="openLoginModal()">Mam już konto</button>
-      </div>
-      <p class="vf-trust" id="price-sub">Bez umowy. Możesz zrezygnować w każdej chwili.</p>
-    </div>
-    <aside class="vf-hero-card" aria-label="Najważniejsze moduły">
-      <div class="vf-card-logo"><img src="assets/logo.png" alt="" /></div>
-      <h2>Twój plan dnia</h2>
-      <ul>
-        <li><strong>09:00</strong> łagodne ćwiczenia przy krześle</li>
-        <li><strong>13:00</strong> obiad z jadłospisu przeciwzapalnego</li>
-        <li><strong>18:30</strong> przypomnienie o leku</li>
-      </ul>
-    </aside>
-  </section>
-
-  <section class="section-wrap vf-feature-grid" aria-label="Funkcje aplikacji">
-    <article class="vf-feature-card">
-      <span>🎥</span>
-      <h2>Biblioteka ćwiczeń</h2>
-      <p>Filmy z opisami, polubieniami, koszykiem propozycji i rekomendacjami zależnymi od potrzeb użytkownika.</p>
-    </article>
-    <article class="vf-feature-card">
-      <span>🥗</span>
-      <h2>Dieta i AI</h2>
-      <p>Jadłospisy, preferencje żywieniowe, alergeny, druk planu oraz asystent Gemini po wklejeniu klucza w panelu administratora.</p>
-    </article>
-    <article class="vf-feature-card">
-      <span>💊</span>
-      <h2>Leki i powiadomienia</h2>
-      <p>Lista leków, godziny przyjmowania, notatki, powiadomienia oraz karta ICE z danymi awaryjnymi.</p>
-    </article>
-    <article class="vf-feature-card">
-      <span>⚙️</span>
-      <h2>Panel administratora</h2>
-      <p>Edycja filmów, jadłospisów, cen, ogłoszeń, modułów i klucza AI bez grzebania w kodzie strony.</p>
-    </article>
-  </section>
-
-  <section class="section-wrap vf-pricing" aria-label="Cennik">
-    <div>
-      <span class="vf-kicker">Cennik</span>
-      <h2>Prosty abonament dla użytkownika.</h2>
-      <p>Panel cen jest zsynchronizowany z administracją. Po zmianie ceny przyciski i rejestracja aktualizują się automatycznie.</p>
-    </div>
-    <div class="vf-price-card">
-      <button id="btn-monthly" class="diet-dur-btn active" type="button" onclick="switchPlan('monthly')">Miesięcznie</button>
-      <button id="btn-yearly" class="diet-dur-btn" type="button" onclick="switchPlan('yearly')">Rocznie</button>
-      <strong id="price-current-label">39 zł / miesiąc</strong>
-      <button class="btn-cta" type="button" onclick="openModal()">Rozpocznij</button>
-    </div>
-  </section>
-
-  <section class="section-wrap vf-faq" aria-label="Najczęstsze pytania">
-    <h2>Pytania i odpowiedzi</h2>
-    <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFaq(this)">Czy aplikacja działa na telefonie?</button>
-      <div class="faq-a">Tak. Projekt jest gotowy jako strona web i jako aplikacja Capacitor dla Android/iOS po synchronizacji platform.</div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFaq(this)">Czy potrzebny jest internet?</button>
-      <div class="faq-a">Landing, dane lokalne i podstawowa obsługa działają lokalnie. Logowanie, synchronizacja i AI wymagają internetu oraz dostępnych usług zewnętrznych.</div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFaq(this)">Czy administrator może zmieniać treści?</button>
-      <div class="faq-a">Tak. Panel administratora pozwala zmieniać filmy, jadłospisy, ceny, ogłoszenia, moduły i klucz Gemini.</div>
-    </div>
-  </section>
-
-  <footer class="vf-public-footer section-wrap">
-    <span>© VitalFly</span>
-    <a href="#/kontakt" data-route="kontakt">Kontakt</a>
-    <a href="#/regulamin" data-route="regulamin">Regulamin</a>
-    <a href="#/polityka" data-route="polityka">Polityka prywatności</a>
-    <a href="#/facebook" data-route="facebook">Facebook</a>
-  </footer>
-</section>
-
-</template>
-<template id="tpl-page-kontakt">
-<section class="vf-public-shell vf-page section-wrap" data-page="kontakt">
-  <a class="vf-back-link" href="#/" data-route="home">← Wróć na stronę główną</a>
-  <h1>Kontakt</h1>
-  <p>Masz pytanie o VitalFly, płatności lub konto? Napisz do nas przez formularz.</p>
-  <form id="contactForm" class="vf-form-card" onsubmit="handleContact(event)">
-    <label class="form-label" for="contact-name">Imię i nazwisko</label>
-    <input id="contact-name" class="form-input" name="name" autocomplete="name" required />
-    <label class="form-label" for="contact-email">Adres e-mail</label>
-    <input id="contact-email" class="form-input" name="email" type="email" autocomplete="email" required />
-    <label class="form-label" for="contact-message">Wiadomość</label>
-    <textarea id="contact-message" class="form-input" name="message" rows="6" required></textarea>
-    <button class="btn-cta btn-send" type="submit">Wyślij wiadomość</button>
-  </form>
-  <div id="contactSuccess" class="vf-success-box" style="display:none;">Dziękujemy. Wiadomość została przyjęta lokalnie. Podłącz backend formularza, aby wysyłać ją na skrzynkę.</div>
-</section>
-
-</template>
-<template id="tpl-page-polityka">
-<section class="vf-public-shell vf-page section-wrap" data-page="polityka">
-  <a class="vf-back-link" href="#/" data-route="home">← Wróć na stronę główną</a>
-  <h1>Polityka prywatności</h1>
-  <p>VitalFly przechowuje dane użytkownika głównie lokalnie w przeglądarce lub w pamięci aplikacji. Synchronizacja z chmurą jest używana dla konta, profilu i danych aplikacji, gdy dostępny jest Supabase.</p>
-  <h2>Jakie dane są używane</h2>
-  <p>Imię, e-mail, telefon, preferencje diety, lista leków, karta awaryjna, polubione filmy, ustawienia powiadomień oraz ustawienia aplikacji.</p>
-  <h2>Cel przetwarzania</h2>
-  <p>Dane służą do obsługi konta, personalizacji aplikacji, przypomnień, płatności i działania modułów zdrowotnych.</p>
-  <h2>Bezpieczeństwo</h2>
-  <p>Hasła obsługuje dostawca autoryzacji. Nie zapisuj w aplikacji danych, których nie chcesz synchronizować. W produkcji skonfiguruj własne regulaminy, adres firmy i pełne klauzule RODO.</p>
-</section>
-
-</template>
-<template id="tpl-page-regulamin">
-<section class="vf-public-shell vf-page section-wrap" data-page="regulamin">
-  <a class="vf-back-link" href="#/" data-route="home">← Wróć na stronę główną</a>
-  <h1>Regulamin</h1>
-  <p>VitalFly jest aplikacją wspierającą zdrowe nawyki seniorów. Nie zastępuje lekarza, fizjoterapeuty ani dietetyka klinicznego.</p>
-  <h2>Zasady korzystania</h2>
-  <p>Użytkownik korzysta z ćwiczeń i jadłospisów odpowiedzialnie, zgodnie ze swoim stanem zdrowia. W razie bólu, zawrotów głowy lub pogorszenia samopoczucia należy przerwać ćwiczenia i skontaktować się ze specjalistą.</p>
-  <h2>Płatności</h2>
-  <p>Płatności są realizowane przez zewnętrzny system Stripe. Linki płatności można zmienić w pliku aplikacji lub docelowo przenieść do panelu backendowego.</p>
-  <h2>Treści administratora</h2>
-  <p>Administrator odpowiada za filmy, jadłospisy, ogłoszenia, ceny i moduły udostępniane użytkownikom.</p>
-</section>
-
-</template>
-<template id="tpl-page-facebook">
-<section class="vf-public-shell vf-page section-wrap" data-page="facebook">
-  <a class="vf-back-link" href="#/" data-route="home">← Wróć na stronę główną</a>
-  <h1>Facebook</h1>
-  <p>Tu możesz dodać link do grupy lub profilu VitalFly na Facebooku.</p>
-  <div class="vf-form-card">
-    <h2>Społeczność VitalFly</h2>
-    <p>Dodaj docelowy adres strony Facebook w tym pliku: <code>www/pages/facebook.html</code>.</p>
-    <a class="btn-cta" href="https://facebook.com" rel="noopener" target="_blank">Otwórz Facebook</a>
-  </div>
-</section>
-
-</template>
-
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.106.1/dist/umd/supabase.min.js" onerror="window.__VF_SUPABASE_FAILED=true"></script>
-  <script defer src="assets/js/config.js"></script>
-  <script defer src="assets/js/router.js"></script>
   <script defer src="assets/app.js"></script>
-  <script defer src="assets/js/patches.js"></script>
 </body>
 </html>

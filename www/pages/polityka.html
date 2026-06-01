@@ -1,11 +1,67 @@
-<section class="vf-public-shell vf-page section-wrap" data-page="polityka">
-  <a class="vf-back-link" href="#/" data-route="home">← Wróć na stronę główną</a>
-  <h1>Polityka prywatności</h1>
-  <p>VitalFly przechowuje dane użytkownika głównie lokalnie w przeglądarce lub w pamięci aplikacji. Synchronizacja z chmurą jest używana dla konta, profilu i danych aplikacji, gdy dostępny jest Supabase.</p>
-  <h2>Jakie dane są używane</h2>
-  <p>Imię, e-mail, telefon, preferencje diety, lista leków, karta awaryjna, polubione filmy, ustawienia powiadomień oraz ustawienia aplikacji.</p>
-  <h2>Cel przetwarzania</h2>
-  <p>Dane służą do obsługi konta, personalizacji aplikacji, przypomnień, płatności i działania modułów zdrowotnych.</p>
-  <h2>Bezpieczeństwo</h2>
-  <p>Hasła obsługuje dostawca autoryzacji. Nie zapisuj w aplikacji danych, których nie chcesz synchronizować. W produkcji skonfiguruj własne regulaminy, adres firmy i pełne klauzule RODO.</p>
-</section>
+<div id="pg-polityka">
+  <div class="subpage-breadcrumb"><a href="/" onclick="event.preventDefault();navigateTo('')">Strona główna</a> › Polityka prywatności</div>
+
+  <section class="subpage-hero">
+    <div class="max-w-4xl mx-auto">
+      <span class="section-label" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.2);">OCHRONA DANYCH OSOBOWYCH</span>
+      <h1 class="font-serif text-white mt-4 mb-4" style="font-size:clamp(2.1rem,5vw,3.8rem);font-weight:700;">Polityka prywatności</h1>
+      <p class="text-white" style="opacity:.9;font-size:1.15rem;max-width:620px;margin:0 auto;line-height:1.7;">Twoje dane są u nas bezpieczne.</p>
+    </div>
+  </section>
+
+  <section style="background:var(--beige);padding:4.5rem 1.5rem;">
+    <div class="max-w-4xl mx-auto card content-body" style="background:#fff;">
+      <div class="info-box">Szanujemy Twoją prywatność. Nigdy nie sprzedajemy Twoich danych osobom trzecim.</div>
+
+      <h2>1. Administrator danych</h2>
+      <p>Administratorem jest Klub Zdrowia 50+, e-mail: kontakt@klubzdrowia50.pl.</p>
+
+      <h2>2. Zbierane dane i cel</h2>
+      <ul class="legal">
+        <li>Imię i nazwisko - identyfikacja i komunikacja.</li>
+        <li>Adres e-mail - wysyłka materiałów, faktur i powiadomień.</li>
+        <li>Numer telefonu (opcjonalny) - kontakt w razie problemów z płatnością.</li>
+      </ul>
+
+      <h2>3. Podstawa prawna</h2>
+      <ul class="legal">
+        <li>Art. 6 ust. 1 lit. b RODO - wykonanie umowy (subskrypcja).</li>
+        <li>Art. 6 ust. 1 lit. c RODO - obowiązek prawny (faktury).</li>
+        <li>Art. 6 ust. 1 lit. f RODO - uzasadniony interes (bezpieczeństwo).</li>
+      </ul>
+
+      <h2>4. Odbiorcy danych</h2>
+      <p>Dane przekazujemy wyłącznie: Przelewy24 (płatności), dostawcy hostingu, Facebook (grupa wsparcia). Nie sprzedajemy danych marketingowo.</p>
+
+      <h2>5. Okres przechowywania</h2>
+      <ul class="legal">
+        <li>Dane subskrybentów: czas subskrypcji + 2 lata.</li>
+        <li>Dane do faktur: 5 lat (wymogi podatkowe).</li>
+        <li>Logi serwera: do 90 dni.</li>
+      </ul>
+
+      <h2>6. Twoje prawa</h2>
+      <p>Przysługuje Ci prawo dostępu, sprostowania, usunięcia, ograniczenia, przenoszenia i sprzeciwu. Napisz na kontakt@klubzdrowia50.pl. Skarga: UODO, ul. Stawki 2, Warszawa.</p>
+
+      <h2>7. Pliki cookies</h2>
+      <p>Używamy wyłącznie niezbędnych cookies sesyjnych. Brak cookies śledzących i marketingowych.</p>
+
+      <h2>8. Zmiany polityki</h2>
+      <p>O zmianach informujemy e-mailem. Aktualna wersja zawsze dostępna na stronie.</p>
+      <div class="highlight-box">Aktualizacja: maj 2025</div>
+    </div>
+  </section>
+
+  <footer style="background:var(--navy-dark);padding:3.5rem 1.5rem;color:rgba(255,255,255,.65);font-size:.92rem;border-top:1px solid rgba(255,255,255,.05);">
+    <div class="max-w-4xl mx-auto text-center">
+      <p class="font-serif text-white font-bold text-xl mb-3">VitalFly</p>
+      <p class="mb-5">
+        <a href="/polityka" onclick="event.preventDefault();navigateTo('polityka')" style="color:rgba(255,255,255,.7);text-decoration:none;margin:0 .85rem;font-weight:500;">Polityka prywatności</a>
+        <a href="/regulamin" onclick="event.preventDefault();navigateTo('regulamin')" style="color:rgba(255,255,255,.7);text-decoration:none;margin:0 .85rem;font-weight:500;">Regulamin</a>
+        <a href="/kontakt" onclick="event.preventDefault();navigateTo('kontakt')" style="color:rgba(255,255,255,.7);text-decoration:none;margin:0 .85rem;font-weight:500;">Kontakt</a>
+        <a href="/facebook" onclick="event.preventDefault();navigateTo('facebook')" style="color:rgba(255,255,255,.7);text-decoration:none;margin:0 .85rem;font-weight:500;">Grupa na Facebooku</a>
+      </p>
+      <p style="opacity:.6;">© 2025 VitalFly. Wszelkie prawa zastrzeżone.</p>
+    </div>
+  </footer>
+</div>
