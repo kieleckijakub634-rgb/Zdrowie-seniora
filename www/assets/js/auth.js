@@ -72,7 +72,7 @@
       if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
         await window.Capacitor.Plugins.Preferences.remove({ key: 'kz_session' });
       }
-      window.location.reload();
+      window.location.href = '/';
     }
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeLoginModal(); } });
