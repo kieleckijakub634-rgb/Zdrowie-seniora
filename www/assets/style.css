@@ -1863,7 +1863,12 @@
       --vf-ring: rgba(62, 174, 150, 0.28);
     }
 
-    html,
+    html {
+      -webkit-overflow-scrolling: touch;
+      margin: 0 !important;
+      padding: 0 !important;
+      background-color: #FBF8F2;
+    }
     body {
       margin: 0 !important;
       padding: 0 !important;
@@ -1871,8 +1876,6 @@
       -webkit-overflow-scrolling: touch;
       max-width: 100% !important;
       width: 100% !important;
-      height: auto !important;
-      min-height: 100% !important;
     }
 
     body {
