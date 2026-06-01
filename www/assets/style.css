@@ -655,6 +655,8 @@
         margin: 1rem;
         max-height: 95vh;
         border-radius: 28px;
+        width: 100%;
+        max-width: 540px;
       }
 
       /* App Shell mobile fixes */
