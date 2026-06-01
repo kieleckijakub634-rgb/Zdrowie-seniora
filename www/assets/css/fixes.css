@@ -61,10 +61,11 @@ select {
 }
 
 /* Fix for jittery animations and clipping borders on hover */
-.card, .btn-cta, .btn-stripe, .btn-outline, .faq-item, .tab-btn, .video-card, .diet-card, .med-item, .settings-section {
+.card, .btn-cta, .btn-stripe, .btn-outline, .faq-item, .tab-btn, .video-card, .diet-card, .med-item, .settings-section, .price-box {
   will-change: transform, box-shadow;
-  transform: translateZ(0);
   -webkit-font-smoothing: subpixel-antialiased;
-  backface-visibility: hidden;
 }
 .tab-btn { overflow: hidden; } /* zapobiega wychodzeniu gradientu */
+
+/* Fix for backdrop-filter outline glitch */
+.price-box, .btn-cta, .card { isolation: isolate; }
