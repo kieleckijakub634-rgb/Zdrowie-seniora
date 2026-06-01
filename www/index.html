@@ -122,6 +122,7 @@
   <div id="adminShell">
     <div id="adminLoginView">
       <div class="admin-login-box">
+        <div style="font-size:3rem;margin-bottom:1rem;text-align:center;">🔐</div>
         <div class="admin-login-title">Panel Administratora</div>
         <p style="color:#6A8FB0;font-size:.95rem;margin-bottom:1.5rem;">Zaloguj się aby zarządzać treścią.</p>
         <input type="password" id="admin-pass-input" class="admin-input" placeholder="Hasło administratora" style="margin-bottom:1rem;" onkeydown="if(event.key==='Enter')adminLogin()" />
@@ -146,42 +147,42 @@
           <div class="admin-stat"><div class="admin-stat-num" id="a-stat-meds">—</div><div class="admin-stat-label">Zapisanych leków</div></div>
         </div>
         <div class="admin-tabs">
-          <button class="admin-tab active" onclick="switchAdminTab('content',this)" type="button">Treść</button>
-          <button class="admin-tab" onclick="switchAdminTab('prices',this)" type="button">Cennik</button>
-          <button class="admin-tab" onclick="switchAdminTab('modules',this)" type="button">Moduły</button>
-          <button class="admin-tab" onclick="switchAdminTab('announce',this)" type="button">Ogłoszenia</button>
+          <button class="admin-tab active" onclick="switchAdminTab('content',this)" type="button">📝 Treść</button>
+          <button class="admin-tab" onclick="switchAdminTab('prices',this)" type="button">💰 Cennik</button>
+          <button class="admin-tab" onclick="switchAdminTab('modules',this)" type="button">🔧 Moduły</button>
+          <button class="admin-tab" onclick="switchAdminTab('announce',this)" type="button">📢 Ogłoszenia</button>
         </div>
         <div class="admin-panel active" id="atab-content">
-          <div class="admin-card"><div class="vf-admin-card-title">Edytuj filmy ćwiczeniowe</div><div id="admin-videos-list"></div></div>
-          <div class="admin-card"><div class="vf-admin-card-title">Edytuj jadłospisy</div><div id="admin-diets-list"></div></div>
+          <div class="admin-card"><div class="vf-admin-card-title">🎬 Edytuj filmy ćwiczeniowe</div><div id="admin-videos-list"></div></div>
+          <div class="admin-card"><div class="vf-admin-card-title">🥗 Edytuj jadłospisy</div><div id="admin-diets-list"></div></div>
         </div>
         <div class="admin-panel" id="atab-modules">
           <div class="admin-card">
-            <div class="vf-admin-card-title">Dostępne moduły dla użytkowników</div>
-            <div class="module-toggle-row"><span>Zakładka Ćwiczenia</span><label class="toggle-sw"><input type="checkbox" id="mod-videos" checked onchange="toggleModule('videos',this.checked)"><span class="toggle-sw-slider"></span></label></div>
-            <div class="module-toggle-row"><span>Zakładka Dieta</span><label class="toggle-sw"><input type="checkbox" id="mod-diets" checked onchange="toggleModule('diets',this.checked)"><span class="toggle-sw-slider"></span></label></div>
-            <div class="module-toggle-row"><span>Zakładka Leki</span><label class="toggle-sw"><input type="checkbox" id="mod-meds" checked onchange="toggleModule('meds',this.checked)"><span class="toggle-sw-slider"></span></label></div>
-            <div class="module-toggle-row"><span>Zakładka Ustawienia</span><label class="toggle-sw"><input type="checkbox" id="mod-settings" checked onchange="toggleModule('settings',this.checked)"><span class="toggle-sw-slider"></span></label></div>
-            <div class="module-toggle-row"><span>Opcja Zakupy</span><label class="toggle-sw"><input type="checkbox" id="mod-shop" checked onchange="toggleModule('shop',this.checked)"><span class="toggle-sw-slider"></span></label></div>
+            <div class="vf-admin-card-title">🔧 Dostępne moduły dla użytkowników</div>
+            <div class="module-toggle-row"><span>🎬 Zakładka Ćwiczenia</span><label class="toggle-sw"><input type="checkbox" id="mod-videos" checked onchange="toggleModule('videos',this.checked)"><span class="toggle-sw-slider"></span></label></div>
+            <div class="module-toggle-row"><span>🥗 Zakładka Dieta</span><label class="toggle-sw"><input type="checkbox" id="mod-diets" checked onchange="toggleModule('diets',this.checked)"><span class="toggle-sw-slider"></span></label></div>
+            <div class="module-toggle-row"><span>💊 Zakładka Leki</span><label class="toggle-sw"><input type="checkbox" id="mod-meds" checked onchange="toggleModule('meds',this.checked)"><span class="toggle-sw-slider"></span></label></div>
+            <div class="module-toggle-row"><span>⚙️ Zakładka Ustawienia</span><label class="toggle-sw"><input type="checkbox" id="mod-settings" checked onchange="toggleModule('settings',this.checked)"><span class="toggle-sw-slider"></span></label></div>
+            <div class="module-toggle-row"><span>🛒 Opcja Zakupy</span><label class="toggle-sw"><input type="checkbox" id="mod-shop" checked onchange="toggleModule('shop',this.checked)"><span class="toggle-sw-slider"></span></label></div>
           </div>
           <div class="admin-card" style="margin-top:1rem;">
-            <div class="vf-admin-card-title">Sztuczna Inteligencja (Google Gemini AI)</div>
+            <div class="vf-admin-card-title">🤖 Sztuczna Inteligencja (Google Gemini AI)</div>
             <p style="color:#A0AEC0;font-size:0.85rem;margin-bottom:0.75rem;line-height:1.4;">Wklej swój klucz API Gemini, aby aktywować czat asystenta zdrowotnego.</p>
             <input type="password" id="admin-gemini-key" class="admin-input" placeholder="Wklej klucz API Gemini..." style="margin-bottom:0.75rem;width:100%;" />
             <button class="admin-btn" onclick="saveGeminiKey()" type="button">Zapisz klucz API</button>
           </div>
-          <div class="admin-card"><div class="vf-admin-card-title">Podgląd jako użytkownik</div><button class="admin-btn" onclick="closeAdmin();showApp('Podgląd Admin')" type="button">Przełącz na widok użytkownika →</button></div>
+          <div class="admin-card"><div class="vf-admin-card-title">👁️ Podgląd jako użytkownik</div><button class="admin-btn" onclick="closeAdmin();showApp('Podgląd Admin')" type="button">Przełącz na widok użytkownika →</button></div>
         </div>
         <div class="admin-panel" id="atab-announce">
           <div class="admin-card">
-            <div class="vf-admin-card-title">Ogłoszenie w panelu użytkownika</div>
+            <div class="vf-admin-card-title">📢 Ogłoszenie w panelu użytkownika</div>
             <textarea id="announce-text" class="admin-input" style="min-height:120px;resize:vertical;margin-bottom:.75rem;" placeholder="Wpisz ogłoszenie widoczne na ekranie głównym aplikacji..."></textarea>
             <div style="display:flex;gap:.75rem;flex-wrap:wrap;"><button class="admin-btn" onclick="saveAnnounce()" type="button">Zapisz ogłoszenie</button><button class="admin-btn admin-btn-danger" onclick="clearAnnounce()" type="button">Usuń ogłoszenie</button></div>
           </div>
         </div>
         <div class="admin-panel" id="atab-prices">
           <div class="admin-card">
-            <div class="vf-admin-card-title">Edytuj ceny subskrypcji</div>
+            <div class="vf-admin-card-title">💰 Edytuj ceny subskrypcji</div>
             <p style="font-size:.85rem;color:var(--warm-gray);margin-bottom:1rem;">Zapisane tu ceny zaktualizują się automatycznie na stronie głównej oraz w panelu rejestracji użytkownika.</p>
             <div style="display:flex;gap:1rem;margin-bottom:.75rem;flex-wrap:wrap;">
               <div style="flex:1;min-width:200px;"><label style="font-size:.85rem;font-weight:600;">Cena miesięczna (zł)</label><input type="number" id="admin-price-monthly" class="admin-input" placeholder="np. 39" /></div>
@@ -195,6 +196,11 @@
   </div>
 
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.106.1/dist/umd/supabase.min.js" onerror="window.__VF_SUPABASE_FAILED=true"></script>
+  <script defer src="assets/js/auth.js"></script>
+  <script defer src="assets/js/router.js"></script>
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/modules.js"></script>
+  <script defer src="assets/js/admin.js"></script>
   <script defer src="assets/app.js"></script>
 </body>
 </html>
