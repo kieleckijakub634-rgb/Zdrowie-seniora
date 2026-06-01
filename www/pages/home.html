@@ -1,0 +1,399 @@
+  <div id="pg-home">
+    <!-- HERO (App Onboarding Style) -->
+    <section class="app-hero relative overflow-hidden">
+      <div class="noise-overlay"></div>
+      <div class="hero-floating-card hero-float-1">
+        <strong>15 minut dziennie</strong>
+        <span>Łagodne ćwiczenia z fizjoterapeutą, bez sprzętu i presji.</span>
+      </div>
+      <div class="hero-floating-card hero-float-2">
+        <strong>AI wspiera zdrowie</strong>
+        <span>Jadłospis i asystent uwzględniają Twój profil zdrowotny.</span>
+      </div>
+      <div class="mobile-app-bar">
+        <div
+          style="display:flex; align-items:center; gap:0.6rem; background:rgba(11, 57, 52, 0.45); padding:0.45rem 1.1rem; border-radius:999px; backdrop-filter:blur(16px); border: 1px solid rgba(255, 255, 255, 0.15);">
+          <img src="assets/logo.png" alt="VitalFly Logo" style="height:26px; width:auto; border-radius:6px;" />
+          <span class="font-serif text-white font-bold tracking-wide" style="font-size:1.05rem;">VitalFly</span>
+        </div>
+        <button onclick="openLoginModal()" class="btn-login-header">
+          Zaloguj
+        </button>
+      </div>
+
+      <img src="https://images.unsplash.com/photo-1607962837359-5e7e89f86776?w=800&q=80"
+        alt="Aktywni seniorzy ćwiczący razem" class="app-hero-img" loading="eager" />
+
+      <div class="app-hero-content z-10">
+        <span class="section-label fade-up" style="margin-bottom:0.75rem; display:inline-block;">DLA AKTYWNYCH
+          SENIORÓW</span>
+        <h1 class="font-serif text-white leading-tight fade-up fade-up-d1"
+          style="font-size:2.4rem; font-weight:700; margin-top:0; margin-bottom:1rem;">
+          Odzyskaj radość ruchu.<br />
+          <em class="gradient-text" style="-webkit-text-fill-color:transparent;">Bez bólu.</em>
+        </h1>
+        <p class="text-white fade-up fade-up-d2"
+          style="font-size:1.1rem; opacity:0.95; line-height:1.65; margin-bottom:1.75rem; max-width:540px; margin-left:auto; margin-right:auto;">
+          Codzienne 15-minutowe ćwiczenia w domu z fizjoterapeutą i prosta dieta.
+        </p>
+        <div class="fade-up fade-up-d3"
+          style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; font-size:0.88rem; color:white; opacity:0.9; font-weight:600;">
+          <span
+            style="background:rgba(255,255,255,0.12); padding:0.4rem 1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.06);">✓
+            Bez umowy</span>
+          <span
+            style="background:rgba(255,255,255,0.12); padding:0.4rem 1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.06);">✓
+            0 ukrytych kosztów</span>
+        </div>
+        <div class="hero-proof-rail fade-up fade-up-d3" aria-label="Najważniejsze korzyści VitalFly">
+          <div class="hero-proof-card"><span class="hero-proof-icon">🎬</span><span><span
+                class="hero-proof-title">Ćwiczenia</span><span class="hero-proof-sub">codziennie w domu</span></span>
+          </div>
+          <div class="hero-proof-card"><span class="hero-proof-icon">🥗</span><span><span
+                class="hero-proof-title">Jadłospis AI</span><span class="hero-proof-sub">dopasowany do
+                profilu</span></span></div>
+          <div class="hero-proof-card"><span class="hero-proof-icon">💬</span><span><span
+                class="hero-proof-title">Asystent</span><span class="hero-proof-sub">prosty język i
+                ostrożność</span></span></div>
+        </div>
+      </div>
+
+      <div class="wave-divider" style="position:absolute; bottom:-2px; left:0; width:100%;">
+        <svg viewBox="0 0 1200 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"
+          style="display:block;width:100%;height:60px;">
+          <path d="M0,30 C300,60 900,0 1200,30 L1200,60 L0,60 Z" fill="var(--beige)" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- PAIN -->
+    <section style="background:var(--beige); padding:4rem 1.5rem;">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-12">
+          <span class="section-label">ROZUMIEMY CIĘ</span>
+          <h2 class="font-serif mt-4"
+            style="font-size:clamp(1.8rem, 3.5vw, 2.5rem); color:var(--navy); font-weight:700;">Brzmi znajomo?</h2>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="card flex flex-col items-start gap-5">
+            <div class="pain-icon">🌅</div>
+            <div>
+              <h3 class="font-serif font-bold mb-2.5" style="font-size:1.3rem; color:var(--navy);">Poranna sztywność i
+                ból</h3>
+              <p style="color:#4A5251; font-size:1rem; line-height:1.6;">Wstajesz rano i czujesz, że kręgosłup i stawy
+                protestują? Ten ból odbiera Ci chęć do działania, zanim dzień się jeszcze zaczął.</p>
+            </div>
+          </div>
+          <div class="card flex flex-col items-start gap-5">
+            <div class="pain-icon">😔</div>
+            <div>
+              <h3 class="font-serif font-bold mb-2.5" style="font-size:1.3rem; color:var(--navy);">Chcesz być aktywny,
+                ale się boisz</h3>
+              <p style="color:#4A5251; font-size:1rem; line-height:1.6;">Masz ochotę bawić się z wnukami, wyjść na
+                spacer – lecz boisz się, że coś „strzyknie" w kolanie albo zabraknie Ci tchu.</p>
+            </div>
+          </div>
+          <div class="card flex flex-col items-start gap-5">
+            <div class="pain-icon">🤯</div>
+            <div>
+              <h3 class="font-serif font-bold mb-2.5" style="font-size:1.3rem; color:var(--navy);">Wszystko
+                skomplikowane i drogie</h3>
+              <p style="color:#4A5251; font-size:1rem; line-height:1.6;">Siłownie, diety-cud, trudne aplikacje na
+                telefon… Tego jest za dużo. Chcesz czegoś prostego, bezpiecznego i w domu.</p>
+            </div>
+          </div>
+        </div>
+        <p class="text-center mt-12 font-serif italic" style="font-size:1.25rem; color:var(--navy); line-height:1.6;">
+          Właśnie dlatego powstał <strong>VitalFly</strong>. Dla Ciebie. Na Twoich warunkach.</p>
+      </div>
+    </section>
+
+    <div class="wave-divider" style="background:var(--beige); margin-bottom:-2px;">
+      <svg viewBox="0 0 1200 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"
+        style="display:block;width:100%;height:60px;">
+        <path d="M0,0 C400,60 800,0 1200,50 L1200,60 L0,60 Z" fill="#fff" />
+      </svg>
+    </div>
+
+    <!-- 3 PILLARS -->
+    <section style="background:#fff; padding:4.5rem 1.5rem;">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-14">
+          <span class="section-label">TWOJE 3 FILARY ZDROWIA</span>
+          <h2 class="font-serif mt-4"
+            style="font-size:clamp(1.8rem, 3.5vw, 2.5rem); color:var(--navy); font-weight:700;">Co dostajesz w Klubie?
+          </h2>
+          <p class="mt-4" style="font-size:1.1rem; color:#4A5251; max-width:580px; margin:auto; line-height:1.6;">
+            Wszystko, czego potrzebujesz – i nic zbędnego. Prosto, bezpiecznie, w domu.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8 pillar-grid">
+          <div class="card text-center">
+            <div class="pillar-icon">🎬</div>
+            <h3 class="font-serif font-bold mb-3" style="font-size:1.35rem; color:var(--navy);">Codzienne 15-minutowe
+              wideo</h3>
+            <p style="color:#4A5251; font-size:1.02rem; line-height:1.65; min-height: 80px;">Każdego ranka nowe
+              ćwiczenia prowadzone przez certyfikowanego <strong>fizjoterapeutę</strong>. Łagodne, bezpieczne, bez
+              klęczenia i bez sprzętu.</p>
+            <ul class="mt-6 text-left space-y-3"
+              style="font-size:0.95rem; border-top:1px solid var(--border-light); padding-top:1.25rem;">
+              <li class="flex items-center gap-2.5"><span class="check-icon">✓</span> Telefon, tablet lub TV</li>
+              <li class="flex items-center gap-2.5"><span class="check-icon">✓</span> Archiwum poprzednich filmów</li>
+              <li class="flex items-center gap-2.5"><span class="check-icon">✓</span> Komentarze prowadzącego</li>
+            </ul>
+          </div>
+          <div class="card text-center featured-pillar"
+            style="border:2px solid var(--mint); position:relative; background:#fff; transform: translateY(-4px); box-shadow: var(--shadow-lg);">
+            <div class="featured-badge">★ NAJPOPULARNIEJSZE</div>
+            <div class="pillar-icon" style="background-color: var(--mint-light);">🥗</div>
+            <h3 class="font-serif font-bold mb-3" style="font-size:1.35rem; color:var(--navy);">Proste jadłospisy
+              przeciwzapalne</h3>
+            <p style="color:#4A5251; font-size:1.02rem; line-height:1.65; min-height: 80px;">Co tydzień nowy jadłospis z
+              polskich produktów dostępnych w każdym sklepie. Smaczne, tanie i skuteczne.</p>
+            <ul class="mt-6 text-left space-y-3"
+              style="font-size:0.95rem; border-top:1px solid var(--border-light); padding-top:1.25rem;">
+              <li class="flex items-center gap-2.5"><span class="check-icon">✓</span> Składniki do 30 zł/tydzień</li>
+              <li class="flex items-center gap-2.5"><span class="check-icon">✓</span> Przepisy krok po kroku</li>
+              <li class="flex items-center gap-2.5"><span class="check-icon">✓</span> Lista zakupów do wydruku</li>
+            </ul>
+          </div>
+          <div class="card text-center">
+            <div class="pillar-icon">🤝</div>
+            <h3 class="font-serif font-bold mb-3" style="font-size:1.35rem; color:var(--navy);">Zamknięta, życzliwa
+              społeczność</h3>
+            <p style="color:#4A5251; font-size:1.02rem; line-height:1.65; min-height: 80px;">Grupa na Facebooku złożona
+              z osób takich jak Ty. <strong>Żadnej rywalizacji.</strong> Tylko wzajemne wsparcie i codzienna motywacja.
+            </p>
+            <ul class="mt-6 text-left space-y-3"
+              style="font-size:0.95rem; border-top:1px solid var(--border-light); padding-top:1.25rem;">
+              <li class="flex items-center gap-2.5"><span class="check-icon">✓</span> Odpowiedzi fizjoterapeuty</li>
+              <li class="flex items-center gap-2.5"><span class="check-icon">✓</span> Sukcesy innych członków</li>
+              <li class="flex items-center gap-2.5"><span class="check-icon">✓</span> Brak oceniania, tylko życzliwość
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="text-center mt-14"><button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse">Chcę to
+            wszystko – dołączam za 39 zł/miesiąc →</button></div>
+      </div>
+    </section>
+
+    <div class="wave-divider" style="background:#fff; margin-bottom:-2px;">
+      <svg viewBox="0 0 1200 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"
+        style="display:block;width:100%;height:60px;">
+        <path d="M0,50 C300,0 900,60 1200,10 L1200,60 L0,60 Z" fill="var(--mint-light)" />
+      </svg>
+    </div>
+
+    <!-- TESTIMONIALS -->
+    <section style="background:var(--mint-light); padding:4.5rem 1.5rem;">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-12">
+          <span class="section-label">CO MÓWIĄ NASI CZŁONKOWIE</span>
+          <h2 class="font-serif mt-4"
+            style="font-size:clamp(1.8rem, 3.5vw, 2.5rem); color:var(--navy); font-weight:700;">Prawdziwe doświadczenia,
+            prawdziwe zmiany</h2>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8">
+          <div class="testimonial-card">
+            <div class="flex items-center gap-4 mb-5">
+              <div
+                style="width:58px; height:58px; border-radius:50%; background:#C5EDE5; display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0; box-shadow: 0 4px 10px rgba(62, 174, 150, 0.15);">
+                👩</div>
+              <div>
+                <p class="font-serif font-bold" style="color:var(--navy); font-size:1.15rem; margin:0 0 2px 0;">Krystyna
+                  W., 67 lat</p>
+                <p style="font-size:0.88rem; color:var(--warm-gray); margin:0; font-weight:600;">Wrocław • Członek od 8
+                  miesięcy</p>
+              </div>
+            </div>
+            <p style="font-size:1.05rem; color:var(--text-dark); line-height:1.8; margin:0 0 1.25rem 0;">„Przez pół roku
+              nie mogłam schylić się, żeby zawiązać buty. <strong>Po 6 tygodniach ćwiczeń z Klubem weszłam na trzecie
+                piętro bez zadyszki.</strong> Nie wierzyłam, że to możliwe w moim wieku!"</p>
+            <div style="color:#F7B731; font-size:1.25rem; letter-spacing:2px;">★★★★★</div>
+          </div>
+          <div class="testimonial-card">
+            <div class="flex items-center gap-4 mb-5">
+              <div
+                style="width:58px; height:58px; border-radius:50%; background:#C5EDE5; display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0; box-shadow: 0 4px 10px rgba(62, 174, 150, 0.15);">
+                👨</div>
+              <div>
+                <p class="font-serif font-bold" style="color:var(--navy); font-size:1.15rem; margin:0 0 2px 0;">Ryszard
+                  M., 71 lat</p>
+                <p style="font-size:0.88rem; color:var(--warm-gray); margin:0; font-weight:600;">Kraków • Członek od 5
+                  miesięcy</p>
+              </div>
+            </div>
+            <p style="font-size:1.05rem; color:var(--text-dark); line-height:1.8; margin:0 0 1.25rem 0;">„Byłem
+              sceptyczny – myślałem, że to dla kobiet albo dla młodszych. <strong>Wnuczka mówi, że dziadek jest teraz
+                sprawniejszy od sąsiada, który ma 50 lat.</strong> To chyba najlepsza recenzja."</p>
+            <div style="color:#F7B731; font-size:1.25rem; letter-spacing:2px;">★★★★★</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wave-divider" style="background:var(--mint-light); margin-bottom:-2px;">
+      <svg viewBox="0 0 1200 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"
+        style="display:block;width:100%;height:60px;">
+        <path d="M0,10 C500,70 700,0 1200,40 L1200,60 L0,60 Z" fill="#fff" />
+      </svg>
+    </div>
+
+    <!-- GUARANTEE -->
+    <section style="background:#fff; padding:4.5rem 1.5rem;">
+      <div class="max-w-3xl mx-auto">
+        <div class="guarantee-badge">
+          <div class="relative z-10">
+            <div style="font-size:3.5rem; margin-bottom:1rem;">🛡️</div>
+            <span class="section-label"
+              style="color:var(--mint); background:rgba(62, 174, 150, 0.15); margin-bottom:0.75rem;">BEZPIECZEŃSTWO
+              PRZEDE WSZYSTKIM</span>
+            <h2 class="font-serif mt-3 mb-5 text-white"
+              style="font-size:clamp(1.6rem, 3.5vw, 2.2rem); font-weight:700;">Zero ryzyka. Rezygnacja w każdej chwili.
+            </h2>
+            <p class="text-white mb-8" style="font-size:1.1rem; opacity:0.92; max-width:540px; line-height:1.7;">Jeśli z
+              jakiegokolwiek powodu Klub Ci nie odpowiada – wystarczy jeden e-mail i anulujemy subskrypcję tego samego
+              dnia.</p>
+            <ul class="space-y-4">
+              <li class="flex items-center gap-3 text-white" style="font-size:1.05rem;"><span
+                  class="check-icon flex-shrink-0" style="background:#fff; color:var(--navy);">✓</span> Bez umów
+                długoterminowych</li>
+              <li class="flex items-center gap-3 text-white" style="font-size:1.05rem;"><span
+                  class="check-icon flex-shrink-0" style="background:#fff; color:var(--navy);">✓</span> Rezygnacja
+                jednym e-mailem lub telefonem</li>
+              <li class="flex items-center gap-3 text-white" style="font-size:1.05rem;"><span
+                  class="check-icon flex-shrink-0" style="background:#fff; color:var(--navy);">✓</span> Odpowiadamy na
+                pytania w ciągu 24 godzin</li>
+              <li class="flex items-center gap-3 text-white" style="font-size:1.05rem;"><span
+                  class="check-icon flex-shrink-0" style="background:#fff; color:var(--navy);">✓</span> Dane osobowe
+                chronione zgodnie z RODO</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="dolacz" style="background:var(--beige); padding:4.5rem 1.5rem;">
+      <div class="max-w-2xl mx-auto">
+        <div class="text-center mb-10">
+          <span class="section-label">PROSTA, UCZCIWA CENA</span>
+          <h2 class="font-serif mt-4"
+            style="font-size:clamp(1.8rem, 3.5vw, 2.5rem); color:var(--navy); font-weight:700;">Wszystko w jednej
+            opłacie</h2>
+        </div>
+        <div class="plan-toggle" id="planToggle">
+          <button class="plan-toggle-btn active" id="btn-monthly" onclick="switchPlan('monthly')">Miesięczny</button>
+          <button class="plan-toggle-btn" id="btn-yearly" onclick="switchPlan('yearly')">Roczny <span
+              class="plan-badge">-17%</span></button>
+        </div>
+        <div class="price-box">
+          <div class="mb-2" id="price-display">
+            <span class="font-serif" style="font-size:5rem; font-weight:700; color:var(--navy); line-height:1;"
+              id="price-num">39</span>
+            <span class="font-serif" style="font-size:2rem; color:var(--navy); font-weight:600;"> zł</span>
+            <span style="font-size:1.2rem; color:var(--warm-gray); margin-left:4px;" id="price-period">/ miesiąc</span>
+          </div>
+          <p style="color:var(--warm-gray); font-size:1.05rem; margin-bottom:2.25rem; font-weight:500;" id="price-sub">
+            To mniej niż dwie kawy tygodniowo ☕</p>
+          <div class="divider-label mb-6">W CENE OTRZYMUJESZ</div>
+          <ul class="space-y-4 text-left mb-8">
+            <li class="flex items-start gap-3.5" style="font-size:1.1rem;"><span
+                class="check-icon flex-shrink-0">✓</span><span><strong>Codzienne wideo z fizjoterapeutą</strong> – 15
+                minut, bezpiecznie, we własnym tempie</span></li>
+            <li class="flex items-start gap-3.5" style="font-size:1.1rem;"><span
+                class="check-icon flex-shrink-0">✓</span><span><strong>Cotygodniowy jadłospis</strong> przeciwzapalny +
+                lista zakupów</span></li>
+            <li class="flex items-start gap-3.5" style="font-size:1.1rem;"><span
+                class="check-icon flex-shrink-0">✓</span><span><strong>Dostęp do zamkniętej grupy</strong> na
+                Facebooku</span></li>
+            <li class="flex items-start gap-3.5" style="font-size:1.1rem;"><span
+                class="check-icon flex-shrink-0">✓</span><span><strong>Archiwum wszystkich materiałów</strong> – wracaj
+                kiedy chcesz</span></li>
+          </ul>
+          <button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse"
+            style="width:100%; text-align:center; display:block;" id="main-join-btn">Dołączam do Klubu za 39 zł/miesiąc
+            →</button>
+          <p class="mt-5 text-center"
+            style="font-size:0.95rem; color:var(--warm-gray); line-height:1.55; font-weight:500;">🔒 Bezpieczna płatność
+            przez <strong>Przelewy24</strong> – BLIK, przelew lub karta.<br />Bez umowy. Rezygnacja w każdej chwili.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="wave-divider" style="background:var(--beige); margin-bottom:-2px;">
+      <svg viewBox="0 0 1200 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"
+        style="display:block;width:100%;height:60px;">
+        <path d="M0,40 C300,0 900,60 1200,20 L1200,60 L0,60 Z" fill="#fff" />
+      </svg>
+    </div>
+
+    <!-- FAQ -->
+    <section style="background:#fff; padding:4.5rem 1.5rem;">
+      <div class="max-w-3xl mx-auto">
+        <div class="text-center mb-12">
+          <span class="section-label">MASZ PYTANIA?</span>
+          <h2 class="font-serif mt-4"
+            style="font-size:clamp(1.8rem, 3.5vw, 2.5rem); color:var(--navy); font-weight:700;">Najczęstsze obawy</h2>
+        </div>
+        <div class="space-y-4">
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">Czy to bezpieczne dla mojego zdrowia? Mam problemy z
+              kręgosłupem i kolanami.</div>
+            <div class="faq-a">Tak, absolutnie. Wszystkie ćwiczenia są zaprojektowane przez dyplomowanego fizjoterapeutę
+              z 20-letnim doświadczeniem w pracy z seniorami. Przed każdym wideo prowadzący wyjaśnia, kto <em>nie
+                powinien</em> wykonywać danego ćwiczenia. W razie wątpliwości fizjoterapeuta osobiście odpowie na
+              pytania w grupie.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">Jak zapłacić? Nie umiem robić przelewów przez internet.</div>
+            <div class="faq-a">To żaden problem! Możesz zapłacić przez <strong>BLIK</strong> (telefonem), <strong>kartę
+                płatniczą</strong> lub <strong>tradycyjny przelew bankowy</strong> – wszystko przez znany Polakom system
+              <strong>Przelewy24</strong>. Jeśli potrzebujesz pomocy, zadzwoń do nas. Nasz konsultant przeprowadzi Cię
+              przez cały proces przez telefon, krok po kroku.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">Co jeśli nie mam kondycji i nigdy wcześniej nie ćwiczyłem/-am?
+            </div>
+            <div class="faq-a">To jest właśnie klub stworzony <em>dla Ciebie</em>. Zaczynamy od podstawowych, łagodnych
+              ruchów – takich, które możesz wykonać siedząc na krześle lub trzymając się blatu kuchennego. Żadnego
+              wyścigu, żadnego oceniania. Twój jedyny rywal to Ty z wczoraj.</div>
+          </div>
+        </div>
+        <div class="text-center mt-16">
+          <p class="font-serif mb-6" style="font-size:1.35rem; color:var(--navy); line-height:1.5;">Masz inne pytanie?
+            Napisz do nas –<br />odpowiemy w ciągu 24 godzin.</p>
+          <a href="mailto:kontakt@klubzdrowia50.pl"
+            style="color:var(--mint); font-weight:700; font-size:1.15rem; text-decoration:underline;">kontakt@klubzdrowia50.pl</a>
+          <div class="mt-10"><button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse">Dołączam do Klubu za
+              39 zł/miesiąc →</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer
+      style="background:var(--navy-dark); padding:3.5rem 1.5rem; color:rgba(255,255,255,0.65); font-size:0.92rem; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+      <div class="max-w-4xl mx-auto text-center">
+        <p class="font-serif text-white font-bold text-xl mb-3">VitalFly</p>
+        <p class="mb-5">
+          <a href="#polityka" onclick="navigateTo('polityka')"
+            style="color:rgba(255,255,255,0.7); text-decoration:none; margin:0 0.85rem; font-weight:500; transition:var(--transition-smooth);">Polityka
+            prywatności</a>
+          <a href="#regulamin" onclick="navigateTo('regulamin')"
+            style="color:rgba(255,255,255,0.7); text-decoration:none; margin:0 0.85rem; font-weight:500; transition:var(--transition-smooth);">Regulamin</a>
+          <a href="#kontakt" onclick="navigateTo('kontakt')"
+            style="color:rgba(255,255,255,0.7); text-decoration:none; margin:0 0.85rem; font-weight:500; transition:var(--transition-smooth);">Kontakt</a>
+          <a href="#facebook" onclick="navigateTo('facebook')"
+            style="color:rgba(255,255,255,0.7); text-decoration:none; margin:0 0.85rem; font-weight:500; transition:var(--transition-smooth);">Grupa
+            na Facebooku</a>
+        </p>
+        <p style="opacity:0.6; cursor:pointer; font-weight:500; display:inline-block;" id="copyright-trigger"
+          onclick="adminClickTrigger()">© 2025 VitalFly. Wszelkie prawa zastrzeżone.</p>
+        <p class="mt-4"
+          style="opacity:0.45; font-size:0.82rem; line-height:1.5; max-width:680px; margin-left:auto; margin-right:auto;">
+          Ćwiczenia zaprezentowane na stronie mają charakter informacyjny. Przed rozpoczęciem aktywności fizycznej
+          skonsultuj się ze swoim lekarzem.</p>
+      </div>
+    </footer>
+  </div><!-- /pg-home -->

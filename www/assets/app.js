@@ -175,14 +175,25 @@
 
     /* ── Router podstron ── */
     const PAGES = ['polityka', 'regulamin', 'kontakt', 'facebook'];
-    function navigateTo(id) {
-      document.getElementById('pg-home').style.display = id ? 'none' : 'block';
-      PAGES.forEach(p => {
-        const el = document.getElementById('pg-' + p);
-        if (el) el.style.display = (p === id) ? 'block' : 'none';
-      });
-      window.scrollTo(0, 0);
-      history.pushState({}, '', '#' + (id || ''));
+    const pageCache = {};
+    async function navigateTo(id) {
+      const pageId = id || 'home';
+      const container = document.getElementById('page-content');
+      if (!container) return;
+      
+      try {
+        if (!pageCache[pageId]) {
+          const res = await fetch('pages/' + pageId + '.html');
+          if (!res.ok) throw new Error('Błąd ładowania: ' + res.statusText);
+          pageCache[pageId] = await res.text();
+        }
+        container.innerHTML = pageCache[pageId];
+        window.scrollTo(0, 0);
+        history.pushState({}, '', '#' + (id || ''));
+      } catch (err) {
+        console.error('Błąd nawigacji:', err);
+        container.innerHTML = '<div style="padding:4rem 1.5rem;text-align:center;"><h2 style="font-size:1.5rem;color:#0B3934;margin-bottom:1rem;">Wystąpił błąd</h2><p>Sprawdź połączenie z internetem i spróbuj ponownie.</p><button onclick="navigateTo(\'\')" style="margin-top:1.5rem;padding:0.75rem 1.5rem;background:#35BBA0;color:white;border:none;border-radius:8px;cursor:pointer;">Wróć na stronę główną</button></div>';
+      }
     }
     window.addEventListener('popstate', () => {
       const id = window.location.hash.replace('#', '');
