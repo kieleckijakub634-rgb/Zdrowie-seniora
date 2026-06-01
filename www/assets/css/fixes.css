@@ -59,3 +59,12 @@ select {
     width: min(92vw, 620px);
   }
 }
+
+/* Fix for jittery animations and clipping borders on hover */
+.card, .btn-cta, .btn-stripe, .btn-outline, .faq-item, .tab-btn, .video-card, .diet-card, .med-item, .settings-section {
+  will-change: transform, box-shadow;
+  transform: translateZ(0);
+  -webkit-font-smoothing: subpixel-antialiased;
+  backface-visibility: hidden;
+}
+.tab-btn { overflow: hidden; } /* zapobiega wychodzeniu gradientu */

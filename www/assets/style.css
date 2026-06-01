@@ -100,7 +100,6 @@
     .btn-cta:hover {
       transform: translateY(-3px) scale(1.02);
       box-shadow: 0 12px 30px rgba(62, 174, 150, 0.35);
-      filter: brightness(1.05);
     }
 
     .btn-cta:active {
