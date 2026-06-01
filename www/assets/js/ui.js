@@ -9,6 +9,11 @@
       }, 1200);
     }
 
+    /* Otwieranie regulaminu / polityki z panelu */
+    window.viewTerms = function(page) {
+      window.open('pages/' + page + '.html', '_blank');
+    };
+
     /* ══════════════════════════════════════════════════════════════════
        APP ENGINE – Panel Członkowski
     ══════════════════════════════════════════════════════════════════ */
