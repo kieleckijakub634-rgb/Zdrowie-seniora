@@ -1863,15 +1863,12 @@
       --vf-ring: rgba(62, 174, 150, 0.28);
     }
 
-    html {
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch;
-    }
+    html,
     body {
       margin: 0 !important;
       padding: 0 !important;
       overflow-x: hidden !important;
-      overflow-y: visible !important;
+      -webkit-overflow-scrolling: touch;
       max-width: 100% !important;
       width: 100% !important;
       height: auto !important;
