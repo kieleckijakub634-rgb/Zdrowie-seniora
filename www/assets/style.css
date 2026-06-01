@@ -1828,7 +1828,6 @@
 
     body.logged-in {
       padding-bottom: 0 !important;
-      overflow-y: auto !important;
       height: auto !important;
       min-height: 100% !important;
       -webkit-overflow-scrolling: touch;
@@ -1864,13 +1863,15 @@
       --vf-ring: rgba(62, 174, 150, 0.28);
     }
 
-    html,
+    html {
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
+    }
     body {
       margin: 0 !important;
       padding: 0 !important;
       overflow-x: hidden !important;
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch;
+      overflow-y: visible !important;
       max-width: 100% !important;
       width: 100% !important;
       height: auto !important;
