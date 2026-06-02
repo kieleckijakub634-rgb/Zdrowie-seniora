@@ -52,6 +52,11 @@
 
 
     function viewTerms(page) {
+      const wasLoggedIn = document.body.classList.contains('logged-in');
+      if (wasLoggedIn) {
+        document.body.classList.remove('logged-in');
+      }
+
       document.getElementById('appShell').style.display = 'none';
 
       document.querySelectorAll('body > *:not(#appShell):not(.modal-overlay):not(#adminShell)').forEach(el => {
@@ -74,6 +79,9 @@
       btn.onclick = () => {
         if (target) target.style.display = 'none';
         document.getElementById('appShell').style.display = 'block';
+        if (wasLoggedIn) {
+          document.body.classList.add('logged-in');
+        }
         btn.style.display = 'none';
       };
       window.scrollTo(0, 0);
