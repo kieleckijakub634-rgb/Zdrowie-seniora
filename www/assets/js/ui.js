@@ -965,5 +965,6 @@
 
     function openDogTagFromLive(e) {
       if (e) e.stopPropagation();
+      dismissLiveHelpPopup(e);
       switchTab('dogtag', null);
     }

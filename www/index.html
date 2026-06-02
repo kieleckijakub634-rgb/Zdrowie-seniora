@@ -114,6 +114,9 @@
       <div id="login-view-main">
         <h2 id="login-title" class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Logowanie</h2>
         <p style="color:var(--warm-gray);font-size:1rem;margin-bottom:1.5rem;">Zaloguj się do swojego konta.</p>
+        <div id="login-confirm-success" style="display:none; background:#EBFBFA; border:2px solid var(--mint-mid); color:var(--navy); padding:0.85rem 1rem; border-radius:12px; font-size:0.95rem; font-weight:600; margin-bottom:1.25rem; text-align:left;">
+          ✅ Konto zostało pomyślnie potwierdzone! Możesz się teraz zalogować.
+        </div>
         <div class="mb-4">
           <label class="form-label" for="login-email">Adres e-mail</label>
           <input class="form-input" id="login-email" type="email" placeholder="np. krystyna@poczta.pl" autocomplete="email" />
@@ -162,6 +165,20 @@
         <p class="field-error" id="err-reset" style="display:none;"></p>
       </div>
       <button onclick="handlePasswordResetSubmit()" class="btn-cta" id="btn-reset-submit" type="button" style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Zmień hasło i zaloguj się →</button>
+    </div>
+  </div>
+
+  <!-- Modal informujący o konieczności potwierdzenia e-maila po udanej rejestracji i płatności -->
+  <div class="modal-overlay" id="paymentSuccessModal" onclick="if(event.target===this)closePaymentSuccessModal()" aria-hidden="true" style="z-index:99999;">
+    <div class="modal-box" style="text-align: center; padding: 2.5rem 1.5rem; max-width: 420px;" role="dialog" aria-modal="true" aria-labelledby="success-title">
+      <button class="modal-close" onclick="closePaymentSuccessModal()" aria-label="Zamknij">×</button>
+      <div style="font-size: 4rem; margin-bottom: 1rem; line-height: 1;">🎉</div>
+      <h2 id="success-title" class="font-serif font-bold mb-2" style="font-size: 1.6rem; color: var(--navy);">Płatność przyjęta!</h2>
+      <p style="color: var(--navy); font-weight: 700; margin-bottom: 1rem; font-size: 1.1rem;">Konto zostało utworzone.</p>
+      <p style="color: #444; margin-bottom: 2rem; font-size: 0.98rem; line-height: 1.5; text-align: left;">
+        Wysłaliśmy do Ciebie **wiadomość e-mail z linkiem aktywacyjnym**. Zajrzyj na swoją pocztę (sprawdź również foldery **Spam** oraz **Oferty**) i kliknij w link, aby potwierdzić stworzenie konta i móc się zalogować.
+      </p>
+      <button onclick="closePaymentSuccessModal()" class="btn-cta" type="button" style="width: 100%; font-size: 1.15rem; padding: 0.9rem; border-radius: 12px;">Rozumiem →</button>
     </div>
   </div>
 

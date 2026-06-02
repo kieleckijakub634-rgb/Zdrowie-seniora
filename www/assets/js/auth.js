@@ -4,7 +4,14 @@
     function handleOverlayClick(e) { if (e.target === document.getElementById('signupModal')) closeModal(); }
 
     function openLoginModal() { document.getElementById('loginModal').classList.add('open'); document.body.style.overflow = 'hidden'; }
-    function closeLoginModal() { document.getElementById('loginModal').classList.remove('open'); document.body.style.overflow = ''; }
+    function closeLoginModal() { 
+      document.getElementById('loginModal').classList.remove('open'); 
+      document.body.style.overflow = ''; 
+      const successEl = document.getElementById('login-confirm-success');
+      if (successEl) successEl.style.display = 'none';
+    }
+    function openPaymentSuccessModal() { document.getElementById('paymentSuccessModal').classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closePaymentSuccessModal() { document.getElementById('paymentSuccessModal').classList.remove('open'); document.body.style.overflow = ''; }
     async function handleLogin() {
       const e = document.getElementById('login-email').value.trim();
       const p = document.getElementById('login-password').value.trim();

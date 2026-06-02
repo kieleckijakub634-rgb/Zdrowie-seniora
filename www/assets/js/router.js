@@ -95,6 +95,7 @@
       }
 
       let userId = null;
+      let hasSess = false;
 
       if (window.supabaseClient) {
         // Inicjalizacja rejestracji
@@ -112,6 +113,7 @@
 
           if (!error && data && data.user) {
             userId = data.user.id;
+            hasSess = !!data.session;
           } else {
             console.log("SignUp did not return user (possibly already exists). Trying login...");
             const logRes = await window.supabaseClient.auth.signInWithPassword({
@@ -120,6 +122,7 @@
             });
             if (!logRes.error && logRes.data && logRes.data.user) {
               userId = logRes.data.user.id;
+              hasSess = !!logRes.data.session;
             }
           }
         } catch (e) {
@@ -128,7 +131,7 @@
       }
 
       if (userId) {
-        await saveProfileAndEnterApp(userId, pEmail, pName, pPhone);
+        await saveProfileAndEnterApp(userId, pEmail, pName, pPhone, hasSess);
       } else {
         if (pName) {
           localStorage.setItem('kz_logged_in_name', pName);
@@ -139,7 +142,7 @@
       }
     }
 
-    async function saveProfileAndEnterApp(userId, email, name, phone) {
+    async function saveProfileAndEnterApp(userId, email, name, phone, hasSess = false) {
       if (name) {
         localStorage.setItem('kz_logged_in_name', name);
         localStorage.setItem('kz_name', name);
@@ -199,8 +202,17 @@
       }
 
       closeModal();
-      showApp(name || 'Seniorze');
+      if (hasSess) {
+        showApp(name || 'Seniorze');
+      } else {
+        if (typeof openPaymentSuccessModal === 'function') {
+          openPaymentSuccessModal();
+        } else {
+          alert('Płatność przyjęta! Rejestracja zakończona sukcesem. Sprawdź e-mail, aby aktywować konto.');
+        }
+      }
     }
+
 
     if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
       window.Capacitor.Plugins.App.addListener('appUrlOpen', async (data) => {
@@ -221,6 +233,28 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
+      // Wykrywanie potwierdzenia rejestracji z e-maila
+      const isSignupConfirm = window.location.hash.includes('type=signup');
+      if (isSignupConfirm) {
+        history.replaceState({}, '', window.location.pathname);
+        if (window.supabaseClient) {
+          try {
+            await window.supabaseClient.auth.signOut();
+          } catch (e) {}
+        }
+        localStorage.removeItem('kz_session');
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+          try {
+            await window.Capacitor.Plugins.Preferences.remove({ key: 'kz_session' });
+          } catch (e) {}
+        }
+        setTimeout(() => {
+          const successEl = document.getElementById('login-confirm-success');
+          if (successEl) successEl.style.display = 'block';
+          openLoginModal();
+        }, 500);
+      }
+
       let hasSession = false;
       if (localStorage.getItem('kz_session')) {
         hasSession = true;
