@@ -51,7 +51,7 @@
 
 
 
-    function viewTerms(page) {
+    async function viewTerms(page) {
       const wasLoggedIn = document.body.classList.contains('logged-in');
       if (wasLoggedIn) {
         document.body.classList.remove('logged-in');
@@ -63,7 +63,23 @@
         el.style.display = 'none';
       });
 
-      const target = document.getElementById('pg-' + page);
+      let target = document.getElementById('pg-' + page);
+      if (!target) {
+        try {
+          const path = (window.Capacitor || window.location.protocol === 'file:') ? 'pages/' + page + '.html' : '/pages/' + page + '.html';
+          const res = await fetch(path);
+          if (res.ok) {
+            const html = await res.text();
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            target = temp.firstElementChild;
+            document.body.appendChild(target);
+          }
+        } catch (e) {
+          console.error("Error loading terms:", e);
+        }
+      }
+
       if (target) target.style.display = 'block';
 
       if (!document.getElementById('backToAppBtn')) {
