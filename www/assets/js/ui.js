@@ -607,6 +607,10 @@
         <button class="plan-upgrade-btn" style="background:linear-gradient(135deg, #6B7A8D 0%, #4A5251 100%);" onclick="logout()">Wyloguj →</button>
       </div>
       <div class="settings-row">
+        <div><div class="settings-label">Zmień hasło</div><div class="settings-desc">Wysyła bezpieczny link na Twój adres e-mail</div></div>
+        <button class="plan-upgrade-btn" onclick="triggerPasswordResetFromSettings()">Zmień hasło</button>
+      </div>
+      <div class="settings-row">
         <div><div class="settings-label">Regulamin</div></div>
         <a onclick="viewTerms('regulamin')" style="color:var(--mint); font-weight:700; cursor:pointer; text-decoration:underline;">Przejdź →</a>
       </div>

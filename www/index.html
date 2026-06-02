@@ -109,18 +109,59 @@
   <div class="modal-overlay" id="loginModal" onclick="if(event.target===this)closeLoginModal()" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="login-title">
       <button class="modal-close" onclick="closeLoginModal()" aria-label="Zamknij">×</button>
-      <h2 id="login-title" class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Logowanie</h2>
-      <p style="color:var(--warm-gray);font-size:1rem;margin-bottom:1.5rem;">Zaloguj się do swojego konta.</p>
+      
+      <!-- Główny formularz logowania -->
+      <div id="login-view-main">
+        <h2 id="login-title" class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Logowanie</h2>
+        <p style="color:var(--warm-gray);font-size:1rem;margin-bottom:1.5rem;">Zaloguj się do swojego konta.</p>
+        <div class="mb-4">
+          <label class="form-label" for="login-email">Adres e-mail</label>
+          <input class="form-input" id="login-email" type="email" placeholder="np. krystyna@poczta.pl" autocomplete="email" />
+        </div>
+        <div class="mb-4">
+          <label class="form-label" for="login-password">Hasło</label>
+          <input class="form-input" id="login-password" type="password" placeholder="Wpisz hasło" autocomplete="current-password" />
+          <p class="field-error" id="err-login">Nieprawidłowy e-mail lub hasło.</p>
+        </div>
+        <button onclick="handleLogin()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Zaloguj się →</button>
+        <p style="text-align:center;font-size:.9rem;margin-top:1.25rem;">
+          <a href="#" onclick="showForgotPasswordForm(event)" style="color:var(--mint);text-decoration:underline;font-weight:600;">Zapomniałeś hasła?</a>
+        </p>
+      </div>
+
+      <!-- Formularz resetowania hasła (e-mail) -->
+      <div id="login-view-forgot" style="display:none;">
+        <h2 class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Resetowanie hasła</h2>
+        <p style="color:var(--warm-gray);font-size:1rem;margin-bottom:1.5rem;">Wpisz swój e-mail, a wyślemy Ci link do zmiany hasła.</p>
+        <div class="mb-4">
+          <label class="form-label" for="forgot-email">Adres e-mail</label>
+          <input class="form-input" id="forgot-email" type="email" placeholder="np. krystyna@poczta.pl" autocomplete="email" />
+          <p class="field-error" id="err-forgot" style="display:none;"></p>
+        </div>
+        <button onclick="handleForgotPasswordSubmit()" class="btn-cta" id="btn-forgot-submit" type="button" style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Wyślij link resetujący →</button>
+        <p style="text-align:center;font-size:.9rem;margin-top:1.25rem;">
+          <a href="#" onclick="showLoginView(event)" style="color:var(--mint);text-decoration:underline;font-weight:600;">← Wróć do logowania</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal do wprowadzania nowego hasła (powrót z e-maila) -->
+  <div class="modal-overlay" id="resetPasswordModal" onclick="if(event.target===this)closeResetPasswordModal()" aria-hidden="true" style="z-index:99999;">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="reset-title">
+      <button class="modal-close" onclick="closeResetPasswordModal()" aria-label="Zamknij">×</button>
+      <h2 id="reset-title" class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Nowe hasło</h2>
+      <p style="color:var(--warm-gray);font-size:1rem;margin-bottom:1.5rem;">Wprowadź swoje nowe hasło poniżej.</p>
       <div class="mb-4">
-        <label class="form-label" for="login-email">Adres e-mail</label>
-        <input class="form-input" id="login-email" type="email" placeholder="np. krystyna@poczta.pl" autocomplete="email" />
+        <label class="form-label" for="reset-password">Nowe hasło</label>
+        <input class="form-input" id="reset-password" type="password" placeholder="Min. 6 znaków" autocomplete="new-password" />
       </div>
       <div class="mb-4">
-        <label class="form-label" for="login-password">Hasło</label>
-        <input class="form-input" id="login-password" type="password" placeholder="Wpisz hasło" autocomplete="current-password" />
-        <p class="field-error" id="err-login">Nieprawidłowy e-mail lub hasło.</p>
+        <label class="form-label" for="reset-password-confirm">Potwierdź nowe hasło</label>
+        <input class="form-input" id="reset-password-confirm" type="password" placeholder="Wpisz ponownie nowe hasło" autocomplete="new-password" />
+        <p class="field-error" id="err-reset" style="display:none;"></p>
       </div>
-      <button onclick="handleLogin()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Zaloguj się →</button>
+      <button onclick="handlePasswordResetSubmit()" class="btn-cta" id="btn-reset-submit" type="button" style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Zmień hasło i zaloguj się →</button>
     </div>
   </div>
 

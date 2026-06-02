@@ -75,7 +75,7 @@
       window.location.href = '/';
     }
 
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeLoginModal(); } });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeLoginModal(); closeResetPasswordModal(); } });
 
     function showStep(n) {
       [1, 2, 3].forEach(i => {
@@ -181,6 +181,14 @@
       window.supabaseClient = supabase.createClient("https://idpwlfgicadaeqakhkqa.supabase.co", SUPA_KEY);
     }
 
+    if (window.supabaseClient) {
+      window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          openResetPasswordModal();
+        }
+      });
+    }
+
     async function syncFromCloud() {
       try {
         const res = await fetch(`${SUPA_URL}?id=eq.1`, {
@@ -246,5 +254,222 @@
         alert("Błąd zapisu w chmurze! Upewnij się, że wykonałeś KROK 2 (kod SQL) z instrukcji.\n\nDokładny błąd serwera:\n" + e.message);
         console.error(e);
         return false;
+      }
+    }
+
+    /* ── RESET / ZMIANA HASŁA ── */
+
+    function showForgotPasswordForm(e) {
+      if (e) e.preventDefault();
+      document.getElementById('login-view-main').style.display = 'none';
+      document.getElementById('login-view-forgot').style.display = 'block';
+      document.getElementById('forgot-email').value = '';
+      const err = document.getElementById('err-forgot');
+      if (err) err.style.display = 'none';
+    }
+
+    function showLoginView(e) {
+      if (e) e.preventDefault();
+      document.getElementById('login-view-forgot').style.display = 'none';
+      document.getElementById('login-view-main').style.display = 'block';
+      document.getElementById('login-email').value = '';
+      document.getElementById('login-password').value = '';
+      const err = document.getElementById('err-login');
+      if (err) err.style.display = 'none';
+    }
+
+    async function handleForgotPasswordSubmit() {
+      const email = document.getElementById('forgot-email').value.trim();
+      const errEl = document.getElementById('err-forgot');
+      if (errEl) errEl.style.display = 'none';
+
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRe.test(email)) {
+        if (errEl) {
+          errEl.textContent = 'Proszę wpisać poprawny adres e-mail.';
+          errEl.style.display = 'block';
+        }
+        return;
+      }
+
+      const btn = document.getElementById('btn-forgot-submit');
+      const origText = btn ? btn.innerHTML : 'Wyślij';
+      if (btn) {
+        btn.innerHTML = 'Wysyłanie...';
+        btn.disabled = true;
+      }
+
+      if (window.supabaseClient) {
+        const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + '/'
+        });
+
+        if (error) {
+          if (errEl) {
+            errEl.textContent = 'Błąd: ' + error.message;
+            errEl.style.display = 'block';
+          }
+          if (btn) {
+            btn.innerHTML = origText;
+            btn.disabled = false;
+          }
+        } else {
+          alert('Link do zresetowania hasła został wysłany na podany e-mail.');
+          closeLoginModal();
+          showLoginView();
+          if (btn) {
+            btn.innerHTML = origText;
+            btn.disabled = false;
+          }
+        }
+      } else {
+        if (errEl) {
+          errEl.textContent = 'Błąd połączenia z bazą danych.';
+          errEl.style.display = 'block';
+        }
+        if (btn) {
+          btn.innerHTML = origText;
+          btn.disabled = false;
+        }
+      }
+    }
+
+    function openResetPasswordModal() {
+      closeLoginModal();
+      closeModal();
+      const modal = document.getElementById('resetPasswordModal');
+      if (modal) {
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+      const p1 = document.getElementById('reset-password');
+      const p2 = document.getElementById('reset-password-confirm');
+      if (p1) p1.value = '';
+      if (p2) p2.value = '';
+      const errEl = document.getElementById('err-reset');
+      if (errEl) errEl.style.display = 'none';
+    }
+
+    function closeResetPasswordModal() {
+      const modal = document.getElementById('resetPasswordModal');
+      if (modal) {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    }
+
+    async function handlePasswordResetSubmit() {
+      const pwd = document.getElementById('reset-password').value.trim();
+      const pwdConfirm = document.getElementById('reset-password-confirm').value.trim();
+      const errEl = document.getElementById('err-reset');
+      if (errEl) errEl.style.display = 'none';
+
+      if (pwd.length < 6) {
+        if (errEl) {
+          errEl.textContent = 'Hasło musi mieć co najmniej 6 znaków.';
+          errEl.style.display = 'block';
+        }
+        return;
+      }
+
+      if (pwd !== pwdConfirm) {
+        if (errEl) {
+          errEl.textContent = 'Hasła nie pasują do siebie.';
+          errEl.style.display = 'block';
+        }
+        return;
+      }
+
+      const btn = document.getElementById('btn-reset-submit');
+      const origText = btn ? btn.innerHTML : 'Zmień hasło';
+      if (btn) {
+        btn.innerHTML = 'Zapisywanie...';
+        btn.disabled = true;
+      }
+
+      if (window.supabaseClient) {
+        const { error } = await window.supabaseClient.auth.updateUser({ password: pwd });
+
+        if (error) {
+          if (errEl) {
+            errEl.textContent = 'Błąd zapisu: ' + error.message;
+            errEl.style.display = 'block';
+          }
+          if (btn) {
+            btn.innerHTML = origText;
+            btn.disabled = false;
+          }
+        } else {
+          alert('Hasło zostało pomyślnie zmienione! Zostałeś automatycznie zalogowany.');
+          closeResetPasswordModal();
+          if (btn) {
+            btn.innerHTML = origText;
+            btn.disabled = false;
+          }
+
+          // Pobierz aktualne dane użytkownika i przejdź do aplikacji
+          const { data: { user } } = await window.supabaseClient.auth.getUser();
+          let displayName = user?.user_metadata?.full_name || 'Seniorze';
+          try {
+            const { data: profile } = await window.supabaseClient.from('user_profiles').select('app_data').eq('id', user.id).single();
+            if (profile && profile.app_data) {
+              const cloud = profile.app_data;
+              if (cloud.profileName) displayName = cloud.profileName;
+            }
+          } catch (e) {
+            console.error("Błąd wczytywania profilu po zmianie hasła:", e);
+          }
+          showApp(displayName);
+        }
+      } else {
+        if (errEl) {
+          errEl.textContent = 'Błąd połączenia z bazą danych.';
+          errEl.style.display = 'block';
+        }
+        if (btn) {
+          btn.innerHTML = origText;
+          btn.disabled = false;
+        }
+      }
+    }
+
+    async function triggerPasswordResetFromSettings() {
+      if (!window.supabaseClient) {
+        alert('Błąd połączenia z bazą danych.');
+        return;
+      }
+
+      const { data: { user } } = await window.supabaseClient.auth.getUser();
+      const email = user?.email || localStorage.getItem('kz_email');
+
+      if (!email) {
+        alert('Nie udało się ustalić Twojego adresu e-mail. Skontaktuj się ze wsparciem.');
+        return;
+      }
+
+      const btn = document.querySelector('.settings-row button[onclick="triggerPasswordResetFromSettings()"]');
+      let origText = '';
+      if (btn) {
+        origText = btn.innerHTML;
+        btn.innerHTML = 'Wysyłanie...';
+        btn.disabled = true;
+      }
+
+      const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/'
+      });
+
+      if (error) {
+        alert('Błąd wysyłania e-maila: ' + error.message);
+        if (btn) {
+          btn.innerHTML = origText;
+          btn.disabled = false;
+        }
+      } else {
+        alert('Link do zmiany hasła został wysłany na Twój adres e-mail: ' + email);
+        if (btn) {
+          btn.innerHTML = origText;
+          btn.disabled = false;
+        }
       }
     }
