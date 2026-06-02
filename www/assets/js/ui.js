@@ -647,8 +647,8 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
 </div>
 
 <!-- Floating Chatbot FAB -->
-<button id="chatFab" class="chat-fab" onclick="toggleChat(event)" aria-label="Otwórz wirtualnego asystenta">
-  <span aria-hidden="true">💬</span>
+<button id="chatFab" class="chat-fab" onclick="toggleChat(event)" aria-label="Otwórz wirtualnego asystenta" style="padding:0; overflow:hidden;">
+  <img src="assets/dove.jpg" alt="Asystent" style="width:100%; height:100%; object-fit:cover; border-radius:50%; display:block;" />
 </button>
 
 <!-- Chat Window -->
