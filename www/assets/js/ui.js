@@ -855,7 +855,23 @@
         document.body.classList.remove('settings-active');
       }
 
-      window.scrollTo(0, 0);
+      if (window.innerWidth <= 768) {
+        const tabNav = document.querySelector('.tab-nav');
+        if (tabNav) {
+          const header = document.querySelector('.app-header');
+          const headerHeight = header ? header.offsetHeight : 70;
+          const targetY = tabNav.getBoundingClientRect().top + window.pageYOffset - headerHeight - 8;
+          window.scrollTo({
+            top: targetY,
+            behavior: 'smooth'
+          });
+        } else {
+          window.scrollTo(0, 0);
+        }
+      } else {
+        window.scrollTo(0, 0);
+      }
+
       if (name === 'diets') {
         renderPersonalizedDiet();
       }
