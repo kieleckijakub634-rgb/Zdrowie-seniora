@@ -1,3 +1,8 @@
+    /* Global health/diet/video state to prevent ReferenceErrors */
+    window.selectedDiet = window.selectedDiet || parseInt(localStorage.getItem('kz_selected_diet') || '1');
+    window.dietPrefs = window.dietPrefs || JSON.parse(localStorage.getItem('kz_diet_prefs') || '[]');
+    window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_liked_videos') || '[]');
+
     /* ── Router podstron ── */
     const PAGES = ['polityka', 'regulamin', 'kontakt', 'facebook'];
     const pageCache = {};
@@ -349,7 +354,11 @@
           return;
         }
 
-        await processPaymentSuccess();
+        try {
+          await processPaymentSuccess();
+        } catch (e) {
+          console.error("Błąd przetwarzania sukcesu płatności:", e);
+        }
         hasSession = true;
         history.replaceState({}, '', window.location.pathname);
       }

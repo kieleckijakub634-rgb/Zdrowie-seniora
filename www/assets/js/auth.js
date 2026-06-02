@@ -1,3 +1,8 @@
+/* Global health/diet/video state to prevent ReferenceErrors */
+window.selectedDiet = window.selectedDiet || parseInt(localStorage.getItem('kz_selected_diet') || '1');
+window.dietPrefs = window.dietPrefs || JSON.parse(localStorage.getItem('kz_diet_prefs') || '[]');
+window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_liked_videos') || '[]');
+
 /* ── Modal ── */
     function openModal() { document.getElementById('signupModal').classList.add('open'); document.body.style.overflow = 'hidden'; showStep(1); }
     function closeModal() { document.getElementById('signupModal').classList.remove('open'); document.body.style.overflow = ''; }
