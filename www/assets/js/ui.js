@@ -240,12 +240,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     </a>
   </div>
 
-  <div class="quick-actions" aria-label="Szybkie akcje">
-    <button type="button" onclick="switchTab('videos', document.querySelector('.tab-btn:nth-child(1)'))"><span>🎬</span><strong>Ćwicz teraz</strong><small>otwórz filmy</small></button>
-    <button type="button" onclick="switchTab('diets', document.querySelector('.tab-btn:nth-child(2)'))"><span>🥗</span><strong>Jadłospis</strong><small>plan na dziś</small></button>
-    <button type="button" onclick="switchTab('meds', document.querySelector('.tab-btn:nth-child(3)'))"><span>💊</span><strong>Leki</strong><small>przypomnienia</small></button>
-    <button type="button" onclick="toggleChat(event)"><span>💬</span><strong>Asystent</strong><small>zapytaj AI</small></button>
-  </div>
+
 
   <!-- Tab navigation -->
   <div class="tab-nav">
@@ -876,13 +871,10 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
             const header = document.querySelector('.app-header');
             const headerHeight = header ? header.offsetHeight : 70;
 
-            const quickActions = document.querySelector('.quick-actions');
             const welcomeCard = document.querySelector('.welcome-card');
             let naturalTabNavTop = 0;
 
-            if (quickActions) {
-              naturalTabNavTop = quickActions.getBoundingClientRect().bottom + window.pageYOffset;
-            } else if (welcomeCard) {
+            if (welcomeCard) {
               naturalTabNavTop = welcomeCard.getBoundingClientRect().bottom + window.pageYOffset + 16;
             } else {
               naturalTabNavTop = tabNav.getBoundingClientRect().top + window.pageYOffset;

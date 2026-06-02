@@ -4189,7 +4189,7 @@
     #appShell .app-main {
       display: grid;
       grid-template-columns: 330px minmax(0, 1fr);
-      grid-template-rows: auto auto 1fr;
+      grid-template-rows: auto 1fr;
       gap: 1.35rem;
       align-items: start;
       padding-top: 1.6rem;
@@ -4203,19 +4203,12 @@
       top: 92px;
     }
 
-    #appShell .quick-actions {
-      grid-column: 1;
-      grid-row: 2;
-      grid-template-columns: 1fr 1fr;
-      margin: 0;
-    }
-
     #appShell .tab-nav {
       grid-column: 1;
-      grid-row: 3;
+      grid-row: 2;
       flex-direction: column;
       position: sticky;
-      top: 430px;
+      top: 310px;
       align-self: start;
       margin-bottom: 0;
     }
@@ -4229,7 +4222,7 @@
 
     #appShell .tab-panel {
       grid-column: 2;
-      grid-row: 1 / span 3;
+      grid-row: 1 / span 2;
       min-width: 0;
     }
   }
