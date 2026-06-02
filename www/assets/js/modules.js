@@ -70,6 +70,7 @@
       }
       localStorage.setItem('kz_liked_videos', JSON.stringify(likedVideos));
       renderVideos();
+      if (typeof renderLikedTab === 'function') renderLikedTab();
       syncToCloud();
     }
 
@@ -207,77 +208,7 @@
         return;
       }
 
-      if (videoLibraryView === 'liked') {
-        const liked = APP_DATA.videos.filter(v => isLiked(v.id));
-        const likedDiets = JSON.parse(localStorage.getItem('kz_liked_diets') || '[]');
-        const likedShopping = JSON.parse(localStorage.getItem('kz_liked_shopping') || '[]');
 
-        if (notice) {
-          notice.textContent = (liked.length || likedDiets.length || likedShopping.length)
-            ? 'Twoje polubione ćwiczenia, jadłospisy i listy zakupów.'
-            : 'Polub ćwiczenie, jadłospis lub listę zakupów serduszkiem, a pojawią się tutaj.';
-        }
-
-        let html = '';
-
-        if (liked.length > 0) {
-          html += `
-          <div style="grid-column:1/-1; margin-top:0.5rem; margin-bottom:0.75rem;">
-            <h3 style="font-family:'Lora',serif; color:var(--navy); font-size:1.2rem; display:flex; align-items:center; gap:0.5rem; font-weight:700;">🎬 Polubione ćwiczenia</h3>
-          </div>
-          ${liked.map(v => renderVideoCard(v, 'zapisane w ulubionych')).join('')}
-        `;
-        }
-
-        if (likedDiets.length > 0) {
-          html += `
-          <div style="grid-column:1/-1; margin-top:1.5rem; margin-bottom:0.75rem;">
-            <h3 style="font-family:'Lora',serif; color:var(--navy); font-size:1.2rem; display:flex; align-items:center; gap:0.5rem; font-weight:700;">🥗 Polubione jadłospisy</h3>
-          </div>
-          ${likedDiets.map((diet, idx) => `
-            <div class="diet-card" style="grid-column: 1 / -1; padding: 1.5rem; border-radius: 16px; background: rgba(255,255,255,0.78); border: 1px solid rgba(0,0,0,0.06); position: relative; margin-bottom: 0.5rem;">
-              <button onclick="removeLikedDiet(${idx})" style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; font-size:1.3rem; cursor:pointer;" title="Usuń z ulubionych">❤️</button>
-              <h4 style="font-weight:700; color:var(--navy); font-size:1.05rem; margin-bottom:0.75rem; padding-right:2rem;">${diet.title} (${diet.days.length > 1 ? diet.days.length + ' dni' : '1 dzień'})</h4>
-              <div class="diet-ai-meals-day-content" style="max-height: 200px; overflow-y: auto; padding-right: 0.5rem;">
-                ${diet.days.map(day => `
-                  <div style="font-weight:700; font-size:0.85rem; color:#4DBFA8; margin-top:0.5rem; margin-bottom:0.25rem; text-transform:uppercase;">${day.dayName}</div>
-                  ${day.meals.map(meal => `
-                    <div class="diet-ai-meal-row" style="margin-bottom:0.2rem;">
-                      <span class="diet-ai-meal-type" style="font-size:0.75rem; font-weight:700;">[ ${meal.type} ]</span>
-                      <span class="diet-ai-meal-content" style="font-size:0.85rem;">${meal.content}</span>
-                    </div>
-                  `).join('')}
-                `).join('')}
-              </div>
-            </div>
-          `).join('')}
-        `;
-        }
-
-        if (likedShopping.length > 0) {
-          html += `
-          <div style="grid-column:1/-1; margin-top:1.5rem; margin-bottom:0.75rem;">
-            <h3 style="font-family:'Lora',serif; color:var(--navy); font-size:1.2rem; display:flex; align-items:center; gap:0.5rem; font-weight:700;">🛒 Polubione listy zakupów</h3>
-          </div>
-          ${likedShopping.map((shop, idx) => `
-            <div class="diet-card" style="grid-column: 1 / -1; padding: 1.5rem; border-radius: 16px; background: rgba(255,255,255,0.78); border: 1px solid rgba(0,0,0,0.06); position: relative; margin-bottom: 0.5rem;">
-              <button onclick="removeLikedShopping(${idx})" style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; font-size:1.3rem; cursor:pointer;" title="Usuń z ulubionych">❤️</button>
-              <h4 style="font-weight:700; color:var(--navy); font-size:1.05rem; margin-bottom:0.75rem; padding-right:2rem;">${shop.title}</h4>
-              <div class="diet-ai-shopping-tags-wrapper" style="margin-top:0.5rem;">
-                ${shop.items.map(item => `<span class="diet-ai-shopping-tag">${item}</span>`).join('')}
-              </div>
-            </div>
-          `).join('')}
-        `;
-        }
-
-        if (!liked.length && !likedDiets.length && !likedShopping.length) {
-          grid.innerHTML = `<div class="video-empty-state" style="grid-column: 1 / -1;">❤️ Nie masz jeszcze żadnych polubionych pozycji.<br><span style="font-weight:600; color:#8A9BB0;">Kliknij serduszko na ćwiczeniu, jadłospisie lub liście zakupów.</span></div>`;
-        } else {
-          grid.innerHTML = html;
-        }
-        return;
-      }
 
       if (videoLibraryView === 'shop') {
         if (notice) notice.textContent = `Pakiety do kupienia są dopasowane prostym algorytmem do profilu i polubionych tematów. Na liście zakupów: ${videoCart.length}.`;
@@ -1183,3 +1114,80 @@
     function closeMedModal() {
       document.getElementById('medModal').classList.remove('open');
     }
+
+    function renderLikedTab() {
+      const grid = document.getElementById('likedVideoGrid');
+      if (!grid) return;
+
+      const liked = APP_DATA.videos.filter(v => isLiked(v.id));
+      const likedDiets = JSON.parse(localStorage.getItem('kz_liked_diets') || '[]');
+      const likedShopping = JSON.parse(localStorage.getItem('kz_liked_shopping') || '[]');
+
+      const notice = document.getElementById('likedLibraryNotice');
+      if (notice) {
+        notice.textContent = (liked.length || likedDiets.length || likedShopping.length)
+          ? 'Twoje polubione ćwiczenia, jadłospisy i listy zakupów.'
+          : 'Polub ćwiczenie, jadłospis lub listę zakupów serduszkiem, a pojawią się tutaj.';
+      }
+
+      let html = '';
+
+      if (liked.length > 0) {
+        html += `
+        <div style="grid-column:1/-1; margin-top:0.5rem; margin-bottom:0.75rem;">
+          <h3 style="font-family:'Lora',serif; color:var(--navy); font-size:1.2rem; display:flex; align-items:center; gap:0.5rem; font-weight:700;">🎬 Polubione ćwiczenia</h3>
+        </div>
+        ${liked.map(v => renderVideoCard(v, 'zapisane w ulubionych')).join('')}
+      `;
+      }
+
+      if (likedDiets.length > 0) {
+        html += `
+        <div style="grid-column:1/-1; margin-top:1.5rem; margin-bottom:0.75rem;">
+          <h3 style="font-family:'Lora',serif; color:var(--navy); font-size:1.2rem; display:flex; align-items:center; gap:0.5rem; font-weight:700;">🥗 Polubione jadłospisy</h3>
+        </div>
+        ${likedDiets.map((diet, idx) => `
+          <div class="diet-card" style="grid-column: 1 / -1; padding: 1.5rem; border-radius: 16px; background: rgba(255,255,255,0.78); border: 1px solid rgba(0,0,0,0.06); position: relative; margin-bottom: 0.5rem;">
+            <button onclick="removeLikedDiet(${idx})" style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; font-size:1.3rem; cursor:pointer;" title="Usuń z ulubionych">❤️</button>
+            <h4 style="font-weight:700; color:var(--navy); font-size:1.05rem; margin-bottom:0.75rem; padding-right:2rem;">${diet.title} (${diet.days.length > 1 ? diet.days.length + ' dni' : '1 dzień'})</h4>
+            <div class="diet-ai-meals-day-content" style="max-height: 200px; overflow-y: auto; padding-right: 0.5rem;">
+              ${diet.days.map(day => `
+                <div style="font-weight:700; font-size:0.85rem; color:#4DBFA8; margin-top:0.5rem; margin-bottom:0.25rem; text-transform:uppercase;">${day.dayName}</div>
+                ${day.meals.map(meal => `
+                  <div class="diet-ai-meal-row" style="margin-bottom:0.2rem;">
+                    <span class="diet-ai-meal-type" style="font-size:0.75rem; font-weight:700;">[ ${meal.type} ]</span>
+                    <span class="diet-ai-meal-content" style="font-size:0.85rem;">${meal.content}</span>
+                  </div>
+                `).join('')}
+              `).join('')}
+            </div>
+          </div>
+        `).join('')}
+      `;
+      }
+
+      if (likedShopping.length > 0) {
+        html += `
+        <div style="grid-column:1/-1; margin-top:1.5rem; margin-bottom:0.75rem;">
+          <h3 style="font-family:'Lora',serif; color:var(--navy); font-size:1.2rem; display:flex; align-items:center; gap:0.5rem; font-weight:700;">🛒 Polubione listy zakupów</h3>
+        </div>
+        ${likedShopping.map((shop, idx) => `
+          <div class="diet-card" style="grid-column: 1 / -1; padding: 1.5rem; border-radius: 16px; background: rgba(255,255,255,0.78); border: 1px solid rgba(0,0,0,0.06); position: relative; margin-bottom: 0.5rem;">
+            <button onclick="removeLikedShopping(${idx})" style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; font-size:1.3rem; cursor:pointer;" title="Usuń z ulubionych">❤️</button>
+            <h4 style="font-weight:700; color:var(--navy); font-size:1.05rem; margin-bottom:0.75rem; padding-right:2rem;">${shop.title}</h4>
+            <div class="diet-ai-shopping-tags-wrapper" style="margin-top:0.5rem;">
+              ${shop.items.map(item => `<span class="diet-ai-shopping-tag">${item}</span>`).join('')}
+            </div>
+          </div>
+        `).join('')}
+      `;
+      }
+
+      if (!liked.length && !likedDiets.length && !likedShopping.length) {
+        grid.innerHTML = `<div class="video-empty-state" style="grid-column: 1 / -1;">❤️ Nie masz jeszcze żadnych polubionych pozycji.<br><span style="font-weight:600; color:#8A9BB0;">Kliknij serduszko na ćwiczeniu, jadłospisie lub liście zakupów.</span></div>`;
+      } else {
+        grid.innerHTML = html;
+      }
+    }
+
+    window.renderLikedTab = renderLikedTab;

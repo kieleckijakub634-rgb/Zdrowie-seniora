@@ -341,7 +341,7 @@
       liked.splice(idx, 1);
       localStorage.setItem('kz_liked_diets', JSON.stringify(liked));
       showToast('💔 Usunięto jadłospis z ulubionych');
-      renderVideos();
+      if (typeof renderLikedTab === 'function') renderLikedTab();
       updateDietLikeBtn();
       syncToCloud();
     };
@@ -351,7 +351,7 @@
       liked.splice(idx, 1);
       localStorage.setItem('kz_liked_shopping', JSON.stringify(liked));
       showToast('💔 Usunięto listę zakupów z ulubionych');
-      renderVideos();
+      if (typeof renderLikedTab === 'function') renderLikedTab();
       const currentDietDuration = parseInt(localStorage.getItem('kz_diet_duration') || '1');
       const cached = localStorage.getItem(`kz_cached_diet_${currentDietDuration}`);
       if (cached) {

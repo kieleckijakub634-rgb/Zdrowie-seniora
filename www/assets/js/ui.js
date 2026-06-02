@@ -252,6 +252,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     <button class="tab-btn active" data-tab="videos" onclick="switchTab('videos',this)"><span style="font-size:1.45rem; line-height:1;">🎬</span><span>Ćwiczenia</span></button>
     <button class="tab-btn" data-tab="diets" onclick="switchTab('diets',this)"><span style="font-size:1.45rem; line-height:1;">🥗</span><span>Dieta</span></button>
     <button class="tab-btn" data-tab="meds" onclick="switchTab('meds',this)"><span style="font-size:1.45rem; line-height:1;">💊</span><span>Leki</span></button>
+    <button class="tab-btn" data-tab="liked" onclick="switchTab('liked',this)"><span style="font-size:1.45rem; line-height:1;">❤️</span><span>Polubione</span></button>
     <button class="tab-btn" data-tab="dogtag" onclick="switchTab('dogtag',this)"><span style="font-size:1.45rem; line-height:1;">🚑</span><span>Ratunek</span></button>
   </div>
 
@@ -268,7 +269,6 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     </div>
     <div class="video-library-tabs" role="tablist" aria-label="Biblioteka filmów">
       <button class="video-library-tab active" type="button" onclick="setVideoLibraryView('recommended', this)">✨ Proponowane</button>
-      <button class="video-library-tab" type="button" onclick="setVideoLibraryView('liked', this)">❤️ Polubione</button>
       <button class="video-library-tab" type="button" onclick="setVideoLibraryView('shop', this)">🛒 Do kupienia</button>
       <button class="video-library-tab" type="button" onclick="setVideoLibraryView('all', this)">🎬 Wszystkie</button>
     </div>
@@ -398,6 +398,15 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     <!-- Medication list -->
     <div class="sec-title" style="margin-top:1.75rem;">📋 Moja lista leków</div>
     <div class="med-list" id="medList"></div>
+  </div>
+
+  <!-- TAB: LIKED (Polubione) -->
+  <div class="tab-panel" id="tab-liked">
+    <div class="sec-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+      <span style="font-family:'Lora', serif; font-size:1.6rem; font-weight:700; color:var(--navy);">❤️ Twoje Polubione</span>
+      <span id="likedLibraryNotice" class="font-cyber text-[10px] bg-[#4DBFA8]/10 text-[#4DBFA8] px-2 py-0.5 border border-[#4DBFA8]/30 uppercase tracking-widest">Twoje ulubione pozycje</span>
+    </div>
+    <div class="video-grid" id="likedVideoGrid" style="margin-top:1.5rem;"></div>
   </div>
 
   <!-- TAB: DOG TAG (Nieśmiertelnik) -->
@@ -860,25 +869,43 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         document.body.classList.remove('settings-active');
       }
 
-      if (window.innerWidth <= 768) {
-        const tabNav = document.querySelector('.tab-nav');
-        if (tabNav) {
-          const header = document.querySelector('.app-header');
-          const headerHeight = header ? header.offsetHeight : 70;
-          const targetY = tabNav.getBoundingClientRect().top + window.pageYOffset - headerHeight - 8;
-          window.scrollTo({
-            top: targetY,
-            behavior: 'smooth'
-          });
+      setTimeout(() => {
+        if (window.innerWidth <= 768) {
+          const tabNav = document.querySelector('.tab-nav');
+          if (tabNav) {
+            const header = document.querySelector('.app-header');
+            const headerHeight = header ? header.offsetHeight : 70;
+
+            const quickActions = document.querySelector('.quick-actions');
+            const welcomeCard = document.querySelector('.welcome-card');
+            let naturalTabNavTop = 0;
+
+            if (quickActions) {
+              naturalTabNavTop = quickActions.getBoundingClientRect().bottom + window.pageYOffset;
+            } else if (welcomeCard) {
+              naturalTabNavTop = welcomeCard.getBoundingClientRect().bottom + window.pageYOffset + 16;
+            } else {
+              naturalTabNavTop = tabNav.getBoundingClientRect().top + window.pageYOffset;
+            }
+
+            const targetY = naturalTabNavTop - headerHeight - 8;
+            window.scrollTo({
+              top: Math.max(0, targetY),
+              behavior: 'smooth'
+            });
+          } else {
+            window.scrollTo(0, 0);
+          }
         } else {
           window.scrollTo(0, 0);
         }
-      } else {
-        window.scrollTo(0, 0);
-      }
+      }, 50);
 
       if (name === 'diets') {
         renderPersonalizedDiet();
+      }
+      if (name === 'liked') {
+        if (typeof renderLikedTab === 'function') renderLikedTab();
       }
       updateLiveHelpPopup();
     }
@@ -888,6 +915,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       renderVideos();
       renderPersonalizedDiet();
       renderMeds();
+      if (typeof renderLikedTab === 'function') renderLikedTab();
       checkNotifStatus();
       startMedChecker();
       loadDogTag();

@@ -64,6 +64,7 @@ select {
 .card, .btn-cta, .btn-stripe, .btn-outline, .faq-item, .tab-btn, .video-card, .diet-card, .med-item, .settings-section, .price-box {
   will-change: transform, box-shadow;
   -webkit-font-smoothing: subpixel-antialiased;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease, filter 0.35s ease !important;
 }
 .tab-btn { overflow: hidden; } /* zapobiega wychodzeniu gradientu */
 
