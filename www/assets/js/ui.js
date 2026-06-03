@@ -581,17 +581,17 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       <div class="settings-row">
         <div><div class="settings-label">Rozmiar tekstu</div></div>
         <div class="font-size-row">
-          <button class="fs-btn" id="fs-sm" onclick="setFontSize('sm')">A (mały)</button>
-          <button class="fs-btn active" id="fs-md" onclick="setFontSize('md')">A (normalny)</button>
-          <button class="fs-btn" id="fs-lg" onclick="setFontSize('lg')">A (duży)</button>
-          <button class="fs-btn" id="fs-xl" onclick="setFontSize('xl')">A (bardzo duży)</button>
+          <button class="fs-btn" id="fs-sm" onclick="setFontSize('sm', true)">A (mały)</button>
+          <button class="fs-btn active" id="fs-md" onclick="setFontSize('md', true)">A (normalny)</button>
+          <button class="fs-btn" id="fs-lg" onclick="setFontSize('lg', true)">A (duży)</button>
+          <button class="fs-btn" id="fs-xl" onclick="setFontSize('xl', true)">A (bardzo duży)</button>
         </div>
       </div>
       <div class="settings-row">
         <div><div class="settings-label">Motyw kolorystyczny</div></div>
         <div style="display:flex; gap:0.5rem;">
-          <button class="fs-btn active" id="theme-light" onclick="setTheme('light')">☀️ Jasny</button>
-          <button class="fs-btn" id="theme-dark" onclick="setTheme('dark')">🌙 Ciemny</button>
+          <button class="fs-btn active" id="theme-light" onclick="setTheme('light', true)">☀️ Jasny</button>
+          <button class="fs-btn" id="theme-dark" onclick="setTheme('dark', true)">🌙 Ciemny</button>
         </div>
       </div>
     </div>

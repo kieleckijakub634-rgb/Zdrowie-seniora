@@ -400,7 +400,7 @@
     }
 
     /* Rozmiar tekstu */
-    function setFontSize(size) {
+    function setFontSize(size, isUserClick = false) {
       ['sm', 'md', 'lg', 'xl'].forEach(s => {
         document.body.classList.remove('fs-' + s);
         document.documentElement.classList.remove('fs-' + s);
@@ -412,16 +412,22 @@
       const btn = document.getElementById('fs-' + size);
       if (btn) btn.classList.add('active');
       localStorage.setItem('kz_fontsize', size);
+      if (isUserClick && typeof showToast === 'function') {
+        showToast('⚙️ Rozmiar tekstu został zapisany!', 800);
+      }
     }
 
     /* Motyw */
-    function setTheme(theme) {
+    function setTheme(theme, isUserClick = false) {
       document.body.classList.toggle('theme-dark', theme === 'dark');
       ['light', 'dark'].forEach(t => {
         const btn = document.getElementById('theme-' + t);
         if (btn) btn.classList.toggle('active', t === theme);
       });
       localStorage.setItem('kz_theme', theme);
+      if (isUserClick && typeof showToast === 'function') {
+        showToast('🎨 Motyw kolorystyczny został zapisany!', 800);
+      }
     }
 
     /* Init ustawień przy showApp */
