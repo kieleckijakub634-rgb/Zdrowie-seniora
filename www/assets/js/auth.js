@@ -268,8 +268,8 @@ window.applyUserProfileData = async function(cloud) {
       errEl.style.display = 'none';
       const code = codeInput.value.trim();
       
-      if (code.length !== 6 || !/^\d+$/.test(code)) {
-        errEl.textContent = 'Kod musi składać się z 6 cyfr.';
+      if (code.length !== 8 || !/^\d+$/.test(code)) {
+        errEl.textContent = 'Kod musi składać się z 8 cyfr.';
         errEl.style.display = 'block';
         return;
       }
@@ -372,30 +372,6 @@ window.applyUserProfileData = async function(cloud) {
       }
     }
     window.resendVerificationCode = resendVerificationCode;
-
-    function bypassEmailVerification() {
-      const email = localStorage.getItem('kz_pending_email') || 'test@vitalfly.pl';
-      const name = localStorage.getItem('kz_pending_name') || 'Senior';
-      const phone = localStorage.getItem('kz_pending_phone') || '';
-      
-      // Symulacja zalogowania
-      localStorage.setItem('kz_session', JSON.stringify({ name: name, plan: 'monthly', ts: Date.now() }));
-      localStorage.setItem('kz_logged_in_name', name);
-      localStorage.setItem('kz_name', name);
-      localStorage.setItem('kz_email', email);
-      if (phone) localStorage.setItem('kz_phone', phone);
-      
-      const step3El = document.getElementById('step3');
-      if (step3El) step3El.style.display = 'none';
-      closeModal();
-      if (typeof showApp === 'function') {
-        showApp(name);
-      } else {
-        window.location.reload();
-      }
-      alert('Pomyślnie aktywowano konto w trybie testowym (ominięto autoryzację e-mail).');
-    }
-    window.bypassEmailVerification = bypassEmailVerification;
 
     function goStep2() {
       let valid = true;
