@@ -77,6 +77,24 @@
     });
     /* ── Deep Link & Payment Success Handling ── */
     async function processPaymentSuccess() {
+      // Check if this was a plan upgrade instead of a new registration
+      if (localStorage.getItem('kz_pending_upgrade') === 'yearly') {
+        localStorage.removeItem('kz_pending_upgrade');
+        localStorage.setItem('kz_plan', 'yearly');
+        
+        // Sync with supabase and update UI
+        if (typeof syncToCloud === 'function') {
+          await syncToCloud();
+        }
+        if (typeof loadPlanSettings === 'function') {
+          loadPlanSettings();
+        }
+        if (typeof showToast === 'function') {
+          showToast('🎉 Upgrade na plan roczny zakończony sukcesem!');
+        }
+        return;
+      }
+
       let pEmail = localStorage.getItem('kz_pending_email');
       let pName = localStorage.getItem('kz_pending_name');
       let pPwd = localStorage.getItem('kz_pending_pwd');

@@ -140,16 +140,19 @@
 
     /* Plan w ustawieniach */
     function upgradePlan() {
+      const email = localStorage.getItem('kz_email') || '';
+      const STRIPE_LINK_YEARLY = 'https://buy.stripe.com/test_cNi28rdrU5MCfjwa7P9Zm01';
+      
+      localStorage.setItem('kz_pending_upgrade', 'yearly');
+      
       const btn = document.getElementById('upgrade-btn');
-      const label = document.getElementById('plan-current-label');
-      const badge = document.getElementById('app-plan-badge');
-      localStorage.setItem('kz_plan', 'yearly');
-      if (label) label.textContent = '📅 Roczny • 390 zł/rok';
-      if (btn) { btn.textContent = '✓ Plan roczny aktywny'; btn.disabled = true; btn.style.background = '#4DBFA8'; }
-      if (badge) badge.textContent = '✓ PLAN ROCZNY';
-      showToast('🎉 Upgrade na plan roczny! Zaoszczędzasz 78 zł.');
-      loadPlanSettings();
-      syncToCloud();
+      if (btn) {
+        btn.textContent = '⏳ Przekierowuję do Stripe...';
+        btn.disabled = true;
+      }
+      
+      // Redirect to Stripe with prefilled email
+      window.location.href = `${STRIPE_LINK_YEARLY}?prefilled_email=${encodeURIComponent(email)}`;
     }
     function cancelSubscription() {
       if (confirm('Czy na pewno chcesz anulować subskrypcję? Zachowasz dostęp do końca opłaconego okresu.')) {
