@@ -38,6 +38,8 @@ if (!existsSync(join(root, 'www/assets/loader.mp4'))) {
 const index = read('www/index.html');
 const app = read('www/assets/app.js');
 const loader = read('www/assets/js/loader.js');
+const router = read('www/assets/js/router.js');
+const ui = read('www/assets/js/ui.js');
 const fixes = read('www/assets/css/fixes.css');
 const home = read('www/pages/home.html');
 const kontakt = read('www/pages/kontakt.html');
@@ -45,16 +47,18 @@ const facebook = read('www/pages/facebook.html');
 
 new vm.Script(app, { filename: 'www/assets/app.js' });
 new vm.Script(loader, { filename: 'www/assets/js/loader.js' });
+new vm.Script(router, { filename: 'www/assets/js/router.js' });
+new vm.Script(ui, { filename: 'www/assets/js/ui.js' });
 
 const count = (text, pattern) => (text.match(new RegExp(pattern, 'g')) || []).length;
 assert(count(app, 'function setFontSize') === 1, 'setFontSize jest zduplikowane.');
 assert(count(app, 'function setTheme') === 1, 'setTheme jest zduplikowane.');
-assert(app.includes("const PAGES = ['polityka', 'regulamin', 'kontakt', 'facebook']"), 'Router nie ma listy podstron.');
-assert(app.includes('window.addEventListener(\'popstate\''), 'Brakuje obsługi cofania w przeglądarce.');
-assert(app.includes('window.VFLoader.hideWhenReady'), 'Aplikacja nie czeka na loader.');
+assert(router.includes("const PAGES = ['polityka', 'regulamin', 'kontakt', 'facebook']"), 'Router nie ma listy podstron.');
+assert(router.includes('window.addEventListener(\'popstate\''), 'Brakuje obsługi cofania w przeglądarce.');
+assert(ui.includes('window.VFLoader.hideWhenReady'), 'Aplikacja nie czeka na loader.');
 
 assert(index.includes('id="loader-video"'), 'Brakuje elementu video loadera.');
-assert(index.includes('assets/loader.mp4'), 'Loader nie wskazuje na assets/loader.mp4.');
+assert(index.includes('assets/loader.mp4') || index.includes('assets/loader.webm'), 'Loader nie wskazuje na assets/loader.mp4 ani loader.webm.');
 assert(index.includes('assets/js/loader.js'), 'Brakuje modułu loader.js.');
 assert(index.includes('assets/css/fixes.css'), 'Brakuje bezpiecznych poprawek CSS.');
 assert(index.includes('id="page-content"'), 'Brakuje punktu montowania podstron.');

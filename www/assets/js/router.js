@@ -166,6 +166,7 @@
     }
 
     async function saveProfileAndEnterApp(userId, email, name, phone, hasSess = false) {
+      window.saveProfileAndEnterApp = saveProfileAndEnterApp;
       if (name) {
         localStorage.setItem('kz_logged_in_name', name);
         localStorage.setItem('kz_name', name);
@@ -224,14 +225,21 @@
         window.Capacitor.Plugins.Preferences.remove({ key: 'kz_pending_phone' });
       }
 
-      closeModal();
       if (hasSess) {
+        closeModal();
         showApp(name || 'Seniorze');
       } else {
-        if (typeof openPaymentSuccessModal === 'function') {
-          openPaymentSuccessModal();
-        } else {
-          alert('Płatność przyjęta! Rejestracja zakończona sukcesem. Sprawdź e-mail, aby aktywować konto.');
+        const emailDisp = document.getElementById('verify-email-display');
+        if (emailDisp) {
+          emailDisp.textContent = email || localStorage.getItem('kz_pending_email') || 'Twój e-mail';
+        }
+        const signupModal = document.getElementById('signupModal');
+        if (signupModal) {
+          signupModal.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        }
+        if (typeof showStep === 'function') {
+          showStep(3);
         }
       }
     }

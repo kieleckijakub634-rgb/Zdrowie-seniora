@@ -195,6 +195,140 @@ window.applyUserProfileData = async function(cloud) {
       });
       document.getElementById('stepDots').style.display = (n === 3) ? 'none' : 'flex';
     }
+    window.showStep = showStep;
+
+    async function verifyVerificationCode() {
+      window.initSupabase();
+      const codeInput = document.getElementById('verification-code');
+      const errEl = document.getElementById('err-verification');
+      const btn = document.getElementById('btn-confirm-code');
+      
+      if (!codeInput || !errEl || !btn) return;
+      
+      errEl.style.display = 'none';
+      const code = codeInput.value.trim();
+      
+      if (code.length !== 6 || !/^\d+$/.test(code)) {
+        errEl.textContent = 'Kod musi składać się z 6 cyfr.';
+        errEl.style.display = 'block';
+        return;
+      }
+      
+      const email = localStorage.getItem('kz_pending_email');
+      if (!email) {
+        errEl.textContent = 'Błąd: Brak zapisanego adresu e-mail. Rozpocznij rejestrację ponownie.';
+        errEl.style.display = 'block';
+        return;
+      }
+      
+      const origText = btn.innerHTML;
+      btn.innerHTML = 'Weryfikacja...';
+      btn.disabled = true;
+      
+      if (window.supabaseClient) {
+        try {
+          const { data, error } = await window.supabaseClient.auth.verifyOtp({
+            email: email,
+            token: code,
+            type: 'signup'
+          });
+          
+          if (error) {
+            errEl.textContent = 'Błąd weryfikacji: ' + error.message;
+            errEl.style.display = 'block';
+            btn.innerHTML = origText;
+            btn.disabled = false;
+          } else {
+            // Sukces!
+            const userId = data.user ? data.user.id : null;
+            const pName = localStorage.getItem('kz_pending_name') || 'Seniorze';
+            const pPhone = localStorage.getItem('kz_pending_phone') || '';
+            
+            if (userId) {
+              // Zapisujemy profil i wchodzimy do aplikacji
+              if (typeof saveProfileAndEnterApp === 'function') {
+                await saveProfileAndEnterApp(userId, email, pName, pPhone, true);
+              } else {
+                localStorage.setItem('kz_session', JSON.stringify({ name: pName, plan: 'monthly', ts: Date.now() }));
+                showApp(pName);
+              }
+              closeModal();
+            } else {
+              errEl.textContent = 'Weryfikacja powiodła się, ale nie udało się pobrać danych użytkownika. Spróbuj się zalogować.';
+              errEl.style.display = 'block';
+              btn.innerHTML = origText;
+              btn.disabled = false;
+            }
+          }
+        } catch (e) {
+          errEl.textContent = 'Błąd systemu: ' + e.message;
+          errEl.style.display = 'block';
+          btn.innerHTML = origText;
+          btn.disabled = false;
+        }
+      } else {
+        errEl.textContent = 'Błąd połączenia z bazą danych.';
+        errEl.style.display = 'block';
+        btn.innerHTML = origText;
+        btn.disabled = false;
+      }
+    }
+    window.verifyVerificationCode = verifyVerificationCode;
+
+    async function resendVerificationCode(e) {
+      if (e) e.preventDefault();
+      window.initSupabase();
+      const email = localStorage.getItem('kz_pending_email');
+      const errEl = document.getElementById('err-verification');
+      
+      if (!email) {
+        alert('Brak zapisanego adresu e-mail. Rozpocznij rejestrację ponownie.');
+        return;
+      }
+      
+      if (window.supabaseClient) {
+        try {
+          const { error } = await window.supabaseClient.auth.resend({
+            type: 'signup',
+            email: email
+          });
+          
+          if (error) {
+            alert('Błąd wysyłania: ' + error.message);
+          } else {
+            alert('Nowy kod weryfikacyjny został wysłany na Twój e-mail.');
+            if (errEl) errEl.style.display = 'none';
+          }
+        } catch (err) {
+          alert('Błąd systemu: ' + err.message);
+        }
+      } else {
+        alert('Błąd połączenia z bazą danych.');
+      }
+    }
+    window.resendVerificationCode = resendVerificationCode;
+
+    function bypassEmailVerification() {
+      const email = localStorage.getItem('kz_pending_email') || 'test@vitalfly.pl';
+      const name = localStorage.getItem('kz_pending_name') || 'Senior';
+      const phone = localStorage.getItem('kz_pending_phone') || '';
+      
+      // Symulacja zalogowania
+      localStorage.setItem('kz_session', JSON.stringify({ name: name, plan: 'monthly', ts: Date.now() }));
+      localStorage.setItem('kz_logged_in_name', name);
+      localStorage.setItem('kz_name', name);
+      localStorage.setItem('kz_email', email);
+      if (phone) localStorage.setItem('kz_phone', phone);
+      
+      closeModal();
+      if (typeof showApp === 'function') {
+        showApp(name);
+      } else {
+        window.location.reload();
+      }
+      alert('Pomyślnie aktywowano konto w trybie testowym (ominięto autoryzację e-mail).');
+    }
+    window.bypassEmailVerification = bypassEmailVerification;
 
     function goStep2() {
       let valid = true;
