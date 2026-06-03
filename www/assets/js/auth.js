@@ -76,7 +76,15 @@ window.applyUserProfileData = async function(cloud) {
 
 /* ── Modal ── */
     function openModal() { document.getElementById('signupModal').classList.add('open'); document.body.style.overflow = 'hidden'; showStep(1); }
-    function closeModal() { document.getElementById('signupModal').classList.remove('open'); document.body.style.overflow = ''; }
+    function closeModal() { 
+      const step3 = document.getElementById('step3');
+      if (step3 && step3.style.display === 'block') {
+        alert('Musisz autoryzować konto, wpisując kod lub klikając link w e-mailu, aby móc przejść dalej.');
+        return;
+      }
+      document.getElementById('signupModal').classList.remove('open'); 
+      document.body.style.overflow = ''; 
+    }
     function handleOverlayClick(e) { if (e.target === document.getElementById('signupModal')) closeModal(); }
 
     function openLoginModal() { document.getElementById('loginModal').classList.add('open'); document.body.style.overflow = 'hidden'; }
@@ -101,6 +109,20 @@ window.applyUserProfileData = async function(cloud) {
         btn.innerHTML = 'Logowanie...'; btn.disabled = true;
         const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email: e, password: p });
         if (error) {
+          if (error.message && (error.message.toLowerCase().includes('confirm') || error.message.toLowerCase().includes('potwierdź'))) {
+            localStorage.setItem('kz_pending_email', e);
+            closeLoginModal();
+            const emailDisp = document.getElementById('verify-email-display');
+            if (emailDisp) emailDisp.textContent = e;
+            const signupModal = document.getElementById('signupModal');
+            if (signupModal) {
+              signupModal.classList.add('open');
+              document.body.style.overflow = 'hidden';
+            }
+            showStep(3);
+            btn.innerHTML = origText; btn.disabled = false;
+            return;
+          }
           errEl.textContent = 'Nieprawidłowy e-mail lub hasło.';
           errEl.style.display = 'block';
           btn.innerHTML = origText; btn.disabled = false; return;
@@ -194,6 +216,11 @@ window.applyUserProfileData = async function(cloud) {
         if (d) d.classList.toggle('active', i <= n);
       });
       document.getElementById('stepDots').style.display = (n === 3) ? 'none' : 'flex';
+      
+      const closeBtn = document.querySelector('#signupModal .modal-close');
+      if (closeBtn) {
+        closeBtn.style.display = (n === 3) ? 'none' : 'block';
+      }
     }
     window.showStep = showStep;
 
@@ -252,6 +279,8 @@ window.applyUserProfileData = async function(cloud) {
                 localStorage.setItem('kz_session', JSON.stringify({ name: pName, plan: 'monthly', ts: Date.now() }));
                 showApp(pName);
               }
+              const step3El = document.getElementById('step3');
+              if (step3El) step3El.style.display = 'none';
               closeModal();
             } else {
               errEl.textContent = 'Weryfikacja powiodła się, ale nie udało się pobrać danych użytkownika. Spróbuj się zalogować.';
@@ -320,6 +349,8 @@ window.applyUserProfileData = async function(cloud) {
       localStorage.setItem('kz_email', email);
       if (phone) localStorage.setItem('kz_phone', phone);
       
+      const step3El = document.getElementById('step3');
+      if (step3El) step3El.style.display = 'none';
       closeModal();
       if (typeof showApp === 'function') {
         showApp(name);
