@@ -392,17 +392,29 @@
       if (idx > -1) { dietPrefs.splice(idx, 1); el.classList.remove('active'); }
       else { dietPrefs.push(pref); el.classList.add('active'); }
     }
-    function saveDietPrefs() {
-      localStorage.setItem('kz_diet_prefs', JSON.stringify(dietPrefs));
-      clearDietCache();
-      syncToCloud();
-      showToast('✅ Preferencje diety zapisane!', 800);
+    async function saveDietPrefs() {
+      try {
+        const value = JSON.stringify(dietPrefs);
+        window.dietPrefs = [...dietPrefs];
+        if (typeof window.asyncSetItem === 'function') {
+          await window.asyncSetItem('kz_diet_prefs', value);
+        } else {
+          localStorage.setItem('kz_diet_prefs', value);
+        }
+        clearDietCache();
+        const synced = await syncToCloud({ throwOnError: true });
+        if (!synced) throw new Error('Brak aktywnej sesji użytkownika.');
+        showToast('✅ Preferencje diety zapisane!', 800);
+      } catch (e) {
+        console.error('Diet preferences save error:', e);
+        alert('Nie udało się zapisać preferencji diety: ' + (e.message || 'nieznany błąd'));
+      }
     }
     function loadDietPrefs() {
       dietPrefs = JSON.parse(localStorage.getItem('kz_diet_prefs') || '[]');
       document.querySelectorAll('.diet-pref-chip').forEach(chip => {
         const pref = chip.getAttribute('onclick').match(/'([^']+)'/)?.[1];
-        if (pref && dietPrefs.includes(pref)) chip.classList.add('active');
+        chip.classList.toggle('active', !!(pref && dietPrefs.includes(pref)));
       });
     }
 
@@ -445,15 +457,22 @@
       }
     }
 
-    function saveHealthProfile() {
+    async function saveHealthProfile() {
       const text = document.getElementById('health-issues-input')?.value.trim() || '';
-      localStorage.setItem('kz_health_issues', text);
-      clearDietCache();
-      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
-        window.Capacitor.Plugins.Preferences.set({ key: 'kz_health_issues', value: text });
+      try {
+        if (typeof window.asyncSetItem === 'function') {
+          await window.asyncSetItem('kz_health_issues', text);
+        } else {
+          localStorage.setItem('kz_health_issues', text);
+        }
+        clearDietCache();
+        const synced = await syncToCloud({ throwOnError: true });
+        if (!synced) throw new Error('Brak aktywnej sesji użytkownika.');
+        showToast('🩺 Profil zdrowotny został zaktualizowany w pamięci AI!', 800);
+      } catch (e) {
+        console.error('Health profile save error:', e);
+        alert('Nie udało się zapisać profilu zdrowotnego: ' + (e.message || 'nieznany błąd'));
       }
-      syncToCloud();
-      showToast('🩺 Profil zdrowotny został zaktualizowany w pamięci AI!', 800);
     }
     async function loadHealthProfile() {
       let text = localStorage.getItem('kz_health_issues') || '';
