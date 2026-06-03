@@ -274,13 +274,40 @@
       }
       // Check if user is logged in
       if (window.supabaseClient && new URLSearchParams(window.location.search).get('sukces') !== '1') {
-        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        const withTimeout = (promise, ms, defaultVal) => {
+          return new Promise((resolve) => {
+            let timer = setTimeout(() => {
+              timer = null;
+              resolve(defaultVal);
+            }, ms);
+            promise.then(
+              (val) => {
+                if (timer) {
+                  clearTimeout(timer);
+                  resolve(val);
+                }
+              },
+              () => {
+                if (timer) {
+                  clearTimeout(timer);
+                  resolve(defaultVal);
+                }
+              }
+            );
+          });
+        };
+
+        const sessionPromise = window.supabaseClient.auth.getSession().catch(() => ({ data: { session: null } }));
+        const sessionRes = await withTimeout(sessionPromise, 1500, { data: { session: null } });
+        const session = sessionRes?.data?.session;
 
         // Async Data Loading (Preferences & Supabase)
         let sessionDataCloud = null;
         if (session) {
           try {
-            const { data } = await window.supabaseClient.from('user_profiles').select('app_data').eq('id', session.user.id).single();
+            const queryPromise = window.supabaseClient.from('user_profiles').select('app_data').eq('id', session.user.id).single().catch(() => ({ data: null }));
+            const queryRes = await withTimeout(queryPromise, 1500, { data: null });
+            const data = queryRes?.data;
             if (data && data.app_data) sessionDataCloud = data.app_data;
           } catch (e) { }
         }
