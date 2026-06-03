@@ -103,7 +103,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     }
 
     async function syncToCloud() {
-      if (window.supabaseClient) {
+      if (window.initSupabase && window.initSupabase()) {
         const { data: sessionData } = await window.supabaseClient.auth.getSession();
         if (sessionData?.session?.user) {
           const userId = sessionData.session.user.id;

@@ -120,7 +120,7 @@
       let userId = null;
       let hasSess = false;
 
-      if (window.supabaseClient) {
+      if (window.initSupabase && window.initSupabase()) {
         // Inicjalizacja rejestracji
         try {
           const { data, error } = await window.supabaseClient.auth.signUp({
@@ -187,7 +187,7 @@
         }
       }
 
-      if (window.supabaseClient) {
+      if (window.initSupabase && window.initSupabase()) {
         let dogtag = null;
         try {
           dogtag = JSON.parse(localStorage.getItem('vf_dogtag') || 'null');
@@ -260,7 +260,7 @@
       const isSignupConfirm = window.location.hash.includes('type=signup');
       if (isSignupConfirm) {
         history.replaceState({}, '', window.location.pathname);
-        if (window.supabaseClient) {
+        if (window.initSupabase && window.initSupabase()) {
           try {
             await window.supabaseClient.auth.signOut();
           } catch (e) {}
@@ -291,7 +291,7 @@
         } catch (e) {}
       }
       // Check if user is logged in
-      if (window.supabaseClient && new URLSearchParams(window.location.search).get('sukces') !== '1') {
+      if (window.initSupabase && window.initSupabase() && new URLSearchParams(window.location.search).get('sukces') !== '1') {
         const withTimeout = (promise, ms, defaultVal) => {
           return new Promise((resolve) => {
             let timer = setTimeout(() => {

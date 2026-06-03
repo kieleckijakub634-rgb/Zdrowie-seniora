@@ -18,6 +18,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     function openPaymentSuccessModal() { document.getElementById('paymentSuccessModal').classList.add('open'); document.body.style.overflow = 'hidden'; }
     function closePaymentSuccessModal() { document.getElementById('paymentSuccessModal').classList.remove('open'); document.body.style.overflow = ''; }
     async function handleLogin() {
+      window.initSupabase();
       const e = document.getElementById('login-email').value.trim();
       const p = document.getElementById('login-password').value.trim();
       if (!e || !p) return;
@@ -78,6 +79,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       }
     }
     async function logout() {
+      window.initSupabase();
       if (!confirm('Na pewno chcesz się wylogować?')) return;
       if (window.supabaseClient) await window.supabaseClient.auth.signOut();
       localStorage.removeItem('kz_session');
@@ -189,19 +191,23 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     const SUPA_URL = "https://idpwlfgicadaeqakhkqa.supabase.co/rest/v1/vitalfly_data";
     const SUPA_KEY = "sb_publishable___S6vns0m3SKvlFngRtpFA_NDUwSATq";
 
-    if (typeof supabase !== 'undefined' && !window.supabaseClient) {
-      window.supabaseClient = supabase.createClient("https://idpwlfgicadaeqakhkqa.supabase.co", SUPA_KEY);
-    }
+    window.initSupabase = function() {
+      if (!window.supabaseClient && typeof supabase !== 'undefined') {
+        window.supabaseClient = supabase.createClient("https://idpwlfgicadaeqakhkqa.supabase.co", SUPA_KEY);
+        
+        window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+          if (event === 'PASSWORD_RECOVERY') {
+            openResetPasswordModal();
+          }
+        });
+      }
+      return window.supabaseClient;
+    };
 
-    if (window.supabaseClient) {
-      window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'PASSWORD_RECOVERY') {
-          openResetPasswordModal();
-        }
-      });
-    }
+    window.initSupabase();
 
     async function syncFromCloud() {
+      window.initSupabase();
       try {
         const res = await fetch(`${SUPA_URL}?id=eq.1`, {
           headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
@@ -239,6 +245,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     }
 
     async function saveToCloud() {
+      window.initSupabase();
       const vids = APP_DATA.videos;
       if (vids.some(v => v.url && v.url.includes('blob:'))) {
         alert('❌ ZATRZYMANO ZAPIS - WYKRYTO PLIK Z KOMPUTERA!\n\nJeden lub więcej filmów w panelu został wgrany poprzez przeciągnięcie z dysku. Taki plik nie zadziała w internecie!\nZmień ten film na poprawny link YouTube przed zapisem w chmurze.');
@@ -304,6 +311,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     }
 
     async function handleForgotPasswordSubmit() {
+      window.initSupabase();
       const email = document.getElementById('forgot-email').value.trim();
       const errEl = document.getElementById('err-forgot');
       if (errEl) errEl.style.display = 'none';
@@ -384,6 +392,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     }
 
     async function handlePasswordResetSubmit() {
+      window.initSupabase();
       const pwd = document.getElementById('reset-password').value.trim();
       const pwdConfirm = document.getElementById('reset-password-confirm').value.trim();
       const errEl = document.getElementById('err-reset');
@@ -459,6 +468,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     }
 
     async function triggerPasswordResetFromSettings() {
+      window.initSupabase();
       if (!window.supabaseClient) {
         alert('Błąd połączenia z bazą danych.');
         return;

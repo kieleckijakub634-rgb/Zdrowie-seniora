@@ -3526,10 +3526,7 @@
   }
 
   .app-header,
-  .app-main,
-  .chat-fab,
-  .chat-window,
-  .med-toast {
+  .app-main {
     position: relative;
     z-index: 1;
   }
