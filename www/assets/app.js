@@ -46,6 +46,22 @@
       };
     }
 
+    function getMonthsGratisText(months) {
+      const rounded = Math.round(months * 10) / 10;
+      if (rounded <= 0) return '';
+      if (rounded % 1 !== 0) {
+        return `${rounded.toFixed(1).replace('.', ',')} miesiąca gratis`;
+      }
+      const m = Math.round(rounded);
+      if (m === 1) return '1 miesiąc gratis';
+      const lastDigit = m % 10;
+      const lastTwo = m % 100;
+      if (lastDigit >= 2 && lastDigit <= 4 && (lastTwo < 10 || lastTwo >= 20)) {
+        return `${m} miesiące gratis`;
+      }
+      return `${m} miesięcy gratis`;
+    }
+
     function updateDynamicPrices() {
       const prices = getPlanPrices();
       const pM = prices.monthly;
@@ -73,7 +89,14 @@
 
       const upgradeDesc = document.getElementById('upgrade-plan-desc');
       if (upgradeDesc) {
-        upgradeDesc.textContent = `${pY} zł/rok zamiast ${pM * 12} zł — 2 miesiące gratis!`;
+        const savings = pM * 12 - pY;
+        const monthsFree = savings / pM;
+        const gratisText = getMonthsGratisText(monthsFree);
+        if (gratisText) {
+          upgradeDesc.textContent = `${pY} zł/rok zamiast ${pM * 12} zł — ${gratisText}! (Oszczędzasz ${savings} zł)`;
+        } else {
+          upgradeDesc.textContent = `${pY} zł/rok zamiast ${pM * 12} zł — oszczędzasz ${savings} zł!`;
+        }
       }
     }
 
@@ -98,7 +121,20 @@
       if (prices.isPresale) {
         if (pSub) pSub.textContent = isYearly ? `Przedsprzedaż roczna! Oszczędzasz ${pM * 12 - pY} zł 🎉` : 'Przedsprzedaż miesięczna! Złap najniższą cenę 💥';
       } else {
-        if (pSub) pSub.textContent = isYearly ? `2 miesiące gratis! Oszczędzasz ${pM * 12 - pY} zł 🎉` : 'To mniej niż dwie kawy tygodniowo ☕';
+        if (pSub) {
+          if (isYearly) {
+            const savings = pM * 12 - pY;
+            const monthsFree = savings / pM;
+            const gratisText = getMonthsGratisText(monthsFree);
+            if (gratisText) {
+              pSub.textContent = `${gratisText}! Oszczędzasz ${savings} zł 🎉`;
+            } else {
+              pSub.textContent = `Oszczędzasz ${savings} zł 🎉`;
+            }
+          } else {
+            pSub.textContent = 'To mniej niż dwie kawy tygodniowo ☕';
+          }
+        }
       }
 
       const mBtn = document.getElementById('main-join-btn');
