@@ -1,4 +1,4 @@
-    /* ── DOG TAG ── */
+/* ── DOG TAG ── */
     function toggleDogTagEdit(showEdit) {
       document.getElementById('dogtag-edit').style.display = showEdit ? 'block' : 'none';
       document.getElementById('dogtag-view').style.display = showEdit ? 'none' : 'block';
@@ -53,22 +53,22 @@
 
     /* ── VIDEOS ── */
     let playerState = { playing: false, current: null, elapsed: 0, interval: null };
-    let likedVideos = JSON.parse(localStorage.getItem('kz_liked_videos') || '[]');
+    window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_liked_videos') || '[]');
     let videoLibraryView = localStorage.getItem('kz_video_library_view') || 'recommended';
     let videoCart = JSON.parse(localStorage.getItem('kz_video_cart') || '[]');
 
     function isLiked(id) {
-      return likedVideos.includes(id);
+      return window.likedVideos.includes(id);
     }
 
     function toggleLikeVideo(id) {
-      const idx = likedVideos.indexOf(id);
+      const idx = window.likedVideos.indexOf(id);
       if (idx > -1) {
-        likedVideos.splice(idx, 1);
+        window.likedVideos.splice(idx, 1);
       } else {
-        likedVideos.push(id);
+        window.likedVideos.push(id);
       }
-      localStorage.setItem('kz_liked_videos', JSON.stringify(likedVideos));
+      localStorage.setItem('kz_liked_videos', JSON.stringify(window.likedVideos));
       renderVideos();
       if (typeof renderLikedTab === 'function') renderLikedTab();
       syncToCloud();

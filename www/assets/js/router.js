@@ -344,31 +344,18 @@
           if (healthPref.value) localStorage.setItem('kz_health_issues', healthPref.value);
         }
 
-        if (sessionDataCloud) {
-          if (sessionDataCloud.medications) APP_DATA.medications = sessionDataCloud.medications;
-          if (sessionDataCloud.dogtag) localStorage.setItem('vf_dogtag', JSON.stringify(sessionDataCloud.dogtag));
-          if (sessionDataCloud.profileName) {
-            localStorage.setItem('kz_name', sessionDataCloud.profileName);
-            localStorage.setItem('kz_logged_in_name', sessionDataCloud.profileName);
+        if (session) {
+          const cloud = sessionDataCloud || {};
+          if (!cloud.profileName && session.user?.user_metadata?.full_name) {
+            cloud.profileName = session.user.user_metadata.full_name;
           }
-          if (sessionDataCloud.profilePhone) {
-            localStorage.setItem('kz_phone', sessionDataCloud.profilePhone);
+          if (!cloud.profileEmail && session.user?.email) {
+            cloud.profileEmail = session.user.email;
           }
-          if (sessionDataCloud.selectedDiet) {
-            localStorage.setItem('kz_selected_diet', sessionDataCloud.selectedDiet);
-            selectedDiet = parseInt(sessionDataCloud.selectedDiet);
+          if (!cloud.profilePhone && session.user?.user_metadata?.phone) {
+            cloud.profilePhone = session.user.user_metadata.phone;
           }
-          if (sessionDataCloud.dietPrefs) {
-            localStorage.setItem('kz_diet_prefs', JSON.stringify(sessionDataCloud.dietPrefs));
-            dietPrefs = sessionDataCloud.dietPrefs;
-          }
-          if (sessionDataCloud.likedVideos) {
-            localStorage.setItem('kz_liked_videos', JSON.stringify(sessionDataCloud.likedVideos));
-            likedVideos = sessionDataCloud.likedVideos;
-          }
-          if (sessionDataCloud.healthIssues) {
-            localStorage.setItem('kz_health_issues', sessionDataCloud.healthIssues);
-          }
+          await window.applyUserProfileData(cloud);
         }
 
         if (session) {

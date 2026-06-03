@@ -3,6 +3,77 @@ window.selectedDiet = window.selectedDiet || parseInt(localStorage.getItem('kz_s
 window.dietPrefs = window.dietPrefs || JSON.parse(localStorage.getItem('kz_diet_prefs') || '[]');
 window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_liked_videos') || '[]');
 
+window.asyncSetItem = window.asyncSetItem || async function(key, value) {
+  localStorage.setItem(key, value);
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+    try {
+      await window.Capacitor.Plugins.Preferences.set({ key, value });
+    } catch (e) {
+      console.error("Capacitor Preference set error:", e);
+    }
+  }
+};
+
+window.asyncRemoveItem = window.asyncRemoveItem || async function(key) {
+  localStorage.removeItem(key);
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+    try {
+      await window.Capacitor.Plugins.Preferences.remove({ key });
+    } catch (e) {
+      console.error("Capacitor Preference remove error:", e);
+    }
+  }
+};
+
+window.applyUserProfileData = async function(cloud) {
+  cloud = cloud || {};
+  
+  // 1. Medications
+  if (typeof APP_DATA !== 'undefined') {
+    APP_DATA.medications = cloud.medications || [];
+  }
+  await window.asyncSetItem('kz_medications', JSON.stringify(cloud.medications || []));
+  
+  // 2. Dogtag
+  if (cloud.dogtag) {
+    await window.asyncSetItem('vf_dogtag', JSON.stringify(cloud.dogtag));
+  } else {
+    await window.asyncRemoveItem('vf_dogtag');
+  }
+  
+  // 3. Profile Name
+  const profileName = cloud.profileName || '';
+  await window.asyncSetItem('kz_name', profileName);
+  await window.asyncSetItem('kz_logged_in_name', profileName);
+  
+  // 4. Profile Phone
+  const profilePhone = cloud.profilePhone || '';
+  await window.asyncSetItem('kz_phone', profilePhone);
+  
+  // 5. Profile Email
+  const profileEmail = cloud.profileEmail || '';
+  await window.asyncSetItem('kz_email', profileEmail);
+  
+  // 6. Selected Diet
+  const selectedDietVal = cloud.selectedDiet !== undefined ? parseInt(cloud.selectedDiet) : 1;
+  await window.asyncSetItem('kz_selected_diet', selectedDietVal.toString());
+  window.selectedDiet = selectedDietVal;
+  
+  // 7. Diet Prefs
+  const dietPrefsVal = cloud.dietPrefs || [];
+  await window.asyncSetItem('kz_diet_prefs', JSON.stringify(dietPrefsVal));
+  window.dietPrefs = dietPrefsVal;
+  
+  // 8. Liked Videos
+  const likedVideosVal = cloud.likedVideos || [];
+  await window.asyncSetItem('kz_liked_videos', JSON.stringify(likedVideosVal));
+  window.likedVideos = likedVideosVal;
+  
+  // 9. Health Issues
+  const healthIssuesVal = cloud.healthIssues || '';
+  await window.asyncSetItem('kz_health_issues', healthIssuesVal);
+};
+
 /* ── Modal ── */
     function openModal() { document.getElementById('signupModal').classList.add('open'); document.body.style.overflow = 'hidden'; showStep(1); }
     function closeModal() { document.getElementById('signupModal').classList.remove('open'); document.body.style.overflow = ''; }
@@ -39,33 +110,22 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         let displayName = data.user?.user_metadata?.full_name || 'Seniorze';
         try {
           const { data: profile } = await window.supabaseClient.from('user_profiles').select('app_data').eq('id', data.user.id).single();
-          if (profile && profile.app_data) {
-            const cloud = profile.app_data;
-            if (cloud.medications) APP_DATA.medications = cloud.medications;
-            if (cloud.dogtag) localStorage.setItem('vf_dogtag', JSON.stringify(cloud.dogtag));
-            if (cloud.profileName) {
-              localStorage.setItem('kz_name', cloud.profileName);
-              localStorage.setItem('kz_logged_in_name', cloud.profileName);
-              displayName = cloud.profileName;
-            }
-            if (cloud.profilePhone) {
-              localStorage.setItem('kz_phone', cloud.profilePhone);
-            }
-            if (cloud.selectedDiet) {
-              localStorage.setItem('kz_selected_diet', cloud.selectedDiet);
-              selectedDiet = parseInt(cloud.selectedDiet);
-            }
-            if (cloud.dietPrefs) {
-              localStorage.setItem('kz_diet_prefs', JSON.stringify(cloud.dietPrefs));
-              dietPrefs = cloud.dietPrefs;
-            }
-            if (cloud.likedVideos) {
-              localStorage.setItem('kz_liked_videos', JSON.stringify(cloud.likedVideos));
-              likedVideos = cloud.likedVideos;
-            }
-            if (cloud.healthIssues) {
-              localStorage.setItem('kz_health_issues', cloud.healthIssues);
-            }
+          const cloud = (profile && profile.app_data) ? profile.app_data : {};
+          
+          // Uzupełnij brakujące dane profilu z metadanych sesji
+          if (!cloud.profileName && data.user?.user_metadata?.full_name) {
+            cloud.profileName = data.user.user_metadata.full_name;
+          }
+          if (!cloud.profileEmail && data.user?.email) {
+            cloud.profileEmail = data.user.email;
+          }
+          if (!cloud.profilePhone && data.user?.user_metadata?.phone) {
+            cloud.profilePhone = data.user.user_metadata.phone;
+          }
+
+          await window.applyUserProfileData(cloud);
+          if (cloud.profileName) {
+            displayName = cloud.profileName;
           }
         } catch (e) {
           console.error("Błąd wczytywania profilu:", e);
@@ -81,11 +141,46 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     async function logout() {
       window.initSupabase();
       if (!confirm('Na pewno chcesz się wylogować?')) return;
-      if (window.supabaseClient) await window.supabaseClient.auth.signOut();
-      localStorage.removeItem('kz_session');
-      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
-        await window.Capacitor.Plugins.Preferences.remove({ key: 'kz_session' });
+      
+      // Wyloguj z Supabase (try-catch w razie braku sieci)
+      if (window.supabaseClient) {
+        try {
+          await window.supabaseClient.auth.signOut();
+        } catch (e) {
+          console.error("Supabase signOut error:", e);
+        }
       }
+
+      // Wyczyść localStorage z kluczy kz_*, sb-* oraz vf_dogtag
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('kz_') || key.startsWith('sb-') || key === 'vf_dogtag')) {
+          localStorage.removeItem(key);
+        }
+      }
+
+      // Wyczyść te same klucze z Capacitor Preferences
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+        try {
+          const { keys } = await window.Capacitor.Plugins.Preferences.keys();
+          for (const key of keys) {
+            if (key.startsWith('kz_') || key.startsWith('sb-') || key === 'vf_dogtag') {
+              await window.Capacitor.Plugins.Preferences.remove({ key });
+            }
+          }
+        } catch (e) {
+          console.error("Capacitor clear preferences error:", e);
+        }
+      }
+
+      // Reset zmiennych w pamięci RAM
+      if (typeof APP_DATA !== 'undefined') {
+        APP_DATA.medications = [];
+      }
+      window.selectedDiet = 1;
+      window.dietPrefs = [];
+      window.likedVideos = [];
+
       window.location.href = '/';
     }
 
