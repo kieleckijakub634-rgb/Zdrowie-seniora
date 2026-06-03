@@ -247,10 +247,49 @@
           <div class="admin-card">
             <div class="vf-admin-card-title">💰 Edytuj ceny subskrypcji</div>
             <p style="font-size:.85rem;color:var(--warm-gray);margin-bottom:1rem;">Zapisane tu ceny zaktualizują się automatycznie na stronie głównej oraz w panelu rejestracji użytkownika.</p>
-            <div style="display:flex;gap:1rem;margin-bottom:.75rem;flex-wrap:wrap;">
-              <div style="flex:1;min-width:200px;"><label style="font-size:.85rem;font-weight:600;">Cena miesięczna (zł)</label><input type="number" id="admin-price-monthly" class="admin-input" placeholder="np. 39" /></div>
-              <div style="flex:1;min-width:200px;"><label style="font-size:.85rem;font-weight:600;">Cena roczna (zł)</label><input type="number" id="admin-price-yearly" class="admin-input" placeholder="np. 390" /></div>
+            <div style="display:flex;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+              <div style="flex:1;min-width:200px;">
+                <label style="font-size:.85rem;font-weight:600;">Cena miesięczna regularna (zł)</label>
+                <input type="number" id="admin-price-monthly" class="admin-input" placeholder="np. 39" />
+              </div>
+              <div style="flex:1;min-width:200px;">
+                <label style="font-size:.85rem;font-weight:600;">Cena roczna regularna (zł)</label>
+                <input type="number" id="admin-price-yearly" class="admin-input" placeholder="np. 390" />
+              </div>
             </div>
+
+            <!-- Promocja -->
+            <div style="border-top:1px solid #1E3050; padding-top:1rem; margin-bottom:1.25rem;">
+              <div style="font-family:'Lora',serif;color:#4DBFA8;font-size:1rem;font-weight:700;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">
+                <input type="checkbox" id="admin-promo-enabled" style="width:1.15rem;height:1.15rem;cursor:pointer;" />
+                <label for="admin-promo-enabled" style="cursor:pointer;">Włącz promocję procentową (np. -10%)</label>
+              </div>
+              <div style="display:flex;gap:1rem;margin-bottom:.75rem;">
+                <div style="flex:1;max-width:200px;">
+                  <label style="font-size:.85rem;font-weight:600;">Wysokość zniżki (%)</label>
+                  <input type="number" id="admin-promo-percent" class="admin-input" placeholder="np. 10" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Przedsprzedaż -->
+            <div style="border-top:1px solid #1E3050; padding-top:1rem; margin-bottom:1.25rem;">
+              <div style="font-family:'Lora',serif;color:#4DBFA8;font-size:1rem;font-weight:700;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">
+                <input type="checkbox" id="admin-presale-enabled" style="width:1.15rem;height:1.15rem;cursor:pointer;" />
+                <label for="admin-presale-enabled" style="cursor:pointer;">Włącz tryb przedsprzedaży (ceny poniżej)</label>
+              </div>
+              <div style="display:flex;gap:1rem;margin-bottom:.75rem;flex-wrap:wrap;">
+                <div style="flex:1;min-width:200px;">
+                  <label style="font-size:.85rem;font-weight:600;">Cena przedsprzedaży miesięczna (zł)</label>
+                  <input type="number" id="admin-presale-price-monthly" class="admin-input" placeholder="np. 29" />
+                </div>
+                <div style="flex:1;min-width:200px;">
+                  <label style="font-size:.85rem;font-weight:600;">Cena przedsprzedaży roczna (zł)</label>
+                  <input type="number" id="admin-presale-price-yearly" class="admin-input" placeholder="np. 290" />
+                </div>
+              </div>
+            </div>
+
             <button class="admin-btn" onclick="saveAdminPrices()" type="button">Zapisz cennik</button>
           </div>
         </div>

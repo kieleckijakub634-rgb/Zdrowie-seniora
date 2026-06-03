@@ -21,11 +21,68 @@
 
     /* Plan toggle (landing) */
     let currentPlan = 'monthly';
+    function getPlanPrices() {
+      let pM = parseInt(localStorage.getItem('kz_price_monthly') || '39');
+      let pY = parseInt(localStorage.getItem('kz_price_yearly') || '390');
+      
+      const presaleEnabled = localStorage.getItem('kz_presale_enabled') === '1';
+      const promoEnabled = localStorage.getItem('kz_promo_enabled') === '1';
+      const promoPercent = parseInt(localStorage.getItem('kz_promo_percent') || '10');
+      
+      if (presaleEnabled) {
+        pM = parseInt(localStorage.getItem('kz_presale_price_monthly') || '29');
+        pY = parseInt(localStorage.getItem('kz_presale_price_yearly') || '290');
+      } else if (promoEnabled) {
+        pM = Math.round(pM * (1 - promoPercent / 100));
+        pY = Math.round(pY * (1 - promoPercent / 100));
+      }
+      
+      return {
+        monthly: pM,
+        yearly: pY,
+        isPresale: presaleEnabled,
+        isPromo: promoEnabled && !presaleEnabled,
+        promoPercent: promoPercent
+      };
+    }
+
+    function updateDynamicPrices() {
+      const prices = getPlanPrices();
+      const pM = prices.monthly;
+      const pY = prices.yearly;
+
+      document.querySelectorAll('.dynamic-price-m').forEach(el => {
+        if (el.tagName === 'BUTTON') {
+          if (el.textContent.includes('Chcę to wszystko')) {
+            el.textContent = `Chcę to wszystko – dołączam za ${pM} zł/m-c →`;
+          } else if (el.textContent.includes('Dołączam do Klubu')) {
+            el.textContent = `Dołączam do Klubu za ${pM} zł/m-c →`;
+          } else if (el.textContent.includes('Dołącz za')) {
+            el.textContent = `Dołącz za ${pM} zł/m-c`;
+          } else {
+            el.textContent = `Dołącz do Klubu za ${pM} zł/m-c`;
+          }
+        } else {
+          el.textContent = `${pM} zł`;
+        }
+      });
+
+      document.querySelectorAll('.dynamic-price-regular-m-full').forEach(el => {
+        el.textContent = `${pM},00 zł`;
+      });
+
+      const upgradeDesc = document.getElementById('upgrade-plan-desc');
+      if (upgradeDesc) {
+        upgradeDesc.textContent = `${pY} zł/rok zamiast ${pM * 12} zł — 2 miesiące gratis!`;
+      }
+    }
+
     function switchPlan(plan) {
       currentPlan = plan;
       const isYearly = plan === 'yearly';
-      const pM = parseInt(localStorage.getItem('kz_price_monthly') || '39');
-      const pY = parseInt(localStorage.getItem('kz_price_yearly') || '390');
+      const prices = getPlanPrices();
+      const pM = prices.monthly;
+      const pY = prices.yearly;
       const bM = document.getElementById('btn-monthly');
       const bY = document.getElementById('btn-yearly');
       if (bM) bM.classList.toggle('active', !isYearly);
@@ -38,16 +95,25 @@
       if (pPer) pPer.textContent = isYearly ? '/ rok' : '/ miesiąc';
 
       const pSub = document.getElementById('price-sub');
-      if (pSub) pSub.textContent = isYearly ? `2 miesiące gratis! Oszczędzasz ${pM * 12 - pY} zł 🎉` : 'To mniej niż dwie kawy tygodniowo ☕';
+      if (prices.isPresale) {
+        if (pSub) pSub.textContent = isYearly ? `Przedsprzedaż roczna! Oszczędzasz ${pM * 12 - pY} zł 🎉` : 'Przedsprzedaż miesięczna! Złap najniższą cenę 💥';
+      } else {
+        if (pSub) pSub.textContent = isYearly ? `2 miesiące gratis! Oszczędzasz ${pM * 12 - pY} zł 🎉` : 'To mniej niż dwie kawy tygodniowo ☕';
+      }
 
       const mBtn = document.getElementById('main-join-btn');
       if (mBtn) mBtn.textContent = isYearly ? `Dołączam na rok za ${pY} zł →` : `Dołączam do VitalFly za ${pM} zł/miesiąc →`;
 
       localStorage.setItem('kz_plan', plan);
+      updateDynamicPrices();
     }
 
     // Wymuszenie odświeżenia cen po wejściu na stronę główną
-    window.addEventListener('DOMContentLoaded', () => { switchPlan('monthly'); });
+    window.addEventListener('DOMContentLoaded', () => { 
+      switchPlan('monthly'); 
+      updateDynamicPrices();
+      loadPlanSettings();
+    });
 
 
 
@@ -126,7 +192,7 @@
       if (email) localStorage.setItem('kz_email', email);
       if (phone) localStorage.setItem('kz_phone', phone);
       syncToCloud();
-      showToast('✅ Profil zapisany!');
+      showToast('✅ Profil zapisany!', 800);
     }
     function loadProfile() {
       const n = localStorage.getItem('kz_name'), e = localStorage.getItem('kz_email'), p = localStorage.getItem('kz_phone');
@@ -156,66 +222,60 @@
     }
     function cancelSubscription() {
       if (confirm('Czy na pewno chcesz anulować subskrypcję? Zachowasz dostęp do końca opłaconego okresu.')) {
-        localStorage.setItem('kz_plan', 'cancelled');
+        localStorage.setItem('kz_subscription_status', 'cancelled');
         loadPlanSettings();
         syncToCloud();
-        showToast('✅ Subskrypcja została anulowana.');
+        showToast('🔒 Subskrypcja została anulowana.', 800);
       }
     }
     function loadPlanSettings() {
       const plan = localStorage.getItem('kz_plan') || 'monthly';
+      const subStatus = localStorage.getItem('kz_subscription_status') || 'active';
       const label = document.getElementById('plan-current-label');
       const btn = document.getElementById('upgrade-btn');
       const badge = document.getElementById('app-plan-badge');
+      const upgradeRow = document.getElementById('upgrade-plan-row');
       const cancelBtn = document.getElementById('cancel-sub-btn');
-
-      // Przywrócenie domyślnych stanów przycisków
-      if (btn) {
-        btn.style.display = 'inline-block';
-        btn.disabled = false;
-        btn.textContent = 'Przejdź na Roczny →';
-        btn.style.background = '';
-      }
-      if (cancelBtn) {
-        cancelBtn.style.display = 'inline-block';
-        cancelBtn.disabled = false;
-        cancelBtn.textContent = 'Rezygnuj z subskrypcji';
-        cancelBtn.style.background = '';
-        cancelBtn.style.color = '';
-        cancelBtn.style.borderColor = '';
-        cancelBtn.style.cursor = 'pointer';
-      }
+      
+      const prices = getPlanPrices();
+      const pM = prices.monthly;
+      const pY = prices.yearly;
 
       if (plan === 'yearly') {
-        if (label) label.textContent = '📅 Roczny • 390 zł/rok';
-        if (btn) { btn.textContent = '✓ Plan roczny aktywny'; btn.disabled = true; btn.style.background = '#4DBFA8'; }
+        if (label) label.textContent = `📅 Roczny • ${pY} zł/rok`;
         if (badge) {
           badge.textContent = '✓ PLAN ROCZNY';
           badge.style.display = 'inline-block';
           badge.style.background = '';
         }
-      } else if (plan === 'cancelled') {
-        if (label) label.textContent = '❌ Anulowana (wygaśnie wkrótce)';
-        if (btn) btn.style.display = 'none';
-        if (badge) {
-          badge.textContent = '❌ SUB. ANULOWANA';
-          badge.style.display = 'inline-block';
-          badge.style.background = '#E05252';
-        }
-        if (cancelBtn) {
-          cancelBtn.textContent = '✓ Subskrypcja anulowana';
-          cancelBtn.disabled = true;
-          cancelBtn.style.background = 'rgba(0,0,0,0.05)';
-          cancelBtn.style.color = 'var(--warm-gray)';
-          cancelBtn.style.borderColor = 'transparent';
-          cancelBtn.style.cursor = 'default';
-        }
+        if (upgradeRow) upgradeRow.style.display = 'none';
       } else {
-        if (label) label.textContent = '📅 Miesięczny • 39 zł/miesiąc';
+        if (label) label.textContent = `📅 Miesięczny • ${pM} zł/miesiąc`;
         if (badge) {
           badge.textContent = '✓ PLAN MIESIĘCZNY';
           badge.style.display = 'inline-block';
           badge.style.background = '';
+        }
+        if (upgradeRow) upgradeRow.style.display = 'flex';
+      }
+
+      if (subStatus === 'cancelled') {
+        if (cancelBtn) {
+          cancelBtn.textContent = 'Subskrypcja anulowana';
+          cancelBtn.disabled = true;
+          cancelBtn.style.background = '#6B7A8D';
+          cancelBtn.style.color = '#fff';
+          cancelBtn.style.borderColor = 'transparent';
+          cancelBtn.style.cursor = 'default';
+        }
+      } else {
+        if (cancelBtn) {
+          cancelBtn.textContent = 'Rezygnuj z subskrypcji';
+          cancelBtn.disabled = false;
+          cancelBtn.style.background = '';
+          cancelBtn.style.color = '';
+          cancelBtn.style.borderColor = '';
+          cancelBtn.style.cursor = 'pointer';
         }
       }
     }
@@ -231,7 +291,7 @@
       localStorage.setItem('kz_diet_prefs', JSON.stringify(dietPrefs));
       clearDietCache();
       syncToCloud();
-      showToast('✅ Preferencje diety zapisane!');
+      showToast('✅ Preferencje diety zapisane!', 800);
     }
     function loadDietPrefs() {
       dietPrefs = JSON.parse(localStorage.getItem('kz_diet_prefs') || '[]');
@@ -247,7 +307,7 @@
       const enabled = document.getElementById('notif-exercise-enabled')?.checked;
       const quiet = document.getElementById('notif-quiet')?.checked;
       localStorage.setItem('kz_notif', JSON.stringify({ time, enabled, quiet }));
-      showToast('🔔 Ustawienia powiadomień zapisane!');
+      showToast('🔔 Ustawienia powiadomień zapisane!', 800);
     }
     function loadNotifSettings() {
       const s = JSON.parse(localStorage.getItem('kz_notif') || '{}');
@@ -288,7 +348,7 @@
         window.Capacitor.Plugins.Preferences.set({ key: 'kz_health_issues', value: text });
       }
       syncToCloud();
-      showToast('🩺 Profil zdrowotny został zaktualizowany w pamięci AI!');
+      showToast('🩺 Profil zdrowotny został zaktualizowany w pamięci AI!', 800);
     }
     async function loadHealthProfile() {
       let text = localStorage.getItem('kz_health_issues') || '';

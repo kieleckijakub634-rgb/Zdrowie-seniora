@@ -213,6 +213,11 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
           if (cloud.diets && cloud.diets.length > 0) APP_DATA.diets = cloud.diets;
           if (cloud.priceM) localStorage.setItem('kz_price_monthly', cloud.priceM);
           if (cloud.priceY) localStorage.setItem('kz_price_yearly', cloud.priceY);
+          if (cloud.promoEnabled !== undefined) localStorage.setItem('kz_promo_enabled', cloud.promoEnabled);
+          if (cloud.promoPercent !== undefined) localStorage.setItem('kz_promo_percent', cloud.promoPercent);
+          if (cloud.presaleEnabled !== undefined) localStorage.setItem('kz_presale_enabled', cloud.presaleEnabled);
+          if (cloud.presalePriceM !== undefined) localStorage.setItem('kz_presale_price_monthly', cloud.presalePriceM);
+          if (cloud.presalePriceY !== undefined) localStorage.setItem('kz_presale_price_yearly', cloud.presalePriceY);
           if (cloud.announce !== undefined) localStorage.setItem('kz_announce', cloud.announce);
           if (cloud.geminiApiKey !== undefined) localStorage.setItem('kz_gemini_api_key', cloud.geminiApiKey);
 
@@ -221,8 +226,11 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
           renderDiets();
           showAnnounceIfExists();
           if (typeof switchPlan === 'function' && typeof currentPlan !== 'undefined') switchPlan(currentPlan);
+          if (typeof updateDynamicPrices === 'function') updateDynamicPrices();
+          if (typeof loadPlanSettings === 'function') loadPlanSettings();
           if (document.getElementById('adminPanelView').style.display !== 'none') {
             renderAdminContent();
+            if (typeof loadAdminPrices === 'function') loadAdminPrices();
           }
         }
       } catch (e) {
@@ -242,6 +250,11 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         diets: APP_DATA.diets,
         priceM: localStorage.getItem('kz_price_monthly') || '39',
         priceY: localStorage.getItem('kz_price_yearly') || '390',
+        promoEnabled: localStorage.getItem('kz_promo_enabled') || '0',
+        promoPercent: localStorage.getItem('kz_promo_percent') || '10',
+        presaleEnabled: localStorage.getItem('kz_presale_enabled') || '0',
+        presalePriceM: localStorage.getItem('kz_presale_price_monthly') || '29',
+        presalePriceY: localStorage.getItem('kz_presale_price_yearly') || '290',
         announce: localStorage.getItem('kz_announce') || '',
         geminiApiKey: localStorage.getItem('kz_gemini_api_key') || ''
       };

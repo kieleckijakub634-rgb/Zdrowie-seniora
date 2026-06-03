@@ -1144,13 +1144,13 @@
 
     /* ── TOAST ── */
     let toastTimeout;
-    function showToast(msg) {
+    function showToast(msg, duration = 4500) {
       const t = document.getElementById('medToast');
       if (!t) return;
       document.getElementById('medToastText').textContent = msg;
       t.classList.add('show');
       clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => t.classList.remove('show'), 4500);
+      toastTimeout = setTimeout(() => t.classList.remove('show'), duration);
     }
 
     function showMedModal(msg) {

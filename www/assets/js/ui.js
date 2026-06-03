@@ -505,8 +505,8 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         <div><div class="settings-label">Aktualny plan</div><div class="settings-desc" id="plan-renewal-info">Odnawia się automatycznie</div></div>
         <span class="plan-current-badge" id="plan-current-label">📅 Miesięczny &bull; 39 zł/miesiąc</span>
       </div>
-      <div class="settings-row">
-        <div><div class="settings-label">Upgrade do planu rocznego</div><div class="settings-desc">390 zł/rok zamiast 468 zł — 2 miesiące gratis!</div></div>
+      <div class="settings-row" id="upgrade-plan-row">
+        <div><div class="settings-label">Upgrade do planu rocznego</div><div class="settings-desc" id="upgrade-plan-desc">390 zł/rok zamiast 468 zł — 2 miesiące gratis!</div></div>
         <button class="plan-upgrade-btn" id="upgrade-btn" onclick="upgradePlan()">Przejdź na Roczny →</button>
       </div>
       <div class="settings-row">

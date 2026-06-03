@@ -67,9 +67,23 @@
     async function saveAdminPrices() {
       const pm = document.getElementById('admin-price-monthly').value;
       const py = document.getElementById('admin-price-yearly').value;
+      const promoE = document.getElementById('admin-promo-enabled').checked ? '1' : '0';
+      const promoP = document.getElementById('admin-promo-percent').value;
+      const presaleE = document.getElementById('admin-presale-enabled').checked ? '1' : '0';
+      const presalePm = document.getElementById('admin-presale-price-monthly').value;
+      const presalePy = document.getElementById('admin-presale-price-yearly').value;
+      
       if (pm) localStorage.setItem('kz_price_monthly', pm);
       if (py) localStorage.setItem('kz_price_yearly', py);
+      localStorage.setItem('kz_promo_enabled', promoE);
+      if (promoP) localStorage.setItem('kz_promo_percent', promoP);
+      localStorage.setItem('kz_presale_enabled', presaleE);
+      if (presalePm) localStorage.setItem('kz_presale_price_monthly', presalePm);
+      if (presalePy) localStorage.setItem('kz_presale_price_yearly', presalePy);
+      
       if (typeof switchPlan === 'function' && typeof currentPlan !== 'undefined') switchPlan(currentPlan);
+      if (typeof updateDynamicPrices === 'function') updateDynamicPrices();
+      if (typeof loadPlanSettings === 'function') loadPlanSettings();
 
       showToast('⏳ Zapisywanie cennika do chmury...');
       const ok = await saveToCloud();
@@ -79,8 +93,19 @@
     function loadAdminPrices() {
       const pm = document.getElementById('admin-price-monthly');
       const py = document.getElementById('admin-price-yearly');
+      const promoE = document.getElementById('admin-promo-enabled');
+      const promoP = document.getElementById('admin-promo-percent');
+      const presaleE = document.getElementById('admin-presale-enabled');
+      const presalePm = document.getElementById('admin-presale-price-monthly');
+      const presalePy = document.getElementById('admin-presale-price-yearly');
+      
       if (pm) pm.value = localStorage.getItem('kz_price_monthly') || '39';
       if (py) py.value = localStorage.getItem('kz_price_yearly') || '390';
+      if (promoE) promoE.checked = localStorage.getItem('kz_promo_enabled') === '1';
+      if (promoP) promoP.value = localStorage.getItem('kz_promo_percent') || '10';
+      if (presaleE) presaleE.checked = localStorage.getItem('kz_presale_enabled') === '1';
+      if (presalePm) presalePm.value = localStorage.getItem('kz_presale_price_monthly') || '29';
+      if (presalePy) presalePy.value = localStorage.getItem('kz_presale_price_yearly') || '290';
     }
 
     function renderAdminContent() {
