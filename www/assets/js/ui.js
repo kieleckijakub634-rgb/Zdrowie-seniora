@@ -894,6 +894,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       }, 50);
 
       if (name === 'diets') {
+        window.activeDietDayIndex = undefined;
         renderPersonalizedDiet();
       }
       if (name === 'liked') {

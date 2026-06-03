@@ -63,19 +63,6 @@
       }
     }
 
-    function addAdminDiet() {
-      APP_DATA.diets.push({ id: Date.now(), title: 'Nowy Jadłospis', emoji: '🥗', tag: 'Nowa', meals: ['Śniadanie: ...', 'Obiad: ...', 'Kolacja: ...'], shopping: ['Składnik 1'] });
-      renderAdminContent();
-      saveData('diets');
-    }
-
-    function delAdminDiet(i) {
-      if (confirm('Na pewno chcesz usunąć ten jadłospis?')) {
-        APP_DATA.diets.splice(i, 1);
-        renderAdminContent();
-        saveData('diets');
-      }
-    }
 
     async function saveAdminPrices() {
       const pm = document.getElementById('admin-price-monthly').value;
@@ -122,26 +109,6 @@
       </div>
     `).join('') + `<button class="admin-btn" style="width:100%;background:#e2e8f0;color:#2d3748;margin-top:.5rem;" onclick="addAdminVideo()">+ Dodaj nowy film</button>`;
 
-      const dList = document.getElementById('admin-diets-list');
-      if (dList) dList.innerHTML = APP_DATA.diets.map((d, i) => `
-      <div style="background:#f8f9fa;border:1px solid #e2e8f0;border-radius:12px;padding:1rem;margin-bottom:1rem;position:relative;">
-        <button onclick="delAdminDiet(${i})" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:#e53e3e;cursor:pointer;font-weight:bold;padding:0;">✕ Usuń</button>
-        <div style="display:flex;gap:.5rem;margin-bottom:.5rem;padding-right:4rem;flex-wrap:wrap;">
-          <input class="admin-input" style="width:4rem;text-align:center;" value="${d.emoji}" onchange="APP_DATA.diets[${i}].emoji=this.value" placeholder="🥗" />
-          <input class="admin-input" style="flex:1;min-width:150px;" value="${d.title}" onchange="APP_DATA.diets[${i}].title=this.value" placeholder="Tytuł jadłospisu" />
-          <input class="admin-input" style="width:7rem;" value="${d.tag}" onchange="APP_DATA.diets[${i}].tag=this.value" placeholder="Tag" />
-        </div>
-        <div style="margin-bottom:.5rem;">
-          <div style="font-size:.85rem;color:var(--navy);font-weight:600;margin-bottom:.2rem;">Posiłki (każdy w osobnej linii):</div>
-          <textarea class="admin-input" style="min-height:90px;resize:vertical;" onchange="APP_DATA.diets[${i}].meals=this.value.split('\\n').filter(x=>x.trim())">${d.meals.join('\n')}</textarea>
-        </div>
-        <div>
-          <div style="font-size:.85rem;color:var(--navy);font-weight:600;margin-bottom:.2rem;">Zakupy (każdy w osobnej linii):</div>
-          <textarea class="admin-input" style="min-height:90px;resize:vertical;" onchange="APP_DATA.diets[${i}].shopping=this.value.split('\\n').filter(x=>x.trim())">${d.shopping.join('\n')}</textarea>
-        </div>
-        <div style="text-align:right;margin-top:.5rem;"><button class="admin-btn" style="padding:.4rem 1rem;" onclick="saveData('diets')">Zapisz ten jadłospis</button></div>
-      </div>
-    `).join('') + `<button class="admin-btn" style="width:100%;background:#e2e8f0;color:#2d3748;margin-top:.5rem;" onclick="addAdminDiet()">+ Dodaj nowy jadłospis</button>`;
 
       loadAdminPrices();
     }

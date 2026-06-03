@@ -68,8 +68,8 @@
       const promise = video.play();
       if (promise && typeof promise.catch === 'function') {
         promise.catch(function () {
-          document.addEventListener('touchstart', play, { once: true, passive: true });
-          document.addEventListener('click', play, { once: true, passive: true });
+          // Autoplay blocked: do not lock. Allow hiding and show the app.
+          finishVideoGate();
         });
       }
     };
@@ -80,6 +80,9 @@
     } catch (e) {
       fallbackTimer = setTimeout(finishVideoGate, 1800);
     }
+
+    // Safety fallback: always allow hiding the loader after 4 seconds
+    setTimeout(finishVideoGate, 4000);
 
     fallbackTimer = setTimeout(function () {
       if (!canHide && video.readyState === 0) finishVideoGate();

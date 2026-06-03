@@ -86,3 +86,21 @@ body, #appShell {
 .app-main, .tab-panel { 
   overflow: visible !important; 
 }
+
+/* Styling for completed diet day pills */
+.diet-day-pill.completed {
+  border-color: rgba(62, 174, 150, 0.4);
+  color: #4DBFA8;
+}
+body.theme-dark .diet-day-pill.completed {
+  border-color: rgba(62, 174, 150, 0.3);
+  color: #a3e2d5;
+}
+.diet-day-pill.completed.active {
+  border-color: var(--mint);
+  color: var(--navy);
+}
+body.theme-dark .diet-day-pill.completed.active {
+  border-color: var(--mint);
+  color: #fff;
+}

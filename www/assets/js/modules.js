@@ -319,6 +319,41 @@
       localStorage.removeItem('kz_cached_diet_profile_key');
     }
 
+    function calculateTodayDietDayIndex(dietPlan) {
+      if (!dietPlan || !dietPlan.days || dietPlan.days.length <= 1) {
+        return 0;
+      }
+
+      const currentDietDuration = parseInt(localStorage.getItem('kz_diet_duration') || '1');
+
+      if (currentDietDuration === 7) {
+        const daysOfWeek = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'];
+        const todayName = daysOfWeek[new Date().getDay()];
+        const todayIdx = dietPlan.days.findIndex(day => day.dayName && day.dayName.trim().toLowerCase() === todayName.toLowerCase());
+        if (todayIdx !== -1) {
+          return todayIdx;
+        }
+      }
+
+      if (currentDietDuration === 3) {
+        let genTimeStr = localStorage.getItem(`kz_cached_diet_time_${currentDietDuration}`);
+        if (!genTimeStr) {
+          genTimeStr = Date.now().toString();
+          localStorage.setItem(`kz_cached_diet_time_${currentDietDuration}`, genTimeStr);
+        }
+        const genTime = parseInt(genTimeStr, 10);
+        const d1 = new Date(genTime);
+        const d2 = new Date();
+        d1.setHours(0, 0, 0, 0);
+        d2.setHours(0, 0, 0, 0);
+        const diffTime = d2.getTime() - d1.getTime();
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        return Math.max(0, Math.min(diffDays, dietPlan.days.length - 1));
+      }
+
+      return 0;
+    }
+
     // Główna funkcja generująca dietę za pomocą LLM
     // Funkcja pomocnicza renderująca widok jadłospisu z obiektu JSON
     // Funkcja pomocnicza renderująca widok jadłospisu z obiektu JSON
@@ -345,11 +380,13 @@
         return;
       }
 
+      const todayIdx = calculateTodayDietDayIndex(dietPlan);
+
       if (typeof window.activeDietDayIndex === 'undefined') {
-        window.activeDietDayIndex = 0;
+        window.activeDietDayIndex = todayIdx;
       }
       if (window.activeDietDayIndex >= dietPlan.days.length) {
-        window.activeDietDayIndex = 0;
+        window.activeDietDayIndex = todayIdx;
       }
 
       // Generowanie poziomej nawigacji dni, jeśli dni jest więcej niż 1
@@ -357,11 +394,16 @@
       if (dietPlan.days.length > 1) {
         htmlNav = `
         <div class="diet-days-nav" style="display:flex; gap:0.5rem; overflow-x:auto; padding-bottom:0.75rem; margin-bottom:1.25rem; -webkit-overflow-scrolling:touch;">
-          ${dietPlan.days.map((day, idx) => `
-            <button onclick="setActiveDietDay(${idx})" class="diet-day-pill ${idx === window.activeDietDayIndex ? 'active' : ''}" type="button">
-              ${day.dayName}
-            </button>
-          `).join('')}
+          ${dietPlan.days.map((day, idx) => {
+            const isActive = idx === window.activeDietDayIndex;
+            const isCompleted = idx < todayIdx;
+            const displayText = isCompleted ? `✓ ${day.dayName}` : day.dayName;
+            return `
+              <button onclick="setActiveDietDay(${idx})" class="diet-day-pill ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}" type="button">
+                ${displayText}
+              </button>
+            `;
+          }).join('')}
         </div>
       `;
       }
@@ -422,7 +464,7 @@
     // Funkcja zmiany okresu trwania diety
     window.setDietDuration = function (days) {
       localStorage.setItem('kz_diet_duration', days);
-      window.activeDietDayIndex = 0;
+      window.activeDietDayIndex = undefined;
 
       // Zmiana aktywnej klasy na przyciskach okresu
       document.querySelectorAll('.diet-dur-btn').forEach(btn => {
@@ -493,6 +535,9 @@
       if (!forceRefresh && cached && (currentDietDuration !== 1 || cachedDay === currentDay) && cachedProfileKey === dietProfileCacheKey) {
         try {
           const dietPlan = JSON.parse(cached);
+          if (!localStorage.getItem(`kz_cached_diet_time_${currentDietDuration}`)) {
+            localStorage.setItem(`kz_cached_diet_time_${currentDietDuration}`, Date.now().toString());
+          }
           displayDietPlan(dietPlan);
           return;
         } catch (e) {
@@ -707,6 +752,7 @@
         localStorage.setItem(`kz_cached_diet_${currentDietDuration}`, JSON.stringify(dietPlan));
         localStorage.setItem(`kz_cached_diet_day_${currentDietDuration}`, currentDay);
         localStorage.setItem(`kz_cached_diet_profile_key_${currentDietDuration}`, dietProfileCacheKey);
+        localStorage.setItem(`kz_cached_diet_time_${currentDietDuration}`, Date.now().toString());
 
         displayDietPlan(dietPlan);
 
