@@ -123,6 +123,7 @@
       if (window.initSupabase && window.initSupabase()) {
         // Inicjalizacja rejestracji
         try {
+          let signUpError = null;
           const { data, error } = await window.supabaseClient.auth.signUp({
             email: pEmail,
             password: pPwd,
@@ -138,7 +139,8 @@
             userId = data.user.id;
             hasSess = !!data.session;
           } else {
-            console.log("SignUp did not return user (possibly already exists). Trying login...");
+            signUpError = error;
+            console.log("SignUp did not return user. Trying login...", error);
             const logRes = await window.supabaseClient.auth.signInWithPassword({
               email: pEmail,
               password: pPwd
@@ -146,10 +148,15 @@
             if (!logRes.error && logRes.data && logRes.data.user) {
               userId = logRes.data.user.id;
               hasSess = !!logRes.data.session;
+            } else {
+              console.error("SignUp failed:", signUpError);
+              console.error("SignIn failed:", logRes.error);
+              alert("Błąd rejestracji Supabase/Resend:\nRejestracja: " + (signUpError ? signUpError.message : "nieznany błąd") + "\nLogowanie: " + (logRes.error ? logRes.error.message : "nieznany błąd"));
             }
           }
         } catch (e) {
           console.error("SignUp/Login exception:", e);
+          alert("Wyjątek podczas autoryzacji: " + e.message);
         }
       }
 
