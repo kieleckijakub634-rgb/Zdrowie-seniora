@@ -205,21 +205,99 @@
       if (el) el.textContent = AVATARS[avatarIdx];
       localStorage.setItem('kz_avatar', avatarIdx);
     }
-    function saveProfile() {
+    async function saveProfile() {
       const name = document.getElementById('s-name')?.value.trim();
       const email = document.getElementById('s-email')?.value.trim();
       const phone = document.getElementById('s-phone')?.value.trim();
-      if (name) {
+
+      if (!name) {
+        alert('Proszę wpisać imię i nazwisko.');
+        return;
+      }
+
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (email && !emailRe.test(email)) {
+        alert('Proszę wpisać poprawny adres e-mail.');
+        return;
+      }
+
+      const btn = document.querySelector('button[onclick="saveProfile()"]');
+      const origText = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.innerHTML = 'Zapisywanie...';
+        btn.disabled = true;
+      }
+
+      try {
+        window.initSupabase();
+
+        let currentAuthEmail = localStorage.getItem('kz_email') || '';
+        if (window.supabaseClient) {
+          const { data: userData, error: userError } = await window.supabaseClient.auth.getUser();
+          if (userError) throw userError;
+
+          const user = userData?.user;
+          if (!user) throw new Error('Brak aktywnej sesji użytkownika.');
+
+          currentAuthEmail = user.email || currentAuthEmail;
+          const emailChanged = !!email && email.toLowerCase() !== (currentAuthEmail || '').toLowerCase();
+          const updatePayload = {
+            data: {
+              full_name: name,
+              phone: phone || ''
+            }
+          };
+
+          if (emailChanged) {
+            updatePayload.email = email;
+          }
+
+          const { error: updateError } = await window.supabaseClient.auth.updateUser(updatePayload, {
+            emailRedirectTo: typeof window.getAuthRedirectUrl === 'function' ? window.getAuthRedirectUrl() : window.location.origin + '/'
+          });
+          if (updateError) throw updateError;
+
+          if (!emailChanged && currentAuthEmail) {
+            localStorage.setItem('kz_email', currentAuthEmail);
+          }
+        } else {
+          throw new Error('Brak połączenia z bazą danych.');
+        }
+
         localStorage.setItem('kz_name', name);
         localStorage.setItem('kz_logged_in_name', name);
+        localStorage.setItem('kz_phone', phone || '');
+
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+          await window.Capacitor.Plugins.Preferences.set({ key: 'kz_name', value: name });
+          await window.Capacitor.Plugins.Preferences.set({ key: 'kz_logged_in_name', value: name });
+          await window.Capacitor.Plugins.Preferences.set({ key: 'kz_phone', value: phone || '' });
+          if (currentAuthEmail) {
+            await window.Capacitor.Plugins.Preferences.set({ key: 'kz_email', value: currentAuthEmail });
+          }
+        }
+
         const firstName = name.split(' ')[0] || 'Seniorze';
         const el = document.getElementById('app-username');
         if (el) el.textContent = `${firstName}! 👋`;
+
+        await syncToCloud({ throwOnError: true });
+
+        const changedTo = email && currentAuthEmail && email.toLowerCase() !== currentAuthEmail.toLowerCase() ? email : '';
+        if (changedTo) {
+          alert('Profil zapisany. Wysłaliśmy e-mail potwierdzający zmianę adresu na: ' + changedTo + '. Kliknij link w wiadomości, aby dokończyć zmianę.');
+        } else {
+          showToast('✅ Profil zapisany!', 800);
+        }
+      } catch (e) {
+        console.error('Profile save error:', e);
+        alert('Nie udało się zapisać profilu: ' + (e.message || 'nieznany błąd'));
+      } finally {
+        if (btn) {
+          btn.innerHTML = origText;
+          btn.disabled = false;
+        }
       }
-      if (email) localStorage.setItem('kz_email', email);
-      if (phone) localStorage.setItem('kz_phone', phone);
-      syncToCloud();
-      showToast('✅ Profil zapisany!', 800);
     }
     function loadProfile() {
       const n = localStorage.getItem('kz_name'), e = localStorage.getItem('kz_email'), p = localStorage.getItem('kz_phone');

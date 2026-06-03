@@ -102,33 +102,46 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       }
     }
 
-    async function syncToCloud() {
-      if (window.initSupabase && window.initSupabase()) {
-        const { data: sessionData } = await window.supabaseClient.auth.getSession();
-        if (sessionData?.session?.user) {
-          const userId = sessionData.session.user.id;
-          let dogtag = null;
-          let dietPrefs = [];
-          let likedVideos = [];
-          try { dogtag = JSON.parse(localStorage.getItem('vf_dogtag') || 'null'); } catch (e) { console.error("Error parsing vf_dogtag in syncToCloud:", e); }
-          try { dietPrefs = JSON.parse(localStorage.getItem('kz_diet_prefs') || '[]'); } catch (e) { console.error("Error parsing dietPrefs in syncToCloud:", e); }
-          try { likedVideos = JSON.parse(localStorage.getItem('kz_liked_videos') || '[]'); } catch (e) { console.error("Error parsing likedVideos in syncToCloud:", e); }
+    async function syncToCloud(options = {}) {
+      try {
+        if (window.initSupabase && window.initSupabase()) {
+          const { data: sessionData, error: sessionError } = await window.supabaseClient.auth.getSession();
+          if (sessionError) throw sessionError;
+          if (sessionData?.session?.user) {
+            const userId = sessionData.session.user.id;
+            let dogtag = null;
+            let dietPrefs = [];
+            let likedVideos = [];
+            try { dogtag = JSON.parse(localStorage.getItem('vf_dogtag') || 'null'); } catch (e) { console.error("Error parsing vf_dogtag in syncToCloud:", e); }
+            try { dietPrefs = JSON.parse(localStorage.getItem('kz_diet_prefs') || '[]'); } catch (e) { console.error("Error parsing dietPrefs in syncToCloud:", e); }
+            try { likedVideos = JSON.parse(localStorage.getItem('kz_liked_videos') || '[]'); } catch (e) { console.error("Error parsing likedVideos in syncToCloud:", e); }
 
-          const payload = {
-            medications: APP_DATA.medications,
-            dogtag: dogtag,
-            profileName: localStorage.getItem('kz_name') || '',
-            profilePhone: localStorage.getItem('kz_phone') || '',
-            profileEmail: localStorage.getItem('kz_email') || sessionData.session.user.email || '',
-            selectedDiet: selectedDiet,
-            dietPrefs: dietPrefs,
-            likedVideos: likedVideos,
-            healthIssues: localStorage.getItem('kz_health_issues') || ''
-          };
-          window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload }).then().catch(e => console.log('Sync err', e));
+            const payload = {
+              medications: APP_DATA.medications,
+              dogtag: dogtag,
+              profileName: localStorage.getItem('kz_name') || '',
+              profilePhone: localStorage.getItem('kz_phone') || '',
+              profileEmail: localStorage.getItem('kz_email') || sessionData.session.user.email || '',
+              selectedDiet: selectedDiet,
+              dietPrefs: dietPrefs,
+              likedVideos: likedVideos,
+              healthIssues: localStorage.getItem('kz_health_issues') || ''
+            };
+            const { error } = await window.supabaseClient
+              .from('user_profiles')
+              .upsert({ id: userId, app_data: payload }, { onConflict: 'id' });
+            if (error) throw error;
+            return true;
+          }
         }
+        return false;
+      } catch (e) {
+        console.error('Sync err', e);
+        if (options.throwOnError) throw e;
+        return false;
       }
     }
+    window.syncToCloud = syncToCloud;
 
     // Zapis leków
     function saveMeds() {

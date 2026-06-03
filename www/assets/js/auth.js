@@ -138,7 +138,7 @@ window.applyUserProfileData = async function(cloud) {
           if (!cloud.profileName && data.user?.user_metadata?.full_name) {
             cloud.profileName = data.user.user_metadata.full_name;
           }
-          if (!cloud.profileEmail && data.user?.email) {
+          if (data.user?.email && cloud.profileEmail !== data.user.email) {
             cloud.profileEmail = data.user.email;
           }
           if (!cloud.profilePhone && data.user?.user_metadata?.phone) {
@@ -352,7 +352,10 @@ window.applyUserProfileData = async function(cloud) {
         try {
           const { error } = await window.supabaseClient.auth.resend({
             type: 'signup',
-            email: email
+            email: email,
+            options: {
+              emailRedirectTo: window.getAuthRedirectUrl()
+            }
           });
           
           if (error) {
@@ -483,6 +486,10 @@ window.applyUserProfileData = async function(cloud) {
     /* ── CLOUD DATABASE (SUPABASE) ── */
     const SUPA_URL = "https://idpwlfgicadaeqakhkqa.supabase.co/rest/v1/vitalfly_data";
     const SUPA_KEY = "sb_publishable___S6vns0m3SKvlFngRtpFA_NDUwSATq";
+
+    window.getAuthRedirectUrl = function() {
+      return window.location.origin + '/';
+    };
 
     window.initSupabase = function() {
       if (!window.supabaseClient && typeof supabase !== 'undefined') {
