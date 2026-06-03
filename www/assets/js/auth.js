@@ -208,6 +208,24 @@ window.applyUserProfileData = async function(cloud) {
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeLoginModal(); closeResetPasswordModal(); } });
 
+    function getEmailProviderUrl(email) {
+      if (!email) return null;
+      const domain = email.split('@')[1]?.toLowerCase();
+      if (!domain) return null;
+      
+      if (domain.includes('gmail.com')) return { name: 'Gmail', url: 'https://mail.google.com/' };
+      if (domain.includes('wp.pl')) return { name: 'WP Poczta', url: 'https://poczta.wp.pl/' };
+      if (domain.includes('onet.pl') || domain.includes('poczta.onet.pl')) return { name: 'Poczta Onet', url: 'https://poczta.onet.pl/' };
+      if (domain.includes('o2.pl')) return { name: 'Poczta o2', url: 'https://poczta.o2.pl/' };
+      if (domain.includes('interia.pl') || domain.includes('poczta.interia.pl')) return { name: 'Poczta Interia', url: 'https://poczta.interia.pl/' };
+      if (domain.includes('gazeta.pl')) return { name: 'Poczta Gazeta.pl', url: 'https://poczta.gazeta.pl/' };
+      if (domain.includes('yahoo.com')) return { name: 'Yahoo Mail', url: 'https://mail.yahoo.com/' };
+      if (domain.includes('outlook.com') || domain.includes('hotmail.com') || domain.includes('live.com')) return { name: 'Outlook', url: 'https://outlook.live.com/' };
+      
+      return { name: domain, url: 'https://' + domain };
+    }
+    window.getEmailProviderUrl = getEmailProviderUrl;
+
     function showStep(n) {
       [1, 2, 3].forEach(i => {
         const s = document.getElementById('step' + i);
@@ -220,6 +238,21 @@ window.applyUserProfileData = async function(cloud) {
       const closeBtn = document.querySelector('#signupModal .modal-close');
       if (closeBtn) {
         closeBtn.style.display = (n === 3) ? 'none' : 'block';
+      }
+
+      if (n === 3) {
+        const email = localStorage.getItem('kz_pending_email') || '';
+        const providerBtn = document.getElementById('btn-go-to-email');
+        if (providerBtn && email) {
+          const provider = getEmailProviderUrl(email);
+          if (provider) {
+            providerBtn.href = provider.url;
+            providerBtn.textContent = `Przejdź do poczty ${provider.name} ✉️`;
+            providerBtn.style.display = 'block';
+          } else {
+            providerBtn.style.display = 'none';
+          }
+        }
       }
     }
     window.showStep = showStep;

@@ -98,6 +98,7 @@
         <div style="font-size:3.5rem;margin-bottom:0.75rem;">✉️</div>
         <h2 class="font-serif font-bold mb-2" style="font-size:1.6rem;color:var(--navy);">Autoryzuj swój e-mail</h2>
         <p style="color:#444;font-size:0.98rem;margin-bottom:1.25rem;">Płatność przyjęta! Wpisz 6-cyfrowy kod autoryzacyjny wysłany na adres <strong id="verify-email-display"></strong>.</p>
+        <a id="btn-go-to-email" href="#" target="_blank" class="btn-cta" style="width:100%;text-align:center;display:none;font-size:1.1rem;margin:1rem 0 1.5rem 0;background:#4dbfa8;color:#0b3934;font-weight:700;padding:0.75rem;border-radius:12px;text-decoration:none;box-sizing:border-box;">Przejdź do poczty →</a>
         <input class="form-input" id="verification-code" type="text" placeholder="np. 123456" maxlength="6" autocomplete="one-time-code" style="text-align:center;font-size:1.4rem;letter-spacing:0.3em;font-weight:700;padding:0.75rem;" />
         <p class="field-error" id="err-verification" style="display:none;text-align:center;margin-top:0.5rem;"></p>
         <button id="btn-confirm-code" onclick="verifyVerificationCode()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.15rem;margin:1rem 0;">Autoryzuj e-mail i przejdź do aplikacji →</button>
