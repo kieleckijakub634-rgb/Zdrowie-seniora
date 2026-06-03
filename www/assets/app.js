@@ -1,14 +1,5 @@
     /* ── TRIGGER APP on payment success OR ?app=1 demo ── */
-    // Override the showStep(3) modal success to also launch app
-    const _origShowStep = showStep;
-    window.showStep = function (n) {
-      _origShowStep(n);
-      if (n === 3) {
-        const name = document.getElementById('inp-name')?.value || '';
-        // Delay app launch until user clicks close, or auto after 3s
-        setTimeout(() => { closeModal(); showApp(name); }, 3000);
-      }
-    };
+
 
     // Check URL for demo mode
     window.addEventListener('DOMContentLoaded', () => {

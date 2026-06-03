@@ -382,25 +382,6 @@
 
       const isSuccess = new URLSearchParams(window.location.search).get('sukces') === '1';
       if (isSuccess) {
-        const isMobileDevice = /android|iphone|ipad|ipod/i.test(navigator.userAgent || navigator.vendor || window.opera);
-        const isCapacitor = !!window.Capacitor;
-
-        if (isMobileDevice && !isCapacitor) {
-          // Przekierowanie do natywnej aplikacji
-          window.location.href = 'com.zdrowieseniora.app://?sukces=1';
-
-          document.body.innerHTML = `
-            <div style="font-family:'Source Sans 3',sans-serif;text-align:center;padding:3rem 1.5rem;background:#0B3934;color:#fff;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">
-              <div style="font-size:5rem;margin-bottom:1.5rem;">🌿</div>
-              <h1 style="font-family:'Lora',serif;font-size:2.0rem;margin-bottom:1rem;">Płatność powiodła się!</h1>
-              <p style="font-size:1.1rem;opacity:0.9;max-width:400px;margin-bottom:2rem;line-height:1.5;">Otwieramy aplikację VitalFly na Twoim telefonie, abyś mógł od razu przejść do panelu.</p>
-              <a href="com.zdrowieseniora.app://?sukces=1" style="background:#4DBFA8;color:#0B3934;padding:1rem 2rem;border-radius:12px;font-weight:700;text-decoration:none;font-size:1.2rem;display:inline-block;box-shadow:0 4px 15px rgba(0,0,0,0.2);">Przejdź do aplikacji →</a>
-              <p style="font-size:0.85rem;opacity:0.6;margin-top:2rem;">Jeśli aplikacja nie otworzyła się automatycznie, kliknij przycisk powyżej.</p>
-            </div>
-          `;
-          return;
-        }
-
         try {
           await processPaymentSuccess();
         } catch (e) {
