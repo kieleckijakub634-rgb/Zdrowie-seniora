@@ -113,7 +113,33 @@
 
       if (!pEmail || !pPwd) {
         console.error("No pending email or password found");
-        closeModal();
+        window.isSuccessVerificationPending = true;
+        
+        const signupModal = document.getElementById('signupModal');
+        if (signupModal) {
+          signupModal.classList.add('open');
+          document.body.style.overflow = 'hidden';
+          if (typeof showStep === 'function') {
+            showStep(1);
+          }
+          
+          let notice = document.getElementById('lost-session-notice');
+          if (!notice) {
+            notice = document.createElement('div');
+            notice.id = 'lost-session-notice';
+            notice.style.cssText = 'background:#EBFBFA; border:2px solid var(--mint-mid); color:var(--navy); padding:0.85rem 1rem; border-radius:12px; font-size:0.95rem; font-weight:600; margin-bottom:1.25rem; text-align:left;';
+            notice.innerHTML = '✅ Płatność przyjęta! Wprowadź swoje dane poniżej, aby dokończyć rejestrację konta.';
+            const step1 = document.getElementById('step1');
+            if (step1) {
+              step1.insertBefore(notice, step1.firstChild);
+            }
+          }
+          
+          const ctaBtn = document.querySelector('#step1 .btn-cta');
+          if (ctaBtn) {
+            ctaBtn.textContent = 'Potwierdź dane i wyślij kod autoryzacyjny →';
+          }
+        }
         return;
       }
 
@@ -149,6 +175,22 @@
               userId = logRes.data.user.id;
               hasSess = !!logRes.data.session;
             } else {
+              const isUnconfirmed = (signUpError && (signUpError.message.toLowerCase().includes('confirm') || signUpError.message.toLowerCase().includes('potwierdź') || signUpError.message.toLowerCase().includes('email_not_confirmed'))) ||
+                                    (logRes.error && (logRes.error.message.toLowerCase().includes('confirm') || logRes.error.message.toLowerCase().includes('potwierdź') || logRes.error.message.toLowerCase().includes('email_not_confirmed')));
+              
+              if (isUnconfirmed) {
+                try {
+                  await window.supabaseClient.auth.resend({
+                    type: 'signup',
+                    email: pEmail
+                  });
+                } catch (resendErr) {
+                  console.error("Auto resend error:", resendErr);
+                }
+                await saveProfileAndEnterApp(null, pEmail, pName, pPhone, false);
+                return;
+              }
+
               console.error("SignUp failed:", signUpError);
               console.error("SignIn failed:", logRes.error);
               alert("Błąd rejestracji Supabase/Resend:\nRejestracja: " + (signUpError ? signUpError.message : "nieznany błąd") + "\nLogowanie: " + (logRes.error ? logRes.error.message : "nieznany błąd"));
@@ -214,7 +256,9 @@
           healthIssues: localStorage.getItem('kz_health_issues') || ''
         };
         try {
-          await window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload });
+          if (userId) {
+            await window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload });
+          }
         } catch (e) {
           console.error("Upsert profile error:", e);
         }
