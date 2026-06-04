@@ -97,16 +97,12 @@
       <div id="step3" style="display:none;text-align:center;">
         <div style="font-size:3.5rem;margin-bottom:0.75rem;">✉️</div>
         <h2 class="font-serif font-bold mb-2" style="font-size:1.6rem;color:var(--navy);">Autoryzuj swój e-mail</h2>
-        <p style="color:#444;font-size:0.98rem;margin-bottom:1.25rem;">Płatność przyjęta! Wpisz 6-cyfrowy kod autoryzacyjny wysłany na adres <strong id="verify-email-display"></strong>.</p>
+        <p style="color:#444;font-size:0.98rem;margin-bottom:1.25rem;">Płatność przyjęta! Wpisz 8-cyfrowy kod autoryzacyjny wysłany na adres <strong id="verify-email-display"></strong>.</p>
         <a id="btn-go-to-email" href="#" target="_blank" class="btn-cta" style="width:100%;text-align:center;display:none;font-size:1.1rem;margin:1rem 0 1.5rem 0;background:#4dbfa8;color:#0b3934;font-weight:700;padding:0.75rem;border-radius:12px;text-decoration:none;box-sizing:border-box;">Przejdź do poczty →</a>
-        <input class="form-input" id="verification-code" type="text" placeholder="np. 123456" maxlength="6" autocomplete="one-time-code" style="text-align:center;font-size:1.4rem;letter-spacing:0.3em;font-weight:700;padding:0.75rem;" />
+        <input class="form-input" id="verification-code" type="text" placeholder="np. 12345678" maxlength="8" autocomplete="one-time-code" style="text-align:center;font-size:1.4rem;letter-spacing:0.22em;font-weight:700;padding:0.75rem;" />
         <p class="field-error" id="err-verification" style="display:none;text-align:center;margin-top:0.5rem;"></p>
         <button id="btn-confirm-code" onclick="verifyVerificationCode()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.15rem;margin:1rem 0;">Autoryzuj e-mail i przejdź do aplikacji →</button>
         <p style="font-size:0.88rem;color:var(--warm-gray);margin-bottom:1rem;">Nie otrzymałeś kodu? <a href="#" onclick="resendVerificationCode(event)" style="color:var(--mint);text-decoration:underline;font-weight:600;">Wyślij ponownie</a></p>
-        <div style="border-top: 1px solid #e2e8f0; padding-top: 1rem; margin-top: 1.25rem;">
-          <p style="font-size:0.82rem;color:#777;margin-bottom:0.5rem;line-height:1.4;">Nie otrzymujesz wiadomości? (np. brak konfiguracji SMTP w Supabase)</p>
-          <button onclick="bypassEmailVerification()" class="btn-cta" type="button" style="width:100%;background:#f8f9fa;color:#4a5568;border:1px solid #cbd5e0;font-size:0.92rem;padding:0.6rem;border-radius:8px;">Wejdź bez autoryzacji (Tryb Testowy) →</button>
-        </div>
       </div>
     </div>
   </div>

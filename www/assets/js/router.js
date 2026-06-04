@@ -76,6 +76,34 @@
       navigateTo(routeFromLocation(), { skipHistory: true });
     });
     /* ── Deep Link & Payment Success Handling ── */
+    function getSupabaseAuthRedirectUrl() {
+      if (typeof window.getAuthRedirectUrl === 'function') return window.getAuthRedirectUrl();
+      return window.location.origin + '/';
+    }
+
+    function showSignupVerification(email) {
+      if (email) localStorage.setItem('kz_pending_email', email);
+
+      const emailDisp = document.getElementById('verify-email-display');
+      if (emailDisp) {
+        emailDisp.textContent = email || localStorage.getItem('kz_pending_email') || 'Twój e-mail';
+      }
+
+      const errEl = document.getElementById('err-verification');
+      if (errEl) errEl.style.display = 'none';
+
+      const signupModal = document.getElementById('signupModal');
+      if (signupModal) {
+        signupModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+
+      if (typeof showStep === 'function') {
+        showStep(3);
+      }
+    }
+    window.showSignupVerification = showSignupVerification;
+
     async function processPaymentSuccess() {
       // Check if this was a plan upgrade instead of a new registration
       if (localStorage.getItem('kz_pending_upgrade') === 'yearly') {
@@ -154,6 +182,7 @@
             email: pEmail,
             password: pPwd,
             options: {
+              emailRedirectTo: getSupabaseAuthRedirectUrl(),
               data: {
                 full_name: pName,
                 phone: pPhone
@@ -182,7 +211,8 @@
                 try {
                   await window.supabaseClient.auth.resend({
                     type: 'signup',
-                    email: pEmail
+                    email: pEmail,
+                    options: { emailRedirectTo: getSupabaseAuthRedirectUrl() }
                   });
                 } catch (resendErr) {
                   console.error("Auto resend error:", resendErr);
@@ -237,7 +267,7 @@
         }
       }
 
-      if (window.initSupabase && window.initSupabase()) {
+      if (hasSess && window.initSupabase && window.initSupabase()) {
         let dogtag = null;
         try {
           dogtag = JSON.parse(localStorage.getItem('vf_dogtag') || 'null');
@@ -257,41 +287,31 @@
         };
         try {
           if (userId) {
-            await window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload });
+            const { error } = await window.supabaseClient.from('user_profiles').upsert({ id: userId, app_data: payload }, { onConflict: 'id' });
+            if (error) throw error;
           }
         } catch (e) {
           console.error("Upsert profile error:", e);
         }
       }
 
-      // Usuń dane tymczasowe rejestracji
-      localStorage.removeItem('kz_pending_email');
-      localStorage.removeItem('kz_pending_pwd');
-      localStorage.removeItem('kz_pending_name');
-      localStorage.removeItem('kz_pending_phone');
-      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
-        window.Capacitor.Plugins.Preferences.remove({ key: 'kz_pending_email' });
-        window.Capacitor.Plugins.Preferences.remove({ key: 'kz_pending_pwd' });
-        window.Capacitor.Plugins.Preferences.remove({ key: 'kz_pending_name' });
-        window.Capacitor.Plugins.Preferences.remove({ key: 'kz_pending_phone' });
-      }
-
       if (hasSess) {
+        // Usuń dane tymczasowe rejestracji dopiero po realnym potwierdzeniu i sesji.
+        localStorage.removeItem('kz_pending_email');
+        localStorage.removeItem('kz_pending_pwd');
+        localStorage.removeItem('kz_pending_name');
+        localStorage.removeItem('kz_pending_phone');
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+          window.Capacitor.Plugins.Preferences.remove({ key: 'kz_pending_email' });
+          window.Capacitor.Plugins.Preferences.remove({ key: 'kz_pending_pwd' });
+          window.Capacitor.Plugins.Preferences.remove({ key: 'kz_pending_name' });
+          window.Capacitor.Plugins.Preferences.remove({ key: 'kz_pending_phone' });
+        }
+
         closeModal();
         showApp(name || 'Seniorze');
       } else {
-        const emailDisp = document.getElementById('verify-email-display');
-        if (emailDisp) {
-          emailDisp.textContent = email || localStorage.getItem('kz_pending_email') || 'Twój e-mail';
-        }
-        const signupModal = document.getElementById('signupModal');
-        if (signupModal) {
-          signupModal.classList.add('open');
-          document.body.style.overflow = 'hidden';
-        }
-        if (typeof showStep === 'function') {
-          showStep(3);
-        }
+        showSignupVerification(email);
       }
     }
 
@@ -317,6 +337,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       // Wykrywanie potwierdzenia rejestracji z e-maila
       const isSignupConfirm = window.location.hash.includes('type=signup');
+      const isEmailChangeConfirm = window.location.hash.includes('type=email_change');
       if (isSignupConfirm) {
         history.replaceState({}, '', window.location.pathname);
         if (window.initSupabase && window.initSupabase()) {
@@ -405,16 +426,20 @@
 
         if (session) {
           const cloud = sessionDataCloud || {};
+          const shouldSyncProfileEmail = !!(sessionDataCloud && session.user?.email && sessionDataCloud.profileEmail !== session.user.email);
           if (!cloud.profileName && session.user?.user_metadata?.full_name) {
             cloud.profileName = session.user.user_metadata.full_name;
           }
-          if (!cloud.profileEmail && session.user?.email) {
+          if (session.user?.email && cloud.profileEmail !== session.user.email) {
             cloud.profileEmail = session.user.email;
           }
           if (!cloud.profilePhone && session.user?.user_metadata?.phone) {
             cloud.profilePhone = session.user.user_metadata.phone;
           }
           await window.applyUserProfileData(cloud);
+          if (shouldSyncProfileEmail && typeof syncToCloud === 'function') {
+            await syncToCloud();
+          }
         }
 
         if (session) {
@@ -433,6 +458,16 @@
         }
         hasSession = true;
         history.replaceState({}, '', window.location.pathname);
+      }
+      if (isEmailChangeConfirm) {
+        history.replaceState({}, '', window.location.pathname);
+        setTimeout(() => {
+          if (typeof showToast === 'function') {
+            showToast('✅ Nowy adres e-mail został potwierdzony.', 1600);
+          } else {
+            alert('Nowy adres e-mail został potwierdzony.');
+          }
+        }, 500);
       }
       hideLoadingScreen();
       if (!hasSession) {

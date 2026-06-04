@@ -27,50 +27,71 @@ window.asyncRemoveItem = window.asyncRemoveItem || async function(key) {
 
 window.applyUserProfileData = async function(cloud) {
   cloud = cloud || {};
+  const hasCloudField = (key) => Object.prototype.hasOwnProperty.call(cloud, key);
+  const readJsonItem = (key, fallback) => {
+    try {
+      const value = localStorage.getItem(key);
+      return value ? JSON.parse(value) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  };
   
   // 1. Medications
+  const medicationsVal = hasCloudField('medications')
+    ? (cloud.medications || [])
+    : (typeof APP_DATA !== 'undefined' ? (APP_DATA.medications || []) : readJsonItem('kz_medications', []));
   if (typeof APP_DATA !== 'undefined') {
-    APP_DATA.medications = cloud.medications || [];
+    APP_DATA.medications = medicationsVal;
   }
-  await window.asyncSetItem('kz_medications', JSON.stringify(cloud.medications || []));
+  await window.asyncSetItem('kz_medications', JSON.stringify(medicationsVal));
   
   // 2. Dogtag
-  if (cloud.dogtag) {
-    await window.asyncSetItem('vf_dogtag', JSON.stringify(cloud.dogtag));
-  } else {
-    await window.asyncRemoveItem('vf_dogtag');
+  if (hasCloudField('dogtag')) {
+    if (cloud.dogtag) {
+      await window.asyncSetItem('vf_dogtag', JSON.stringify(cloud.dogtag));
+    } else {
+      await window.asyncRemoveItem('vf_dogtag');
+    }
   }
   
   // 3. Profile Name
-  const profileName = cloud.profileName || '';
+  const profileName = hasCloudField('profileName') ? (cloud.profileName || '') : (localStorage.getItem('kz_name') || '');
   await window.asyncSetItem('kz_name', profileName);
   await window.asyncSetItem('kz_logged_in_name', profileName);
   
   // 4. Profile Phone
-  const profilePhone = cloud.profilePhone || '';
+  const profilePhone = hasCloudField('profilePhone') ? (cloud.profilePhone || '') : (localStorage.getItem('kz_phone') || '');
   await window.asyncSetItem('kz_phone', profilePhone);
   
   // 5. Profile Email
-  const profileEmail = cloud.profileEmail || '';
+  const profileEmail = hasCloudField('profileEmail') ? (cloud.profileEmail || '') : (localStorage.getItem('kz_email') || '');
   await window.asyncSetItem('kz_email', profileEmail);
   
   // 6. Selected Diet
-  const selectedDietVal = cloud.selectedDiet !== undefined ? parseInt(cloud.selectedDiet) : 1;
+  const selectedDietSource = hasCloudField('selectedDiet')
+    ? cloud.selectedDiet
+    : (localStorage.getItem('kz_selected_diet') || window.selectedDiet || 1);
+  const selectedDietVal = parseInt(selectedDietSource) || 1;
   await window.asyncSetItem('kz_selected_diet', selectedDietVal.toString());
   window.selectedDiet = selectedDietVal;
   
   // 7. Diet Prefs
-  const dietPrefsVal = cloud.dietPrefs || [];
+  const dietPrefsVal = hasCloudField('dietPrefs')
+    ? (Array.isArray(cloud.dietPrefs) ? cloud.dietPrefs : [])
+    : readJsonItem('kz_diet_prefs', window.dietPrefs || []);
   await window.asyncSetItem('kz_diet_prefs', JSON.stringify(dietPrefsVal));
   window.dietPrefs = dietPrefsVal;
   
   // 8. Liked Videos
-  const likedVideosVal = cloud.likedVideos || [];
+  const likedVideosVal = hasCloudField('likedVideos')
+    ? (Array.isArray(cloud.likedVideos) ? cloud.likedVideos : [])
+    : readJsonItem('kz_liked_videos', window.likedVideos || []);
   await window.asyncSetItem('kz_liked_videos', JSON.stringify(likedVideosVal));
   window.likedVideos = likedVideosVal;
   
   // 9. Health Issues
-  const healthIssuesVal = cloud.healthIssues || '';
+  const healthIssuesVal = hasCloudField('healthIssues') ? (cloud.healthIssues || '') : (localStorage.getItem('kz_health_issues') || '');
   await window.asyncSetItem('kz_health_issues', healthIssuesVal);
 };
 
@@ -138,7 +159,7 @@ window.applyUserProfileData = async function(cloud) {
           if (!cloud.profileName && data.user?.user_metadata?.full_name) {
             cloud.profileName = data.user.user_metadata.full_name;
           }
-          if (!cloud.profileEmail && data.user?.email) {
+          if (data.user?.email && cloud.profileEmail !== data.user.email) {
             cloud.profileEmail = data.user.email;
           }
           if (!cloud.profilePhone && data.user?.user_metadata?.phone) {
@@ -268,8 +289,8 @@ window.applyUserProfileData = async function(cloud) {
       errEl.style.display = 'none';
       const code = codeInput.value.trim();
       
-      if (code.length !== 6 || !/^\d+$/.test(code)) {
-        errEl.textContent = 'Kod musi składać się z 6 cyfr.';
+      if (code.length !== 8 || !/^\d+$/.test(code)) {
+        errEl.textContent = 'Kod musi składać się z 8 cyfr.';
         errEl.style.display = 'block';
         return;
       }
@@ -352,7 +373,10 @@ window.applyUserProfileData = async function(cloud) {
         try {
           const { error } = await window.supabaseClient.auth.resend({
             type: 'signup',
-            email: email
+            email: email,
+            options: {
+              emailRedirectTo: window.getAuthRedirectUrl()
+            }
           });
           
           if (error) {
@@ -369,30 +393,6 @@ window.applyUserProfileData = async function(cloud) {
       }
     }
     window.resendVerificationCode = resendVerificationCode;
-
-    function bypassEmailVerification() {
-      const email = localStorage.getItem('kz_pending_email') || 'test@vitalfly.pl';
-      const name = localStorage.getItem('kz_pending_name') || 'Senior';
-      const phone = localStorage.getItem('kz_pending_phone') || '';
-      
-      // Symulacja zalogowania
-      localStorage.setItem('kz_session', JSON.stringify({ name: name, plan: 'monthly', ts: Date.now() }));
-      localStorage.setItem('kz_logged_in_name', name);
-      localStorage.setItem('kz_name', name);
-      localStorage.setItem('kz_email', email);
-      if (phone) localStorage.setItem('kz_phone', phone);
-      
-      const step3El = document.getElementById('step3');
-      if (step3El) step3El.style.display = 'none';
-      closeModal();
-      if (typeof showApp === 'function') {
-        showApp(name);
-      } else {
-        window.location.reload();
-      }
-      alert('Pomyślnie aktywowano konto w trybie testowym (ominięto autoryzację e-mail).');
-    }
-    window.bypassEmailVerification = bypassEmailVerification;
 
     function goStep2() {
       let valid = true;
@@ -483,6 +483,10 @@ window.applyUserProfileData = async function(cloud) {
     /* ── CLOUD DATABASE (SUPABASE) ── */
     const SUPA_URL = "https://idpwlfgicadaeqakhkqa.supabase.co/rest/v1/vitalfly_data";
     const SUPA_KEY = "sb_publishable___S6vns0m3SKvlFngRtpFA_NDUwSATq";
+
+    window.getAuthRedirectUrl = function() {
+      return window.location.origin + '/';
+    };
 
     window.initSupabase = function() {
       if (!window.supabaseClient && typeof supabase !== 'undefined') {
