@@ -137,7 +137,8 @@
 
     // Wymuszenie odświeżenia cen po wejściu na stronę główną
     window.addEventListener('DOMContentLoaded', () => { 
-      switchPlan('monthly'); 
+      const existingPlan = localStorage.getItem('kz_plan') || 'monthly';
+      switchPlan(existingPlan); 
       updateDynamicPrices();
       loadPlanSettings();
     });

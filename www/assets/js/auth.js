@@ -524,6 +524,15 @@ window.applyUserProfileData = async function(cloud) {
           if (cloud.announce !== undefined) localStorage.setItem('kz_announce', cloud.announce);
           if (cloud.geminiApiKey !== undefined) localStorage.setItem('kz_gemini_api_key', cloud.geminiApiKey);
 
+          // Sync module settings
+          if (cloud.modVideos !== undefined) localStorage.setItem('kz_mod_videos', cloud.modVideos);
+          if (cloud.modDiets !== undefined) localStorage.setItem('kz_mod_diets', cloud.modDiets);
+          if (cloud.modMeds !== undefined) localStorage.setItem('kz_mod_meds', cloud.modMeds);
+          if (cloud.modSettings !== undefined) localStorage.setItem('kz_mod_settings', cloud.modSettings);
+          if (cloud.modShop !== undefined) localStorage.setItem('kz_mod_shop', cloud.modShop);
+          
+          if (typeof loadModuleSettings === 'function') loadModuleSettings();
+
           // Odśwież UI, jeśli zdążyło się już załadować z defaults
           renderVideos();
           renderDiets();
@@ -560,7 +569,12 @@ window.applyUserProfileData = async function(cloud) {
         presalePriceM: localStorage.getItem('kz_presale_price_monthly') || '29',
         presalePriceY: localStorage.getItem('kz_presale_price_yearly') || '290',
         announce: localStorage.getItem('kz_announce') || '',
-        geminiApiKey: localStorage.getItem('kz_gemini_api_key') || ''
+        geminiApiKey: localStorage.getItem('kz_gemini_api_key') || '',
+        modVideos: localStorage.getItem('kz_mod_videos') || '1',
+        modDiets: localStorage.getItem('kz_mod_diets') || '1',
+        modMeds: localStorage.getItem('kz_mod_meds') || '1',
+        modSettings: localStorage.getItem('kz_mod_settings') || '1',
+        modShop: localStorage.getItem('kz_mod_shop') || '1'
       };
 
       try {

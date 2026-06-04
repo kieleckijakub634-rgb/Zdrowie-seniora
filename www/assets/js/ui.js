@@ -194,12 +194,16 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         shell.id = 'appShell';
         shell.innerHTML = buildAppHTML(userName);
         document.body.appendChild(shell);
-        initApp();
+        if (typeof initApp === 'function') initApp();
       } else {
         document.getElementById('appShell').style.display = 'block';
         const firstName = (userName || '').split(' ')[0] || 'Seniorze';
         const el = document.getElementById('app-username');
         if (el) el.textContent = `${firstName}! 👋`;
+      }
+      
+      if (typeof updateDashboardStats === 'function') {
+        updateDashboardStats();
       }
     }
 
@@ -242,10 +246,11 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     <div class="welcome-greeting">${greeting},</div>
     <div class="welcome-name" id="app-username">${firstName}! 👋</div>
     <div class="welcome-date">${dateStr}</div>
-    <div class="stat-row">
-      <div class="stat-pill">🎬 6 filmów</div>
-      <div class="stat-pill">🥗 4 diety</div>
-      <div class="stat-pill" id="med-stat-pill">💊 <span id="med-count-stat">0</span> leków</div>
+    <div class="stat-row" id="dashboard-stats-row">
+      <div class="stat-pill" id="stat-streak"><span class="stat-emoji">📅</span> <span class="stat-val">0</span> dni zdrowo z VitalFly</div>
+      <div class="stat-pill" id="stat-diets"><span class="stat-emoji">🥗</span> <span class="stat-val">0</span> przetestowanych diet</div>
+      <div class="stat-pill" id="stat-videos"><span class="stat-emoji">🎬</span> <span class="stat-val">0</span> obejrzanych filmów</div>
+      <div class="stat-pill" id="med-stat-pill"><span class="stat-emoji">💊</span> <span id="med-count-stat" class="stat-val">0</span> leków</div>
     </div>
     <a href="https://www.facebook.com/groups/2017205645541173/" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:0.65rem; background:#1877F2; color:white; text-decoration:none; font-weight:700; font-size:1.02rem; padding:1rem 1.5rem; border-radius:16px; margin-top:1.5rem; transition:var(--transition-smooth); box-shadow:0 6px 18px rgba(24,119,242,0.25);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(24,119,242,0.35)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 18px rgba(24,119,242,0.25)'">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
@@ -257,11 +262,11 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
 
   <!-- Tab navigation -->
   <div class="tab-nav">
+    <button class="tab-btn tab-btn-sos" data-tab="dogtag" onclick="switchTab('dogtag',this)"><span style="font-size:1.45rem; line-height:1;">🚑</span><span>Ratunek</span></button>
     <button class="tab-btn active" data-tab="videos" onclick="switchTab('videos',this)"><span style="font-size:1.45rem; line-height:1;">🎬</span><span>Ćwiczenia</span></button>
     <button class="tab-btn" data-tab="diets" onclick="switchTab('diets',this)"><span style="font-size:1.45rem; line-height:1;">🥗</span><span>Dieta</span></button>
     <button class="tab-btn" data-tab="meds" onclick="switchTab('meds',this)"><span style="font-size:1.45rem; line-height:1;">💊</span><span>Leki</span></button>
     <button class="tab-btn" data-tab="liked" onclick="switchTab('liked',this)"><span style="font-size:1.45rem; line-height:1;">❤️</span><span>Polubione</span></button>
-    <button class="tab-btn" data-tab="dogtag" onclick="switchTab('dogtag',this)"><span style="font-size:1.45rem; line-height:1;">🚑</span><span>Ratunek</span></button>
   </div>
 
   <!-- TAB: VIDEOS -->
@@ -914,6 +919,50 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         if (typeof renderLikedTab === 'function') renderLikedTab();
       }
       updateLiveHelpPopup();
+    }
+
+    /* ── DASHBOARD STATS ── */
+    function updateDashboardStats() {
+      // Streak (dni zdrowo z VitalFly)
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+      let lastActive = localStorage.getItem('kz_last_active_date');
+      let streak = parseInt(localStorage.getItem('kz_streak_days') || '0');
+      
+      if (lastActive !== todayStr) {
+        if (lastActive) {
+          const lastDate = new Date(lastActive);
+          const diffTime = Math.abs(now - lastDate);
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
+          if (diffDays === 1) {
+            streak += 1;
+          } else if (diffDays > 1) {
+            streak = 1;
+          }
+        } else {
+          streak = 1;
+        }
+        localStorage.setItem('kz_last_active_date', todayStr);
+        localStorage.setItem('kz_streak_days', streak);
+      }
+      
+      const streakEl = document.querySelector('#stat-streak .stat-val');
+      const streakEmoji = document.querySelector('#stat-streak .stat-emoji');
+      if (streakEl) streakEl.textContent = streak;
+      if (streakEmoji) streakEmoji.textContent = streak >= 3 ? '🔥' : '📅';
+      
+      // Diets tested
+      const dietsCount = parseInt(localStorage.getItem('kz_generated_diets_count') || '0');
+      const dietsEl = document.querySelector('#stat-diets .stat-val');
+      if (dietsEl) dietsEl.textContent = dietsCount;
+      
+      // Videos watched
+      const videosCount = parseInt(localStorage.getItem('kz_videos_watched') || '0');
+      const videosEl = document.querySelector('#stat-videos .stat-val');
+      const videosEmoji = document.querySelector('#stat-videos .stat-emoji');
+      if (videosEl) videosEl.textContent = videosCount;
+      if (videosEmoji && videosCount >= 10) videosEmoji.textContent = '🔥';
+      else if (videosEmoji) videosEmoji.textContent = '🎬';
     }
 
     /* ── Init App ── */

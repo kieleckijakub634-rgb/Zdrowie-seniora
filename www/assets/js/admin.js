@@ -138,7 +138,7 @@
       loadAdminPrices();
     }
 
-    function toggleModule(name, enabled) {
+    async function toggleModule(name, enabled) {
       localStorage.setItem('kz_mod_' + name, enabled ? '1' : '0');
       if (name === 'shop') {
         const shopTab = document.querySelector('.video-library-tab[onclick*="\'shop\'"]');
@@ -146,6 +146,11 @@
       } else {
         const tabBtn = document.querySelector(`.tab-btn[onclick*="'${name}'"]`);
         if (tabBtn) tabBtn.style.display = enabled ? '' : 'none';
+      }
+      if (typeof saveToCloud === 'function') {
+        showToast('⏳ Zapisywanie konfiguracji modułów w chmurze...');
+        const ok = await saveToCloud();
+        if (ok) showToast('✅ Ustawienia modułów zaktualizowane globalnie!');
       }
     }
 

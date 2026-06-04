@@ -104,3 +104,54 @@ body.theme-dark .diet-day-pill.completed.active {
   border-color: var(--mint);
   color: #fff;
 }
+
+/* Styling for Ratunek tab button */
+.tab-btn.tab-btn-sos {
+  background: linear-gradient(135deg, #E05252 0%, #C93939 100%);
+  color: white;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  border: none;
+  font-weight: 700;
+  justify-content: center;
+}
+.tab-btn.tab-btn-sos span {
+  color: white !important;
+}
+
+/* Upgrade plan row fix */
+#upgrade-plan-row {
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+#upgrade-plan-row .plan-upgrade-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* Video Library Hero Eye-catching */
+.video-library-hero {
+  background: linear-gradient(135deg, #0d5f50 0%, #178a76 100%) !important;
+  box-shadow: 0 10px 25px rgba(23, 138, 118, 0.4) !important;
+  color: white !important;
+  transform: scale(1.02);
+  margin-bottom: 2rem !important;
+}
+.video-library-hero h3 {
+  font-size: 1.6rem !important;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Featured Video Card */
+.featured-video-card {
+  transform: scale(1.03);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important;
+  border: 2px solid var(--mint) !important;
+  margin: 1.5rem 0 !important;
+}
+
+/* Admin panel readability fix */
+.admin-panel label, .admin-panel .settings-label, .admin-panel .settings-desc {
+  color: #f8f9fa !important;
+}
+

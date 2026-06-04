@@ -193,6 +193,12 @@
     `;
     }
 
+    window.setDailyFocus = function(focus) {
+      localStorage.setItem('kz_daily_focus', focus);
+      localStorage.setItem('kz_daily_focus_date', new Date().toISOString().split('T')[0]);
+      renderVideos();
+    };
+
     function renderVideos() {
       const grid = document.getElementById('videoGrid');
       if (!grid) return;
@@ -202,9 +208,49 @@
 
       const notice = document.getElementById('videoLibraryNotice');
       if (videoLibraryView === 'recommended') {
-        const recs = getVideoRecommendationData().slice(0, 4);
+        const todayStr = new Date().toISOString().split('T')[0];
+        const focusDate = localStorage.getItem('kz_daily_focus_date');
+        const focus = localStorage.getItem('kz_daily_focus');
+        
         if (notice) notice.textContent = 'Propozycje powstają z dnia tygodnia, profilu zdrowotnego i polubionych filmów.';
-        grid.innerHTML = recs.map(x => renderVideoCard(x.video, x.reason)).join('');
+        
+        if (focusDate === todayStr && focus) {
+          // Show one featured video matching the focus
+          let recs = getVideoRecommendationData();
+          let focusWord = focus.toLowerCase().replace(/[^a-zęóąśłżźćń]/g, '').trim();
+          if (focusWord === 'oglnawitalno' || focusWord === 'oglnawitalnosc') focusWord = 'cardio'; // fallback or matching logic
+          if (focusWord === 'krgosup') focusWord = 'kręgos'; 
+          
+          let match = recs.find(r => (r.video.tag || '').toLowerCase().includes(focusWord) || (r.video.title || '').toLowerCase().includes(focusWord));
+          if (!match) match = recs[0]; // fallback
+          
+          if (match) {
+            grid.innerHTML = `
+              <div class="daily-focus-header" style="text-align:center; font-size:1.2rem; margin-bottom:1rem; font-weight:600; color:var(--text);">Twój cel na dziś: <strong style="color:var(--mint);">${focus}</strong></div>
+              <div class="featured-video-wrapper">
+                ${renderVideoCard(match.video, match.reason).replace('class="video-card"', 'class="video-card featured-video-card"')}
+              </div>
+              <div class="daily-focus-footer" style="text-align:center; margin-top:1.5rem; font-size:0.95rem; color:var(--warm-gray);">To Twój główny trening na dziś! Jeśli masz siłę na więcej, pełny katalog znajdziesz w zakładce Wszystkie.</div>
+              <button class="btn-send" style="margin: 1.5rem auto; display: block; width: auto; padding: 0.6rem 2rem; background: #e2e8f0; color: var(--navy);" onclick="setVideoLibraryView('all', document.querySelector('.video-library-tab:last-child'))">Przejdź do wszystkich →</button>
+            `;
+          } else {
+            grid.innerHTML = '';
+          }
+        } else {
+          // Ask for focus
+          grid.innerHTML = `
+            <div class="daily-focus-prompt" style="text-align:center; padding: 2rem 1rem; background:white; border-radius:16px; box-shadow:0 4px 15px rgba(0,0,0,0.03);">
+              <h4 style="font-size:1.3rem; margin-bottom:0.5rem;">Nad czym chcesz dzisiaj popracować?</h4>
+              <p style="color:var(--warm-gray); margin-bottom:1.5rem; font-size:0.95rem;">Wybierz jeden główny cel na dziś, a my dobierzemy idealny trening.</p>
+              <div class="focus-buttons" style="display:flex; flex-wrap:wrap; gap:0.75rem; justify-content:center;">
+                <button onclick="setDailyFocus('🦴 Stawy')" style="padding:0.75rem 1.25rem; border:2px solid var(--mint); border-radius:12px; background:transparent; color:var(--navy); font-weight:600; cursor:pointer; transition:0.2s;">🦴 Stawy</button>
+                <button onclick="setDailyFocus('🧘 Kręgosłup')" style="padding:0.75rem 1.25rem; border:2px solid var(--mint); border-radius:12px; background:transparent; color:var(--navy); font-weight:600; cursor:pointer; transition:0.2s;">🧘 Kręgosłup</button>
+                <button onclick="setDailyFocus('🌬️ Oddech')" style="padding:0.75rem 1.25rem; border:2px solid var(--mint); border-radius:12px; background:transparent; color:var(--navy); font-weight:600; cursor:pointer; transition:0.2s;">🌬️ Oddech</button>
+                <button onclick="setDailyFocus('💪 Ogólna Witalność')" style="padding:0.75rem 1.25rem; border:2px solid var(--mint); border-radius:12px; background:transparent; color:var(--navy); font-weight:600; cursor:pointer; transition:0.2s;">💪 Ogólna Witalność</button>
+              </div>
+            </div>
+          `;
+        }
         return;
       }
 
@@ -223,6 +269,11 @@
     function playVideo(id) {
       const v = APP_DATA.videos.find(x => x.id === id);
       if (!v) return;
+      
+      let watched = parseInt(localStorage.getItem('kz_videos_watched') || '0');
+      localStorage.setItem('kz_videos_watched', watched + 1);
+      if (typeof updateDashboardStats === 'function') updateDashboardStats();
+      
       clearInterval(playerState.interval);
       playerState = { playing: true, current: id, elapsed: 0, interval: null, total: 15 * 60 };
       document.querySelectorAll('.video-card').forEach(c => c.classList.remove('playing'));
@@ -750,6 +801,10 @@
 
         // Zapisujemy wygenerowaną dietę w localStorage
         localStorage.setItem(`kz_cached_diet_${currentDietDuration}`, JSON.stringify(dietPlan));
+        
+        let dietCount = parseInt(localStorage.getItem('kz_generated_diets_count') || '0');
+        localStorage.setItem('kz_generated_diets_count', dietCount + 1);
+        if (typeof updateDashboardStats === 'function') updateDashboardStats();
         localStorage.setItem(`kz_cached_diet_day_${currentDietDuration}`, currentDay);
         localStorage.setItem(`kz_cached_diet_profile_key_${currentDietDuration}`, dietProfileCacheKey);
         localStorage.setItem(`kz_cached_diet_time_${currentDietDuration}`, Date.now().toString());
