@@ -730,7 +730,13 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       }
     }
 
-    window.sendQuickReply = function(text) {
+    window.sendQuickReply = function(text, btn) {
+      if (btn) {
+        btn.innerHTML = '✅ ' + btn.innerHTML;
+        btn.onclick = null;
+        btn.style.opacity = '0.6';
+        btn.style.pointerEvents = 'none';
+      }
       const input = document.getElementById('chatInput');
       if (input) {
         input.value = text;
@@ -745,20 +751,20 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       const name = localStorage.getItem('kz_name') || 'Seniorze';
       const firstName = name.split(' ')[0];
 
-      const healthIssues = localStorage.getItem('kz_health_issues') || '';
       const botMsg = document.createElement('div');
       botMsg.className = 'chat-msg bot';
-      botMsg.textContent = healthIssues
-        ? `Witaj ${firstName}! Jestem Twoim asystentem VitalFly. Widzę zapisany profil zdrowotny, więc będę odpowiadać ostrożnie i dopasuję porady do Twoich ograniczeń. Mogę pomóc w ćwiczeniach, diecie, lekach przypominanych w aplikacji i obsłudze panelu. Przy objawach, chorobach lub lekach zawsze warto skonsultować się z lekarzem.`
-        : `Witaj ${firstName}! Jestem Twoim asystentem VitalFly. Mogę pomóc w ćwiczeniach, diecie, przypomnieniach o lekach i obsłudze aplikacji. Nie zastępuję lekarza, ale pomogę Ci przygotować bezpieczne pytania i kolejne kroki.`;
+      
+      const textNode = document.createElement('div');
+      textNode.innerHTML = `Witaj <strong>${firstName}</strong>! Jestem Twoim asystentem VitalFly. Wszystkie pytania i odpowiedzi znajdziesz u mnie. W czym mogę pomóc?`;
+      botMsg.appendChild(textNode);
       
       const quickReplies = document.createElement('div');
       quickReplies.className = 'chat-quick-replies';
       quickReplies.innerHTML = `
-        <button class="chat-quick-reply" onclick="sendQuickReply('Czas na trening!')">Czas na trening! 🎬</button>
-        <button class="chat-quick-reply" onclick="sendQuickReply('Czas na utworzenie spersonalizowanej diety.')">Czas na dietę 🥗</button>
-        <button class="chat-quick-reply" onclick="sendQuickReply('Czy zbliża się czas na leki?')">Czas na Leki 💊</button>
-        <button class="chat-quick-reply" onclick="sendQuickReply('Jak korzystać z aplikacji?')">Pomoc ❓</button>
+        <button class="chat-quick-reply" onclick="sendQuickReply('Czas na trening!', this)">Czas na trening! 🎬</button>
+        <button class="chat-quick-reply" onclick="sendQuickReply('Czas na utworzenie spersonalizowanej diety.', this)">Czas na dietę 🥗</button>
+        <button class="chat-quick-reply" onclick="sendQuickReply('Czy zbliża się czas na leki?', this)">Czas na Leki 💊</button>
+        <button class="chat-quick-reply" onclick="sendQuickReply('Jak korzystać z aplikacji?', this)">Pomoc ❓</button>
       `;
       botMsg.appendChild(quickReplies);
       msgList.appendChild(botMsg);
@@ -766,7 +772,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       chatHistory = [
         {
           role: "model",
-          parts: [{ text: botMsg.textContent }]
+          parts: [{ text: `Witaj ${firstName}! Jestem Twoim asystentem VitalFly. Wszystkie pytania i odpowiedzi znajdziesz u mnie. W czym mogę pomóc?` }]
         }
       ];
     }
