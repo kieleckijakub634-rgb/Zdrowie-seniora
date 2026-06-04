@@ -211,7 +211,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         window.streakNotified = true;
         setTimeout(() => {
           if (typeof showToast === 'function') {
-            showToast(`Brawo! Twój streak (dni zdrowo z VitalFly) wynosi już ${streak}! 🔥`, 5000);
+            showToast(`Brawo! Twój streak (dni zdrowo z VitalFly) wynosi już ${streak}! 🔥`, 10000);
           }
         }, 1500);
       }
@@ -663,7 +663,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
 </div>
 
 <!-- Toast notification -->
-<div class="med-toast" id="medToast">
+<div class="med-toast" id="medToast" onclick="this.classList.remove('show')">
   <span id="medToastText">Powiadomienie</span>
 </div>
 
