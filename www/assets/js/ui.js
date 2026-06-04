@@ -261,12 +261,14 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
 
 
   <!-- Tab navigation -->
-  <div class="tab-nav">
-    <button class="tab-btn tab-btn-sos" data-tab="dogtag" onclick="switchTab('dogtag',this)"><span style="font-size:1.45rem; line-height:1;">🚑</span><span>Ratunek</span></button>
-    <button class="tab-btn active" data-tab="videos" onclick="switchTab('videos',this)"><span style="font-size:1.45rem; line-height:1;">🎬</span><span>Ćwiczenia</span></button>
-    <button class="tab-btn" data-tab="diets" onclick="switchTab('diets',this)"><span style="font-size:1.45rem; line-height:1;">🥗</span><span>Dieta</span></button>
-    <button class="tab-btn" data-tab="meds" onclick="switchTab('meds',this)"><span style="font-size:1.45rem; line-height:1;">💊</span><span>Leki</span></button>
-    <button class="tab-btn" data-tab="liked" onclick="switchTab('liked',this)"><span style="font-size:1.45rem; line-height:1;">❤️</span><span>Polubione</span></button>
+  <div class="tab-nav-wrapper">
+    <div class="tab-nav">
+      <button class="tab-btn tab-btn-sos" data-tab="dogtag" onclick="switchTab('dogtag',this)"><span style="font-size:1.45rem; line-height:1;">🚑</span><span>Ratunek</span></button>
+      <button class="tab-btn active" data-tab="videos" onclick="switchTab('videos',this)"><span style="font-size:1.45rem; line-height:1;">🎬</span><span>Ćwiczenia</span></button>
+      <button class="tab-btn" data-tab="diets" onclick="switchTab('diets',this)"><span style="font-size:1.45rem; line-height:1;">🥗</span><span>Dieta</span></button>
+      <button class="tab-btn" data-tab="meds" onclick="switchTab('meds',this)"><span style="font-size:1.45rem; line-height:1;">💊</span><span>Leki</span></button>
+      <button class="tab-btn" data-tab="liked" onclick="switchTab('liked',this)"><span style="font-size:1.45rem; line-height:1;">❤️</span><span>Polubione</span></button>
+    </div>
   </div>
 
   <!-- TAB: VIDEOS -->
@@ -718,6 +720,14 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       }
     }
 
+    window.sendQuickReply = function(text) {
+      const input = document.getElementById('chatInput');
+      if (input) {
+        input.value = text;
+        sendChatMessage();
+      }
+    };
+
     function renderWelcomeMessage() {
       const msgList = document.getElementById('chatMessages');
       if (!msgList) return;
@@ -731,6 +741,16 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       botMsg.textContent = healthIssues
         ? `Witaj ${firstName}! Jestem Twoim asystentem VitalFly. Widzę zapisany profil zdrowotny, więc będę odpowiadać ostrożnie i dopasuję porady do Twoich ograniczeń. Mogę pomóc w ćwiczeniach, diecie, lekach przypominanych w aplikacji i obsłudze panelu. Przy objawach, chorobach lub lekach zawsze warto skonsultować się z lekarzem.`
         : `Witaj ${firstName}! Jestem Twoim asystentem VitalFly. Mogę pomóc w ćwiczeniach, diecie, przypomnieniach o lekach i obsłudze aplikacji. Nie zastępuję lekarza, ale pomogę Ci przygotować bezpieczne pytania i kolejne kroki.`;
+      
+      const quickReplies = document.createElement('div');
+      quickReplies.className = 'chat-quick-replies';
+      quickReplies.innerHTML = `
+        <button class="chat-quick-reply" onclick="sendQuickReply('Czas na trening!')">Czas na trening! 🎬</button>
+        <button class="chat-quick-reply" onclick="sendQuickReply('Czas na utworzenie spersonalizowanej diety.')">Czas na dietę 🥗</button>
+        <button class="chat-quick-reply" onclick="sendQuickReply('Czy zbliża się czas na leki?')">Czas na Leki 💊</button>
+        <button class="chat-quick-reply" onclick="sendQuickReply('Jak korzystać z aplikacji?')">Pomoc ❓</button>
+      `;
+      botMsg.appendChild(quickReplies);
       msgList.appendChild(botMsg);
 
       chatHistory = [
@@ -882,6 +902,18 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         document.body.classList.remove('settings-active');
       }
 
+      // Auto-scroll to top
+      const appMain = document.querySelector('.app-main');
+      if (appMain && window.innerWidth < 768) {
+        const targetPanel = document.getElementById('tab-' + name);
+        if (targetPanel) {
+           const offset = targetPanel.offsetTop - 120;
+           appMain.scrollTo({top: offset > 0 ? offset : 0, behavior: 'smooth'});
+        }
+      } else {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      }
+
       setTimeout(() => {
         if (window.innerWidth <= 768) {
           const tabNav = document.querySelector('.tab-nav');
@@ -1030,17 +1062,39 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
 
       let dog = {};
       try { dog = JSON.parse(localStorage.getItem('vf_dogtag') || '{}'); } catch (e) { dog = {}; }
-      const name = dog.name || localStorage.getItem('kz_name') || 'Użytkownik VitalFly';
-      const health = localStorage.getItem('kz_health_issues') || dog.illness || 'brak wpisanych schorzeń';
       const ice = dog.ice || 'brak kontaktu ICE';
       const medsCount = APP_DATA.medications.length;
       const nextMed = getNextMedicationLabel();
 
+      let suggestion = '';
+      const watchedCount = parseInt(localStorage.getItem('kz_videos_watched') || '0');
+      const dietCount = parseInt(localStorage.getItem('kz_generated_diets_count') || '0');
+      
+      let nextMedMinutes = Infinity;
+      if (nextMed) {
+        const [h, min] = nextMed.split(' ')[0].split(':').map(Number);
+        const now = new Date();
+        const nowMins = now.getHours() * 60 + now.getMinutes();
+        const medMins = (h||0) * 60 + (min||0);
+        nextMedMinutes = medMins >= nowMins ? medMins - nowMins : medMins + 1440 - nowMins;
+      }
+
+      if (nextMedMinutes < 60) {
+         suggestion = `Zbliża się czas na leki: <strong>${nextMed}</strong>! 💊`;
+      } else if (watchedCount === 0 || !localStorage.getItem('kz_daily_focus_date') || localStorage.getItem('kz_daily_focus_date') !== new Date().toISOString().split('T')[0]) {
+         suggestion = `Czas na trening! Wybierz dzisiejsze ćwiczenia. 🎬`;
+      } else if (dietCount === 0 || !localStorage.getItem('kz_cached_diet_1')) {
+         suggestion = `Czas na utworzenie spersonalizowanej diety! 🥗`;
+      } else {
+         suggestion = `Wszystkie zadania na dziś zrobione, świetnie! 👍`;
+      }
+
       body.innerHTML = `
-      <strong>${name}</strong><br>
-      ICE: ${ice}<br>
-      Leki: ${medsCount} ${medsCount === 1 ? 'pozycja' : 'pozycji'}${nextMed ? ` • najbliżej: ${nextMed}` : ''}<br>
-      Zdrowie: ${String(health).slice(0, 72)}${String(health).length > 72 ? '…' : ''}
+      <strong style="color:var(--mint); font-size:1.05rem;">Asystent VitalFly radzi:</strong><br><br>
+      ${suggestion}<br><br>
+      <div style="font-size:0.75rem; opacity:0.7; border-top:1px solid rgba(255,255,255,0.1); padding-top:0.5rem; margin-top:0.2rem;">
+        ICE: ${ice} • Leki: ${medsCount} ${medsCount === 1 ? 'pozycja' : 'pozycji'}
+      </div>
     `;
     }
 

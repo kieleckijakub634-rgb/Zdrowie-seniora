@@ -1199,7 +1199,7 @@
 
     /* ── TOAST ── */
     let toastTimeout;
-    function showToast(msg, duration = 4500) {
+    function showToast(msg, duration = 10000) {
       const t = document.getElementById('medToast');
       if (!t) return;
       document.getElementById('medToastText').textContent = msg;

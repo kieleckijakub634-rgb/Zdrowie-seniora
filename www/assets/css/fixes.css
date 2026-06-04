@@ -155,3 +155,82 @@ body.theme-dark .diet-day-pill.completed.active {
   color: #f8f9fa !important;
 }
 
+/* Stat pills mobile fix */
+#dashboard-stats-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+@media (min-width: 768px) {
+  #dashboard-stats-row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.stat-pill {
+  padding: 0.75rem 0.5rem !important;
+  text-align: center;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: auto !important;
+  font-size: 0.85rem !important;
+}
+.stat-pill .stat-emoji {
+  font-size: 1.5rem;
+  margin-bottom: 0.2rem;
+}
+
+/* Delicate arrows for scrollable tab nav */
+.tab-nav-wrapper {
+  position: relative;
+}
+.tab-nav-wrapper::before,
+.tab-nav-wrapper::after {
+  content: '›';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  color: var(--navy);
+  font-size: 1.5rem;
+  font-weight: 300;
+  pointer-events: none;
+  opacity: 0.4;
+  text-shadow: 0 0 5px rgba(255,255,255,0.8);
+}
+body.theme-dark .tab-nav-wrapper::before,
+body.theme-dark .tab-nav-wrapper::after {
+  color: white;
+  text-shadow: 0 0 5px rgba(0,0,0,0.8);
+}
+.tab-nav-wrapper::before {
+  content: '‹';
+  left: 2px;
+}
+.tab-nav-wrapper::after {
+  right: 2px;
+}
+
+/* Chat Quick Replies */
+.chat-quick-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-top: 0.5rem;
+}
+.chat-quick-reply {
+  background: var(--mint);
+  color: var(--navy);
+  border: none;
+  border-radius: 12px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.chat-quick-reply:hover {
+  background: #3e9f8a;
+  color: white;
+}
