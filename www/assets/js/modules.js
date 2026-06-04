@@ -780,7 +780,7 @@
 
       try {
         // Zapytanie do endpointu Google Gemini API
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1200,12 +1200,25 @@
     /* ── TOAST ── */
     let toastTimeout;
     function showToast(msg, duration = 10000) {
-      const t = document.getElementById('medToast');
-      if (!t) return;
-      document.getElementById('medToastText').textContent = msg;
-      t.classList.add('show');
+      const box = document.getElementById('liveHelpPopup');
+      const body = document.getElementById('liveHelpBody');
+      if (!box || !body) return;
+      
+      body.innerHTML = `
+        <strong style="color:var(--mint); font-size:1.05rem;">Asystent VitalFly informuje:</strong><br><br>
+        ${msg}
+      `;
+      box.classList.remove('dismissed');
+      
       clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => t.classList.remove('show'), duration);
+      toastTimeout = setTimeout(() => {
+        if (typeof window.updateLiveHelpPopup === 'function') {
+           window.updateLiveHelpPopup();
+        }
+        if (sessionStorage.getItem('kz_live_help_dismissed') === '1') {
+           box.classList.add('dismissed');
+        }
+      }, duration);
     }
 
     function showMedModal(msg) {
