@@ -807,7 +807,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       msgList.appendChild(loader);
       msgList.scrollTop = msgList.scrollHeight;
 
-      const apiKey = localStorage.getItem('kz_gemini_api_key') || '';
+      const apiKey = (localStorage.getItem('kz_gemini_api_key') || '').trim();
       if (!apiKey) {
         loader.remove();
         const errMsg = document.createElement('div');
@@ -892,7 +892,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         const botErr = document.createElement('div');
         botErr.className = 'chat-msg bot';
         botErr.style.color = '#E05252';
-        botErr.textContent = "Przepraszam, wystąpił błąd połączenia z asystentem AI. Upewnij się, że klucz API jest poprawny lub spróbuj ponownie później.";
+        botErr.textContent = `Przepraszam, wystąpił błąd połączenia z asystentem AI. Upewnij się, że klucz API jest poprawny. (Szczegóły: ${err.message})`;
         msgList.appendChild(botErr);
         msgList.scrollTop = msgList.scrollHeight;
       }
