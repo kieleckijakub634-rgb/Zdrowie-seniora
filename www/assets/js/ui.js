@@ -205,6 +205,16 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       if (typeof updateDashboardStats === 'function') {
         updateDashboardStats();
       }
+      
+      const streak = parseInt(localStorage.getItem('kz_streak_days') || '1');
+      if (streak > 0 && !window.streakNotified) {
+        window.streakNotified = true;
+        setTimeout(() => {
+          if (typeof showToast === 'function') {
+            showToast(`Brawo! Twój streak (dni zdrowo z VitalFly) wynosi już ${streak}! 🔥`, 5000);
+          }
+        }, 1500);
+      }
     }
 
     function buildAppHTML(name) {
@@ -811,7 +821,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       try {
         const patientName = localStorage.getItem('kz_name') || 'Senior';
         const healthIssues = localStorage.getItem('kz_health_issues') || '';
-        let systemInstructionText = `Jesteś przyjaznym, empatycznym i cierpliwym wirtualnym asystentem dla seniorów w aplikacji VitalFly. Pomagasz w zdrowym stylu życia, ćwiczeniach, diecie przeciwzapalnej, przypomnieniach o lekach i obsłudze aplikacji. Odpowiadaj po polsku, krótko, jasno i spokojnie. Najpierw podawaj praktyczną odpowiedź, potem 1-3 bezpieczne kroki. Nie diagnozuj, nie zmieniaj dawek leków, nie odstawiaj leków i nie zastępuj lekarza. Przy objawach alarmowych, chorobach, lekach, dawkowaniu, pogorszeniu samopoczucia albo diecie przy schorzeniach zalecaj kontakt z lekarzem, farmaceutą lub dietetykiem klinicznym. Pacjent ma na imię: ${patientName}.`;
+        let systemInstructionText = `Jesteś przyjaznym, empatycznym i cierpliwym wirtualnym asystentem dla seniorów w aplikacji VitalFly. Pomagasz w zdrowym stylu życia, ćwiczeniach, diecie przeciwzapalnej, przypomnieniach o lekach i obsłudze aplikacji. Odpowiadaj po polsku, krótko, jasno i spokojnie. Najpierw podawaj praktyczną odpowiedź, potem 1-3 bezpieczne kroki. Nie diagnozuj, nie zmieniaj dawek leków, nie odstawiaj leków i nie zastępuj lekarza. Przy objawach alarmowych, chorobach, lekach, dawkowaniu, pogorszeniu samopoczucia albo diecie przy schorzeniach zalecaj kontakt z lekarzem. Jeśli polecasz seniorowi wejść do jakiejś zakładki w aplikacji (np. zrobić trening, wygenerować dietę, wejść w leki, ratunek), ZAMIAST tłumaczyć gdzie to jest, na końcu odpowiedzi użyj dokładnie tego kodu (z nawiasami kwadratowymi): [PRZEJDŹ DO: videos] (ćwiczenia), [PRZEJDŹ DO: diets] (dieta), [PRZEJDŹ DO: meds] (leki), [PRZEJDŹ DO: dogtag] (ratunek). Aplikacja sama zmieni ten kod na wygodny przycisk. Nigdy nie tłumacz nawigacji ekranu! Pacjent ma na imię: ${patientName}.`;
         if (healthIssues) {
           systemInstructionText += ` Pacjent zgłasza następujące dolegliwości i stan zdrowia: "${healthIssues}". Dostosuj język, poziom ostrożności, propozycje aktywności, diety i codziennego wsparcia do tych ograniczeń. Przy ruchu proponuj łagodniejsze warianty i przerwanie ćwiczeń przy bólu, duszności, zawrotach głowy lub nietypowych objawach. Nie przedstawiaj zaleceń jako leczenia.`;
         }
@@ -854,6 +864,17 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
           .replace(/\n\n/g, '<br><br>')
           .replace(/\n/g, '<br>')
           .replace(/^- (.*)/gm, '• $1');
+          
+        formattedText = formattedText.replace(/\[PRZEJDŹ DO:\s*(.*?)\]/gi, (match, tab) => {
+          const tabName = tab.trim().toLowerCase();
+          let btnText = "Przejdź do zakładki";
+          if (tabName === 'videos') btnText = "Przejdź do Ćwiczeń 🎬";
+          else if (tabName === 'diets') btnText = "Przejdź do Diety 🥗";
+          else if (tabName === 'meds') btnText = "Przejdź do Leków 💊";
+          else if (tabName === 'dogtag') btnText = "Przejdź do Ratunku 🚑";
+          
+          return `<br><br><button class="chat-quick-reply" style="width:100%; margin-top:0.5rem; justify-content:center; text-align:center;" onclick="toggleChat(); switchTab('${tabName}')">${btnText}</button>`;
+        });
 
         botReply.innerHTML = formattedText;
         msgList.appendChild(botReply);

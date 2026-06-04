@@ -234,3 +234,8 @@ body.theme-dark .tab-nav-wrapper::after {
   background: #3e9f8a;
   color: white;
 }
+/* Fix large gap between tabs when some are hidden */
+#appShell .tab-nav {
+  justify-content: flex-start !important;
+  gap: 0.5rem !important;
+}
