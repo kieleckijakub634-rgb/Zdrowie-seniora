@@ -769,12 +769,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       botMsg.appendChild(quickReplies);
       msgList.appendChild(botMsg);
 
-      chatHistory = [
-        {
-          role: "model",
-          parts: [{ text: `Witaj ${firstName}! Jestem Twoim asystentem VitalFly. Wszystkie pytania i odpowiedzi znajdziesz u mnie. W czym mogę pomóc?` }]
-        }
-      ];
+      chatHistory = [];
     }
 
     function handleChatKeydown(e) {
