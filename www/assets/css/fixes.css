@@ -312,6 +312,7 @@ body.theme-dark .tab-nav-wrapper::after {
 }
 
 #appShell .video-card {
+  animation: none !important;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease, filter 0.35s ease !important;
   will-change: transform;
 }

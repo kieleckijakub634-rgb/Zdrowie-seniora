@@ -5,8 +5,7 @@
     provider: 'kz_ai_provider',
     apiKey: 'kz_ai_api_key',
     model: 'kz_ai_model',
-    endpoint: 'kz_ai_endpoint',
-    disableBootstrap: 'kz_ai_disable_bootstrap'
+    endpoint: 'kz_ai_endpoint'
   };
 
   function normalizeTextContent(content) {
@@ -51,21 +50,7 @@
     return (localStorage.getItem(key) || '').trim();
   }
 
-  function seedLocalConfig() {
-    const localConfig = window.__VF_LOCAL_AI_CONFIG;
-    if (!localConfig || typeof localConfig !== 'object') return;
-    if (getStoredValue(STORAGE_KEYS.disableBootstrap) === '1') return;
-    if (getStoredValue(STORAGE_KEYS.apiKey)) return;
-
-    if (localConfig.apiKey) localStorage.setItem(STORAGE_KEYS.apiKey, String(localConfig.apiKey).trim());
-    localStorage.setItem(STORAGE_KEYS.provider, 'openrouter');
-    localStorage.setItem(STORAGE_KEYS.model, String(localConfig.model || DEFAULT_MODEL).trim());
-    localStorage.setItem(STORAGE_KEYS.endpoint, String(localConfig.endpoint || OPENROUTER_ENDPOINT).trim());
-  }
-
   function getConfig() {
-    seedLocalConfig();
-
     const apiKey = getStoredValue(STORAGE_KEYS.apiKey);
     const model = getStoredValue(STORAGE_KEYS.model) || DEFAULT_MODEL;
     const endpoint = getStoredValue(STORAGE_KEYS.endpoint) || OPENROUTER_ENDPOINT;
@@ -80,7 +65,6 @@
   }
 
   function saveConfig(config) {
-    localStorage.removeItem(STORAGE_KEYS.disableBootstrap);
     localStorage.setItem(STORAGE_KEYS.provider, config && config.provider ? String(config.provider) : 'openrouter');
     localStorage.setItem(STORAGE_KEYS.model, config && config.model ? String(config.model).trim() : DEFAULT_MODEL);
     localStorage.setItem(STORAGE_KEYS.apiKey, config && config.apiKey ? String(config.apiKey).trim() : '');
@@ -90,7 +74,6 @@
 
   function clearStoredConfig() {
     Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
-    localStorage.setItem(STORAGE_KEYS.disableBootstrap, '1');
   }
 
   function toOpenRouterMessages(messages, systemInstructionText) {
@@ -169,7 +152,6 @@
     clearStoredConfig,
     getConfig,
     saveConfig,
-    seedLocalConfig,
     requestText
   };
 })();
