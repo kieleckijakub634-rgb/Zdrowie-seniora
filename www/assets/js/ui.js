@@ -898,7 +898,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       }
     }
 
-    function saveGeminiKey() {
+    function saveGeminiKeyLegacy() {
       const key = document.getElementById('admin-gemini-key')?.value.trim();
       localStorage.setItem('kz_gemini_api_key', key);
       showToast('⏳ Zapisywanie klucza w chmurze...');
@@ -908,6 +908,150 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     }
 
     /* ── Tab switcher ── */
+    async function sendChatMessageLegacyGemini() {
+      const input = document.getElementById('chatInput');
+      const msgList = document.getElementById('chatMessages');
+      if (!input || !msgList) return;
+
+      const text = input.value.trim();
+      if (!text) return;
+
+      const userMsg = document.createElement('div');
+      userMsg.className = 'chat-msg user';
+      userMsg.textContent = text;
+      msgList.appendChild(userMsg);
+
+      input.value = '';
+      msgList.scrollTop = msgList.scrollHeight;
+
+      chatHistory.push({
+        role: 'user',
+        parts: [{ text }]
+      });
+
+      const loader = document.createElement('div');
+      loader.className = 'chat-loading';
+      loader.id = 'chatLoader';
+      loader.innerHTML = '<span></span><span></span><span></span>';
+      msgList.appendChild(loader);
+      msgList.scrollTop = msgList.scrollHeight;
+
+      const aiConfig = window.VitalFlyAI ? window.VitalFlyAI.getConfig() : null;
+      if (!aiConfig || !aiConfig.apiKey) {
+        loader.remove();
+        const errMsg = document.createElement('div');
+        errMsg.className = 'chat-msg bot';
+        errMsg.style.color = '#E05252';
+        errMsg.textContent = 'Błąd: klucz OpenRouter nie jest skonfigurowany. Wklej go w panelu administracyjnym aplikacji.';
+        msgList.appendChild(errMsg);
+        msgList.scrollTop = msgList.scrollHeight;
+        return;
+      }
+
+      try {
+        const patientName = localStorage.getItem('kz_name') || 'Senior';
+        const healthIssues = localStorage.getItem('kz_health_issues') || '';
+        let systemInstructionText = `Jesteś przyjaznym, empatycznym i cierpliwym wirtualnym asystentem dla seniorów w aplikacji VitalFly. Pomagasz w zdrowym stylu życia, ćwiczeniach, diecie przeciwzapalnej, przypomnieniach o lekach i obsłudze aplikacji. Odpowiadaj po polsku, krótko, jasno i spokojnie. Najpierw podawaj praktyczną odpowiedź, potem 1-3 bezpieczne kroki. Nie diagnozuj, nie zmieniaj dawek leków, nie odstawiaj leków i nie zastępuj lekarza. Przy objawach alarmowych, chorobach, lekach, dawkowaniu, pogorszeniu samopoczucia albo diecie przy schorzeniach zalecaj kontakt z lekarzem. Jeśli polecasz seniorowi wejść do jakiejś zakładki w aplikacji, na końcu odpowiedzi użyj dokładnie jednego z tych kodów: [PRZEJDŹ DO: videos], [PRZEJDŹ DO: diets], [PRZEJDŹ DO: meds] albo [PRZEJDŹ DO: dogtag]. Nigdy nie tłumacz nawigacji ekranu. Pacjent ma na imię: ${patientName}.`;
+        if (healthIssues) {
+          systemInstructionText += ` Pacjent zgłasza następujące dolegliwości i stan zdrowia: "${healthIssues}". Dostosuj język, poziom ostrożności, propozycje aktywności, diety i codziennego wsparcia do tych ograniczeń. Przy ruchu proponuj łagodniejsze warianty i przerwanie ćwiczeń przy bólu, duszności, zawrotach głowy lub nietypowych objawach. Nie przedstawiaj zaleceń jako leczenia.`;
+        }
+
+        const replyText = await window.VitalFlyAI.requestText({
+          route: 'chat',
+          messages: chatHistory,
+          systemInstructionText
+        });
+
+        loader.remove();
+
+        const botReply = document.createElement('div');
+        botReply.className = 'chat-msg bot';
+
+        let formattedText = replyText
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/\n\n/g, '<br><br>')
+          .replace(/\n/g, '<br>')
+          .replace(/^- (.*)/gm, '&bull; $1');
+
+        formattedText = formattedText.replace(/\[PRZEJDŹ DO:\s*(.*?)\]/gi, (match, tab) => {
+          const tabName = tab.trim().toLowerCase();
+          let btnText = 'Przejdź do zakładki';
+          if (tabName === 'videos') btnText = 'Przejdź do Ćwiczeń';
+          else if (tabName === 'diets') btnText = 'Przejdź do Diety';
+          else if (tabName === 'meds') btnText = 'Przejdź do Leków';
+          else if (tabName === 'dogtag') btnText = 'Przejdź do Ratunku';
+
+          return `<br><br><button class="chat-quick-reply" style="width:100%; margin-top:0.5rem; justify-content:center; text-align:center;" onclick="toggleChat(); switchTab('${tabName}')">${btnText}</button>`;
+        });
+
+        botReply.innerHTML = formattedText;
+        msgList.appendChild(botReply);
+        msgList.scrollTop = msgList.scrollHeight;
+
+        chatHistory.push({
+          role: 'model',
+          parts: [{ text: replyText }]
+        });
+      } catch (err) {
+        console.error('OpenRouter API Error:', err);
+        loader.remove();
+        const botErr = document.createElement('div');
+        botErr.className = 'chat-msg bot';
+        botErr.style.color = '#E05252';
+        botErr.textContent = `Przepraszam, wystąpił błąd połączenia z asystentem AI. Upewnij się, że klucz OpenRouter i model są poprawne. (Szczegóły: ${err.message})`;
+        msgList.appendChild(botErr);
+        msgList.scrollTop = msgList.scrollHeight;
+      }
+    }
+
+    async function saveAIConfig() {
+      const model = document.getElementById('admin-ai-model')?.value.trim() || 'google/gemma-4-31b-it';
+      const apiKey = document.getElementById('admin-ai-key')?.value.trim() || '';
+      const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
+
+      if (window.VitalFlyAI) {
+        window.VitalFlyAI.saveConfig({
+          provider: 'openrouter',
+          model,
+          apiKey,
+          endpoint
+        });
+      } else {
+        localStorage.setItem('kz_ai_provider', 'openrouter');
+        localStorage.setItem('kz_ai_model', model);
+        localStorage.setItem('kz_ai_api_key', apiKey);
+        localStorage.setItem('kz_ai_endpoint', endpoint);
+      }
+
+      showToast('⏳ Zapisywanie konfiguracji AI w chmurze...');
+      const ok = await saveToCloud();
+      if (ok) {
+        showToast('✅ Konfiguracja OpenRouter została zapisana!');
+        if (typeof loadModuleSettings === 'function') loadModuleSettings();
+      }
+    }
+
+    async function clearAIConfig() {
+      if (window.VitalFlyAI) {
+        window.VitalFlyAI.clearStoredConfig();
+      } else {
+        localStorage.removeItem('kz_ai_provider');
+        localStorage.removeItem('kz_ai_model');
+        localStorage.removeItem('kz_ai_api_key');
+        localStorage.removeItem('kz_ai_endpoint');
+      }
+
+      const modelInput = document.getElementById('admin-ai-model');
+      const keyInput = document.getElementById('admin-ai-key');
+      if (modelInput) modelInput.value = 'google/gemma-4-31b-it';
+      if (keyInput) keyInput.value = '';
+
+      showToast('⏳ Usuwanie konfiguracji AI z chmury...');
+      const ok = await saveToCloud();
+      if (ok) showToast('🗑️ Konfiguracja AI została wyczyszczona.');
+    }
+
     function switchTab(name, btn) {
       if (name !== 'settings') {
         window.lastActiveTab = name;

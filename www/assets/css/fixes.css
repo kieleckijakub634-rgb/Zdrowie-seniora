@@ -155,6 +155,64 @@ body.theme-dark .diet-day-pill.completed.active {
   color: #f8f9fa !important;
 }
 
+#adminShell .vf-admin-card-title,
+#adminShell .admin-card p,
+#adminShell .admin-card span,
+#adminShell .admin-card small,
+#adminShell .admin-card li,
+#adminShell .admin-card label,
+#adminShell .admin-card strong,
+#adminShell .module-toggle-row,
+#adminShell .module-toggle-row span,
+#adminShell .admin-stat-label,
+#adminShell .admin-tab {
+  color: #DDE6F0 !important;
+}
+
+#adminShell .module-toggle-row,
+#adminShell .module-toggle-row span,
+#adminShell .module-toggle-row strong {
+  color: #DDE6F0 !important;
+}
+
+#adminShell .admin-input::placeholder {
+  color: #AFC0D6 !important;
+  opacity: 1 !important;
+}
+
+body.theme-dark #adminShell .vf-admin-card-title,
+body.theme-dark #adminShell .admin-card p,
+body.theme-dark #adminShell .admin-card span,
+body.theme-dark #adminShell .admin-card small,
+body.theme-dark #adminShell .admin-card li,
+body.theme-dark #adminShell .admin-card label,
+body.theme-dark #adminShell .admin-card strong,
+body.theme-dark #adminShell .module-toggle-row,
+body.theme-dark #adminShell .module-toggle-row span,
+body.theme-dark #adminShell .admin-stat-label,
+body.theme-dark #adminShell .admin-tab,
+body.theme-dark #appShell .vf-admin-card-title,
+body.theme-dark #appShell .admin-card p,
+body.theme-dark #appShell .admin-card span,
+body.theme-dark #appShell .admin-card small,
+body.theme-dark #appShell .admin-card li,
+body.theme-dark #appShell .admin-card label,
+body.theme-dark #appShell .admin-card strong,
+body.theme-dark #appShell .module-toggle-row,
+body.theme-dark #appShell .module-toggle-row span,
+body.theme-dark #appShell .admin-stat-label,
+body.theme-dark #appShell .admin-tab {
+  color: #DDE6F0 !important;
+}
+
+body.theme-dark #appShell .settings-desc,
+body.theme-dark #appShell .settings-row,
+body.theme-dark #appShell .settings-row p,
+body.theme-dark #appShell .settings-row span,
+body.theme-dark #appShell .settings-row label {
+  color: #DDE6F0 !important;
+}
+
 /* Stat pills mobile fix */
 #dashboard-stats-row {
   display: grid;
