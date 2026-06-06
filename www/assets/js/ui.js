@@ -591,7 +591,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       <div class="settings-row">
         <div><div class="settings-label">Przypomnienie o ćwiczeniach</div><div class="settings-desc">Codzienne powiadomienie o podanej godzinie</div></div>
         <div style="display:flex; align-items:center; gap:0.75rem;">
-          <input type="time" class="settings-notif-time" id="notif-exercise-time" value="08:00" />
+          <input type="time" class="settings-notif-time" id="notif-exercise-time" value="08:00" onchange="saveNotifSettings()" />
           <label class="toggle-sw"><input type="checkbox" id="notif-exercise-enabled" onchange="saveNotifSettings()" /><span class="toggle-sw-slider"></span></label>
         </div>
       </div>
@@ -1051,6 +1051,9 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       const ok = await saveToCloud();
       if (ok) showToast('🗑️ Konfiguracja AI została wyczyszczona.');
     }
+
+    sendChatMessage = sendChatMessageLegacyGemini;
+    window.sendChatMessage = sendChatMessageLegacyGemini;
 
     function switchTab(name, btn) {
       if (name !== 'settings') {

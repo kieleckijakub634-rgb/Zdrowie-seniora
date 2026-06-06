@@ -286,12 +286,18 @@
 
         const changedTo = email && currentAuthEmail && email.toLowerCase() !== currentAuthEmail.toLowerCase() ? email : '';
         if (changedTo) {
+          if (typeof showToast === 'function') {
+            showToast('✅ Profil zapisany. Sprawdź skrzynkę e-mail, aby potwierdzić zmianę adresu.', 3500);
+          }
           alert('Profil zapisany. Wysłaliśmy e-mail potwierdzający zmianę adresu na: ' + changedTo + '. Kliknij link w wiadomości, aby dokończyć zmianę.');
         } else {
-          showToast('✅ Profil zapisany!', 800);
+          showToast('✅ Profil zapisany!', 1800);
         }
       } catch (e) {
         console.error('Profile save error:', e);
+        if (typeof showToast === 'function') {
+          showToast('❌ Nie udało się zapisać profilu.', 2500);
+        }
         alert('Nie udało się zapisać profilu: ' + (e.message || 'nieznany błąd'));
       } finally {
         if (btn) {
@@ -405,9 +411,12 @@
         clearDietCache();
         const synced = await syncToCloud({ throwOnError: true });
         if (!synced) throw new Error('Brak aktywnej sesji użytkownika.');
-        showToast('✅ Preferencje diety zapisane!', 800);
+        showToast('✅ Preferencje diety zapisane!', 1800);
       } catch (e) {
         console.error('Diet preferences save error:', e);
+        if (typeof showToast === 'function') {
+          showToast('❌ Nie udało się zapisać preferencji diety.', 2500);
+        }
         alert('Nie udało się zapisać preferencji diety: ' + (e.message || 'nieznany błąd'));
       }
     }
@@ -425,7 +434,7 @@
       const enabled = document.getElementById('notif-exercise-enabled')?.checked;
       const quiet = document.getElementById('notif-quiet')?.checked;
       localStorage.setItem('kz_notif', JSON.stringify({ time, enabled, quiet }));
-      showToast('🔔 Ustawienia powiadomień zapisane!', 800);
+      showToast('🔔 Ustawienia powiadomień zapisane!', 1800);
     }
     function loadNotifSettings() {
       const s = JSON.parse(localStorage.getItem('kz_notif') || '{}');
@@ -469,9 +478,12 @@
         clearDietCache();
         const synced = await syncToCloud({ throwOnError: true });
         if (!synced) throw new Error('Brak aktywnej sesji użytkownika.');
-        showToast('🩺 Profil zdrowotny został zaktualizowany w pamięci AI!', 800);
+        showToast('🩺 Profil zdrowotny został zapisany!', 1800);
       } catch (e) {
         console.error('Health profile save error:', e);
+        if (typeof showToast === 'function') {
+          showToast('❌ Nie udało się zapisać profilu zdrowotnego.', 2500);
+        }
         alert('Nie udało się zapisać profilu zdrowotnego: ' + (e.message || 'nieznany błąd'));
       }
     }
@@ -502,7 +514,7 @@
       if (btn) btn.classList.add('active');
       localStorage.setItem('kz_fontsize', size);
       if (isUserClick && typeof showToast === 'function') {
-        showToast('⚙️ Rozmiar tekstu został zapisany!', 800);
+        showToast('⚙️ Rozmiar tekstu został zapisany!', 1800);
       }
     }
 
@@ -515,7 +527,7 @@
       });
       localStorage.setItem('kz_theme', theme);
       if (isUserClick && typeof showToast === 'function') {
-        showToast('🎨 Motyw kolorystyczny został zapisany!', 800);
+        showToast('🎨 Motyw kolorystyczny został zapisany!', 1800);
       }
     }
 

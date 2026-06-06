@@ -600,6 +600,9 @@ window.applyUserProfileData = async function(cloud) {
         }
         return true;
       } catch (e) {
+        if (typeof showToast === 'function') {
+          showToast('❌ Nie udało się zapisać zmian w chmurze.', 2500);
+        }
         alert("Błąd zapisu w chmurze! Upewnij się, że wykonałeś KROK 2 (kod SQL) z instrukcji.\n\nDokładny błąd serwera:\n" + e.message);
         console.error(e);
         return false;
@@ -787,6 +790,9 @@ window.applyUserProfileData = async function(cloud) {
     async function triggerPasswordResetFromSettings() {
       window.initSupabase();
       if (!window.supabaseClient) {
+        if (typeof showToast === 'function') {
+          showToast('❌ Błąd połączenia z bazą danych.', 2500);
+        }
         alert('Błąd połączenia z bazą danych.');
         return;
       }
@@ -795,6 +801,9 @@ window.applyUserProfileData = async function(cloud) {
       const email = user?.email || localStorage.getItem('kz_email');
 
       if (!email) {
+        if (typeof showToast === 'function') {
+          showToast('❌ Nie udało się ustalić adresu e-mail konta.', 2500);
+        }
         alert('Nie udało się ustalić Twojego adresu e-mail. Skontaktuj się ze wsparciem.');
         return;
       }
@@ -812,12 +821,18 @@ window.applyUserProfileData = async function(cloud) {
       });
 
       if (error) {
+        if (typeof showToast === 'function') {
+          showToast('❌ Nie udało się wysłać linku do zmiany hasła.', 2500);
+        }
         alert('Błąd wysyłania e-maila: ' + error.message);
         if (btn) {
           btn.innerHTML = origText;
           btn.disabled = false;
         }
       } else {
+        if (typeof showToast === 'function') {
+          showToast('✅ Link do zmiany hasła został wysłany na Twój e-mail.', 3000);
+        }
         alert('Link do zmiany hasła został wysłany na Twój adres e-mail: ' + email);
         if (btn) {
           btn.innerHTML = origText;
