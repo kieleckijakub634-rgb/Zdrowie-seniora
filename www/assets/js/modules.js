@@ -556,7 +556,9 @@
       if (activeBtn) activeBtn.classList.add('active');
 
       // Pobranie konfiguracji i klucza API z systemu
-      const apiKey = localStorage.getItem('kz_gemini_api_key') || '';
+      const aiConfig = window.VitalFlyAI
+        ? window.VitalFlyAI.getConfig()
+        : { isConfigured: false };
       const activePrefs = JSON.parse(localStorage.getItem('kz_diet_prefs') || '[]');
       const patientName = localStorage.getItem('kz_name') || 'Pacjent VitalFly';
       const healthIssues = localStorage.getItem('kz_health_issues') || '';
@@ -629,14 +631,14 @@
     `;
 
       // Weryfikacja obecności klucza API
-      if (!apiKey) {
+      if (!aiConfig.isConfigured) {
         titleDisplay.textContent = "BŁĄD SYSTEMU DIETY";
-        statusTag.textContent = "BRAK KLUCZA API";
+        statusTag.textContent = "BRAK POLACZENIA Z AI";
         statusTag.className = "font-cyber text-[10px] bg-red-500/10 text-red-400 px-2 py-0.5 border border-red-500/30 uppercase tracking-widest";
         container.innerHTML = `
         <p class="text-sm text-red-400 p-4 border border-red-500/20 bg-red-500/5 font-mono">
-          CRITICAL ERROR: Klucz API Gemini nie został wykryty w bazie danych.<br/>
-          Wklej swój klucz API w Panelu Administratora (zakładka Moduły) lub zapisz go w pamięci lokalnej jako 'kz_gemini_api_key'.
+          CRITICAL ERROR: AI nie jest skonfigurowane.<br/>
+          Ustaw klucz OpenRouter i model w panelu administratora.
         </p>
       `;
         return;
@@ -779,21 +781,11 @@
     `;
 
       try {
-        // Zapytanie do endpointu Google Gemini API
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text: systemPrompt }] }]
-          })
+        let rawJsonText = await window.VitalFlyAI.requestText({
+          route: 'diet',
+          messages: [{ role: 'user', text: systemPrompt }]
         });
 
-        if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
-
-        const data = await response.json();
-        let rawJsonText = data.candidates[0].content.parts[0].text.trim();
-
-        // Zabezpieczenie na wypadek gdyby model mimo wszystko dodał bloki kodu markdown
         rawJsonText = rawJsonText.replace(/^\`\`\`json/, '').replace(/\`\`\`$/, '').trim();
 
         // Parsowanie odpowiedzi z LLM
@@ -819,7 +811,7 @@
         container.innerHTML = `
         <p class="text-sm text-red-400 p-4 border border-red-500/20 bg-red-500/5 font-mono">
           Wygenerowanie autonomicznego planu nie powiodło się. Model LLM zwrócił nieprawidłową strukturę danych lub przekroczono limit zapytania.<br/>
-          Upewnij się, że Twój klucz API jest aktywny i spróbuj ponownie za chwilę.
+          Upewnij sie, ze konfiguracja AI jest poprawna i sprobuj ponownie za chwile.
         </p>
       `;
       }

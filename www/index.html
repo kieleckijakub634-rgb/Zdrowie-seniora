@@ -230,10 +230,18 @@
             <div class="module-toggle-row"><span>🛒 Opcja Zakupy</span><label class="toggle-sw"><input type="checkbox" id="mod-shop" checked onchange="toggleModule('shop',this.checked)"><span class="toggle-sw-slider"></span></label></div>
           </div>
           <div class="admin-card" style="margin-top:1rem;">
-            <div class="vf-admin-card-title">🤖 Sztuczna Inteligencja (Google Gemini AI)</div>
-            <p style="color:#A0AEC0;font-size:0.85rem;margin-bottom:0.75rem;line-height:1.4;">Wklej swój klucz API Gemini, aby aktywować czat asystenta zdrowotnego.</p>
-            <input type="password" id="admin-gemini-key" class="admin-input" placeholder="Wklej klucz API Gemini..." style="margin-bottom:0.75rem;width:100%;" />
-            <button class="admin-btn" onclick="saveGeminiKey()" type="button">Zapisz klucz API</button>
+            <div class="vf-admin-card-title">🤖 Konfiguracja AI (OpenRouter)</div>
+            <p id="admin-ai-description" style="color:#A0AEC0;font-size:0.85rem;margin-bottom:0.75rem;line-height:1.4;">
+              Wklej klucz OpenRouter i podaj dokladna nazwe modelu, z ktorego aplikacja ma korzystac.
+            </p>
+            <label style="display:block;color:#DDE6F0;font-size:0.82rem;margin-bottom:0.35rem;">Model OpenRouter</label>
+            <input type="text" id="admin-ai-model" class="admin-input" placeholder="np. google/gemma-4-31b-it" style="margin-bottom:0.75rem;width:100%;" />
+            <label style="display:block;color:#DDE6F0;font-size:0.82rem;margin-bottom:0.35rem;">Klucz API OpenRouter</label>
+            <input type="password" id="admin-ai-key" class="admin-input" placeholder="Wklej klucz OpenRouter..." style="margin-bottom:0.75rem;width:100%;" />
+            <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+              <button class="admin-btn" onclick="saveAIConfig()" type="button">Zapisz konfiguracje AI</button>
+              <button class="admin-btn admin-btn-danger" onclick="clearAIConfig()" type="button">Wyczysc klucz AI</button>
+            </div>
           </div>
           <div class="admin-card"><div class="vf-admin-card-title">👁️ Podgląd jako użytkownik</div><button class="admin-btn" onclick="closeAdmin();showApp('Podgląd Admin')" type="button">Przełącz na widok użytkownika →</button></div>
         </div>
@@ -299,6 +307,8 @@
   </div>
 
   <script defer src="assets/supabase.js" onerror="window.__VF_SUPABASE_FAILED=true"></script>
+  <script defer src="assets/js/local-ai-config.js" onerror="window.__VF_LOCAL_AI_CONFIG_MISSING=true"></script>
+  <script defer src="assets/js/ai.js"></script>
   <script defer src="assets/js/auth.js"></script>
   <script defer src="assets/js/router.js"></script>
   <script defer src="assets/js/ui.js"></script>

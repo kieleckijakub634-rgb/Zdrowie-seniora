@@ -522,7 +522,10 @@ window.applyUserProfileData = async function(cloud) {
           if (cloud.presalePriceM !== undefined) localStorage.setItem('kz_presale_price_monthly', cloud.presalePriceM);
           if (cloud.presalePriceY !== undefined) localStorage.setItem('kz_presale_price_yearly', cloud.presalePriceY);
           if (cloud.announce !== undefined) localStorage.setItem('kz_announce', cloud.announce);
-          if (cloud.geminiApiKey !== undefined) localStorage.setItem('kz_gemini_api_key', cloud.geminiApiKey);
+          if (cloud.aiProvider !== undefined) localStorage.setItem('kz_ai_provider', cloud.aiProvider);
+          if (cloud.aiApiKey !== undefined) localStorage.setItem('kz_ai_api_key', cloud.aiApiKey);
+          if (cloud.aiModel !== undefined) localStorage.setItem('kz_ai_model', cloud.aiModel);
+          if (cloud.aiEndpoint !== undefined) localStorage.setItem('kz_ai_endpoint', cloud.aiEndpoint);
 
           // Sync module settings
           if (cloud.modVideos !== undefined) localStorage.setItem('kz_mod_videos', cloud.modVideos);
@@ -569,7 +572,10 @@ window.applyUserProfileData = async function(cloud) {
         presalePriceM: localStorage.getItem('kz_presale_price_monthly') || '29',
         presalePriceY: localStorage.getItem('kz_presale_price_yearly') || '290',
         announce: localStorage.getItem('kz_announce') || '',
-        geminiApiKey: localStorage.getItem('kz_gemini_api_key') || '',
+        aiProvider: localStorage.getItem('kz_ai_provider') || 'openrouter',
+        aiApiKey: localStorage.getItem('kz_ai_api_key') || '',
+        aiModel: localStorage.getItem('kz_ai_model') || 'google/gemma-4-31b-it',
+        aiEndpoint: localStorage.getItem('kz_ai_endpoint') || 'https://openrouter.ai/api/v1/chat/completions',
         modVideos: localStorage.getItem('kz_mod_videos') || '1',
         modDiets: localStorage.getItem('kz_mod_diets') || '1',
         modMeds: localStorage.getItem('kz_mod_meds') || '1',

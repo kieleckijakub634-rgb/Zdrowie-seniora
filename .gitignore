@@ -21,3 +21,4 @@ release.keystore
 *.jks
 .env
 .env.local
+www/assets/js/local-ai-config.js

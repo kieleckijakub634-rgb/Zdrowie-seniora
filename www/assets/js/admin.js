@@ -167,8 +167,17 @@
         const adminChk = document.getElementById('mod-' + name);
         if (adminChk) adminChk.checked = enabled;
       });
-      const gkInput = document.getElementById('admin-gemini-key');
-      if (gkInput) gkInput.value = localStorage.getItem('kz_gemini_api_key') || '';
+      const aiModel = document.getElementById('admin-ai-model');
+      const aiKey = document.getElementById('admin-ai-key');
+      const aiConfig = window.VitalFlyAI
+        ? window.VitalFlyAI.getConfig()
+        : {
+            model: localStorage.getItem('kz_ai_model') || 'google/gemma-4-31b-it',
+            apiKey: localStorage.getItem('kz_ai_api_key') || ''
+          };
+
+      if (aiModel) aiModel.value = aiConfig.model || 'google/gemma-4-31b-it';
+      if (aiKey) aiKey.value = aiConfig.apiKey || '';
     }
 
     async function saveAnnounce() {
