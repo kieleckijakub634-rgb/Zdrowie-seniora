@@ -125,7 +125,9 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
               selectedDiet: selectedDiet,
               dietPrefs: dietPrefs,
               likedVideos: likedVideos,
-              healthIssues: localStorage.getItem('kz_health_issues') || ''
+              healthIssues: localStorage.getItem('kz_health_issues') || '',
+              subscriptionStatus: localStorage.getItem('kz_subscription_status') || 'active',
+              subscriptionEndDate: localStorage.getItem('kz_subscription_end_date') || ''
             };
             const { error } = await window.supabaseClient
               .from('user_profiles')

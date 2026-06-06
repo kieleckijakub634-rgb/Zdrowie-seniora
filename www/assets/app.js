@@ -332,7 +332,24 @@
       // Redirect to Stripe with prefilled email
       window.location.href = `${STRIPE_LINK_YEARLY}?prefilled_email=${encodeURIComponent(email)}`;
     }
-    function cancelSubscription() {
+    function formatSubscriptionEndDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      if (Number.isNaN(date.getTime())) return '';
+      return date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    function getSubscriptionEndDate(plan) {
+      const currentValue = localStorage.getItem('kz_subscription_end_date') || '';
+      if (currentValue) return currentValue;
+
+      const date = new Date();
+      if (plan === 'yearly') date.setFullYear(date.getFullYear() + 1);
+      else date.setMonth(date.getMonth() + 1);
+      return date.toISOString();
+    }
+
+    async function cancelSubscription() {
       if (confirm('Czy na pewno chcesz anulować subskrypcję? Zachowasz dostęp do końca opłaconego okresu.')) {
         localStorage.setItem('kz_subscription_status', 'cancelled');
         loadPlanSettings();
@@ -391,6 +408,93 @@
         }
       }
     }
+
+    async function resumeSubscription() {
+      if (!confirm('Przywrócić automatyczne odnawianie subskrypcji?')) return;
+
+      localStorage.setItem('kz_subscription_status', 'active');
+      localStorage.removeItem('kz_subscription_end_date');
+      loadPlanSettings();
+      const synced = await syncToCloud();
+      if (synced) showToast('✅ Automatyczne odnawianie subskrypcji zostało przywrócone.', 2400);
+      else showToast('❌ Nie udało się przywrócić odnawiania subskrypcji.', 2600);
+    }
+
+    cancelSubscription = async function () {
+      const plan = localStorage.getItem('kz_plan') || 'monthly';
+      const endDate = getSubscriptionEndDate(plan);
+      const formattedDate = formatSubscriptionEndDate(endDate);
+      const confirmText = formattedDate
+        ? `Czy na pewno chcesz anulować subskrypcję? Zachowasz dostęp do ${formattedDate}.`
+        : 'Czy na pewno chcesz anulować subskrypcję? Zachowasz dostęp do końca opłaconego okresu.';
+
+      if (!confirm(confirmText)) return;
+
+      localStorage.setItem('kz_subscription_status', 'cancelled');
+      localStorage.setItem('kz_subscription_end_date', endDate);
+      loadPlanSettings();
+      const synced = await syncToCloud();
+      if (synced) showToast(`🔒 Subskrypcja została anulowana. Dostęp wygaśnie ${formattedDate}.`, 2600);
+      else showToast('❌ Nie udało się zsynchronizować anulowania subskrypcji.', 2600);
+    };
+
+    loadPlanSettings = function () {
+      const plan = localStorage.getItem('kz_plan') || 'monthly';
+      const subStatus = localStorage.getItem('kz_subscription_status') || 'active';
+      const subEndDate = localStorage.getItem('kz_subscription_end_date') || '';
+      const label = document.getElementById('plan-current-label');
+      const renewalInfo = document.getElementById('plan-renewal-info');
+      const badge = document.getElementById('app-plan-badge');
+      const upgradeRow = document.getElementById('upgrade-plan-row');
+      const cancelBtn = document.getElementById('cancel-sub-btn');
+      const prices = getPlanPrices();
+      const pM = prices.monthly;
+      const pY = prices.yearly;
+
+      if (plan === 'yearly') {
+        if (label) label.textContent = `📆 Roczny • ${pY} zł/rok`;
+        if (renewalInfo) renewalInfo.textContent = 'Odnawia się automatycznie co rok';
+        if (badge) {
+          badge.textContent = '✓ PLAN ROCZNY';
+          badge.style.display = 'inline-block';
+          badge.style.background = '';
+        }
+        if (upgradeRow) upgradeRow.style.display = 'none';
+      } else {
+        if (label) label.textContent = `📆 Miesięczny • ${pM} zł/miesiąc`;
+        if (renewalInfo) renewalInfo.textContent = 'Odnawia się automatycznie co miesiąc';
+        if (badge) {
+          badge.textContent = '✓ PLAN MIESIĘCZNY';
+          badge.style.display = 'inline-block';
+          badge.style.background = '';
+        }
+        if (upgradeRow) upgradeRow.style.display = 'flex';
+      }
+
+      if (subStatus === 'cancelled') {
+        const formattedDate = formatSubscriptionEndDate(subEndDate);
+        if (renewalInfo && formattedDate) renewalInfo.textContent = `Subskrypcja zakończy się ${formattedDate}`;
+        if (cancelBtn) {
+          cancelBtn.textContent = 'Przywróć subskrypcję';
+          cancelBtn.disabled = false;
+          cancelBtn.onclick = resumeSubscription;
+          cancelBtn.style.background = '#4DBFA8';
+          cancelBtn.style.color = '#fff';
+          cancelBtn.style.borderColor = 'transparent';
+          cancelBtn.style.cursor = 'pointer';
+        }
+      } else {
+        if (cancelBtn) {
+          cancelBtn.textContent = 'Rezygnuj z subskrypcji';
+          cancelBtn.disabled = false;
+          cancelBtn.onclick = cancelSubscription;
+          cancelBtn.style.background = '';
+          cancelBtn.style.color = '';
+          cancelBtn.style.borderColor = '';
+          cancelBtn.style.cursor = 'pointer';
+        }
+      }
+    };
 
     /* Personalizacja diety */
     let dietPrefs = JSON.parse(localStorage.getItem('kz_diet_prefs') || '[]');

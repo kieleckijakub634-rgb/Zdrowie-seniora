@@ -1192,24 +1192,16 @@
     /* ── TOAST ── */
     let toastTimeout;
     function showToast(msg, duration = 10000) {
-      const box = document.getElementById('liveHelpPopup');
-      const body = document.getElementById('liveHelpBody');
+      const box = document.getElementById('medToast');
+      const body = document.getElementById('medToastText');
       if (!box || !body) return;
-      
-      body.innerHTML = `
-        <strong style="color:var(--mint); font-size:1.05rem;">Asystent VitalFly informuje:</strong><br><br>
-        ${msg}
-      `;
-      box.classList.remove('dismissed');
-      
+
+      body.textContent = msg;
+      box.classList.add('show');
+
       clearTimeout(toastTimeout);
       toastTimeout = setTimeout(() => {
-        if (typeof window.updateLiveHelpPopup === 'function') {
-           window.updateLiveHelpPopup();
-        }
-        if (sessionStorage.getItem('kz_live_help_dismissed') === '1') {
-           box.classList.add('dismissed');
-        }
+        box.classList.remove('show');
       }, duration);
     }
 

@@ -93,6 +93,17 @@ window.applyUserProfileData = async function(cloud) {
   // 9. Health Issues
   const healthIssuesVal = hasCloudField('healthIssues') ? (cloud.healthIssues || '') : (localStorage.getItem('kz_health_issues') || '');
   await window.asyncSetItem('kz_health_issues', healthIssuesVal);
+
+  // 10. Subscription state
+  const subscriptionStatusVal = hasCloudField('subscriptionStatus') ? (cloud.subscriptionStatus || 'active') : (localStorage.getItem('kz_subscription_status') || 'active');
+  await window.asyncSetItem('kz_subscription_status', subscriptionStatusVal);
+
+  const subscriptionEndDateVal = hasCloudField('subscriptionEndDate') ? (cloud.subscriptionEndDate || '') : (localStorage.getItem('kz_subscription_end_date') || '');
+  if (subscriptionEndDateVal) {
+    await window.asyncSetItem('kz_subscription_end_date', subscriptionEndDateVal);
+  } else {
+    await window.asyncRemoveItem('kz_subscription_end_date');
+  }
 };
 
 /* ── Modal ── */

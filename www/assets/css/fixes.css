@@ -307,4 +307,15 @@ body.theme-dark .tab-nav-wrapper::after {
   max-width: 85vw !important;
   white-space: normal !important;
   cursor: pointer;
+  z-index: 12000 !important;
+  pointer-events: auto !important;
+}
+
+#appShell .video-card {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease, filter 0.35s ease !important;
+  will-change: transform;
+}
+
+#appShell .video-card:hover {
+  transform: translateY(-7px) !important;
 }
