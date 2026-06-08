@@ -5234,6 +5234,34 @@
     color: #F1F5F9 !important;
   }
 
+  /* Gamifikacja i Mikrozadania */
+  #appShell .task-item.done .task-checkbox {
+    background: var(--mint);
+  }
+  #appShell .task-item.done .task-checkbox::after {
+    content: '✓';
+  }
+  #appShell .task-item.done span {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+  #appShell .badge-icon {
+    background: rgba(255,255,255,0.8);
+    border: 1px solid rgba(11,57,52,0.1);
+    padding: 0.4rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+  #appShell .mood-emoji.active {
+    opacity: 1 !important;
+    transform: scale(1.2);
+  }
+
   /* Desktop layout overrides: hide mobile bottom bar and remove bottom padding from body */
   @media (min-width: 761px) {
     .mobile-bottom-bar {

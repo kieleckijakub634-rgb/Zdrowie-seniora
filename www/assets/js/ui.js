@@ -217,8 +217,36 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         window.streakNotified = true;
         setTimeout(() => {
           if (typeof showToast === 'function') {
-            showToast(`Brawo! Twój streak (dni zdrowo z VitalFly) wynosi już ${streak}! 🔥`, 3500);
+            showToast(`Masz serię ${streak} dni! Aby jej nie stracić, pamiętaj dziś o zrobieniu rozruchu 🏃‍♂️`, 4500);
           }
+          
+          // Efekt Tamagotchi: Asystent wita się proaktywnie
+          setTimeout(() => {
+            if (!sessionStorage.getItem('kz_live_help_dismissed')) {
+              const now = new Date();
+              const hour = now.getHours();
+              let greeting = hour < 12 ? 'Dzień dobry!' : hour < 18 ? 'Witaj popołudniową porą!' : 'Dobry wieczór!';
+              
+              const box = document.getElementById('liveHelpPopup');
+              const body = document.getElementById('liveHelpBody');
+              if (box && body) {
+                box.classList.remove('dismissed', 'delayed');
+                body.innerHTML = `<strong>${greeting}</strong> Pamiętaj, aby dzisiaj ocenić swój poziom energii w dzienniczku oraz odznaczyć chociaż jedno zadanie z checklisty!`;
+                
+                const btn = box.querySelector('.live-help-btn');
+                if (btn) {
+                  btn.textContent = 'Sprawdź zadania';
+                  btn.onclick = (e) => {
+                    e.stopPropagation();
+                    box.classList.add('dismissed');
+                    sessionStorage.setItem('kz_live_help_dismissed', '1');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  };
+                }
+              }
+            }
+          }, 3500);
+          
         }, 1500);
       }
     }
@@ -268,6 +296,49 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       <div class="stat-pill" id="stat-videos"><span class="stat-emoji">🎬</span> <span class="stat-val">0</span> obejrzanych filmów</div>
       <div class="stat-pill" id="med-stat-pill"><span class="stat-emoji">💊</span> <span id="med-count-stat" class="stat-val">0</span> leków</div>
     </div>
+
+    <!-- Gamifikacja: Odznaki -->
+    <div id="badges-container" style="display:none; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(11,57,52,0.1);">
+      <div style="font-size:0.85rem; font-weight:700; color:var(--mint); margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:1px;">Twoje Odznaki</div>
+      <div id="badges-list" style="display:flex; gap:0.5rem; flex-wrap:wrap;"></div>
+    </div>
+
+    <!-- Mikrozadania na dziś -->
+    <div class="daily-tasks-box" style="margin-top:1.2rem; background:rgba(255,255,255,0.6); border-radius:16px; padding:1rem; border:1px solid rgba(11,57,52,0.08);">
+      <div style="font-weight:800; color:var(--navy); margin-bottom:0.8rem; display:flex; justify-content:space-between; align-items:center;">
+        <span>Zadania na dziś</span>
+        <span id="daily-tasks-progress" style="font-size:0.8rem; background:var(--mint); color:#0B3934; padding:0.15rem 0.6rem; border-radius:99px; font-weight:700;">0/3</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(1)" id="task-item-1" style="display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0; cursor:pointer;">
+        <div class="task-checkbox" style="width:24px; height:24px; border-radius:6px; border:2px solid var(--mint); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:0.9rem;"></div>
+        <span style="font-weight:600; color:#4A5251; font-size:0.95rem;">Wypij szklankę wody po przebudzeniu</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(2)" id="task-item-2" style="display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0; cursor:pointer;">
+        <div class="task-checkbox" style="width:24px; height:24px; border-radius:6px; border:2px solid var(--mint); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:0.9rem;"></div>
+        <span style="font-weight:600; color:#4A5251; font-size:0.95rem;">Wykonaj 5 minut ćwiczeń z Asystentem</span>
+      </div>
+      <div class="task-item" onclick="toggleTask(3)" id="task-item-3" style="display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0; cursor:pointer;">
+        <div class="task-checkbox" style="width:24px; height:24px; border-radius:6px; border:2px solid var(--mint); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:0.9rem;"></div>
+        <span style="font-weight:600; color:#4A5251; font-size:0.95rem;">Sprawdź dzisiejszą dietę lub leki</span>
+      </div>
+    </div>
+
+    <!-- Dzienniczek nastroju -->
+    <div id="mood-journal-box" style="margin-top:1.2rem; background:linear-gradient(135deg, rgba(104,206,185,0.15), rgba(52,182,157,0.05)); border-radius:16px; padding:1.2rem; border:1px solid rgba(52,182,157,0.2);">
+      <div style="font-weight:800; color:var(--navy); margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+        <span>Jak oceniasz dziś swoją energię?</span>
+        <span style="font-size:0.75rem; color:var(--mint); font-weight:800; cursor:pointer;" onclick="alert('Twoja historia samopoczucia wkrótce tutaj!')">📈 Historia</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:1.8rem; margin-bottom:0.5rem; user-select:none;" id="mood-emojis">
+        <span onclick="saveMood(1)" style="cursor:pointer; opacity:0.4; transition:0.2s;" id="mood-1">😫</span>
+        <span onclick="saveMood(2)" style="cursor:pointer; opacity:0.4; transition:0.2s;" id="mood-2">🙁</span>
+        <span onclick="saveMood(3)" style="cursor:pointer; opacity:0.4; transition:0.2s;" id="mood-3">😐</span>
+        <span onclick="saveMood(4)" style="cursor:pointer; opacity:0.4; transition:0.2s;" id="mood-4">🙂</span>
+        <span onclick="saveMood(5)" style="cursor:pointer; opacity:0.4; transition:0.2s;" id="mood-5">🤩</span>
+      </div>
+      <div id="mood-thanks" style="display:none; font-size:0.85rem; font-weight:700; color:var(--mint); text-align:center;">Zapisano w dzienniczku! ✅</div>
+    </div>
+
     <a href="https://www.facebook.com/groups/2017205645541173/" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:0.65rem; background:#1877F2; color:white; text-decoration:none; font-weight:700; font-size:1.02rem; padding:1rem 1.5rem; border-radius:16px; margin-top:1.5rem; transition:var(--transition-smooth); box-shadow:0 6px 18px rgba(24,119,242,0.25);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(24,119,242,0.35)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 18px rgba(24,119,242,0.25)'">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
       Dołącz do grupy na Facebooku
@@ -944,9 +1015,23 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
 
     /* ── DASHBOARD STATS ── */
     function updateDashboardStats() {
-      // Streak (dni zdrowo z VitalFly)
+      // Wywołanie nowych mechanik
+      if (typeof window.checkDailyTasksReset === 'function') window.checkDailyTasksReset();
+      if (typeof window.updateBadges === 'function') window.updateBadges();
+      
       const now = new Date();
       const todayStr = now.toISOString().split('T')[0];
+      
+      // Odtworzenie nastroju
+      let history = JSON.parse(localStorage.getItem('kz_mood_history') || '{}');
+      if (history[todayStr]) {
+        for(let i=1; i<=5; i++) {
+          const el = document.getElementById('mood-'+i);
+          if(el && i === history[todayStr]) el.classList.add('active');
+        }
+      }
+
+      // Streak (dni zdrowo z VitalFly)
       let lastActive = localStorage.getItem('kz_last_active_date');
       let streak = parseInt(localStorage.getItem('kz_streak_days') || '0');
       
@@ -1141,3 +1226,82 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       dismissLiveHelpPopup(e);
       switchTab('dogtag', null);
     }
+    
+    window.toggleTask = function(id) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      let tasks = JSON.parse(localStorage.getItem('kz_daily_tasks') || '{}');
+      if (tasks.date !== todayStr) tasks = { date: todayStr, done: [] };
+      
+      const idx = tasks.done.indexOf(id);
+      if (idx > -1) {
+        tasks.done.splice(idx, 1);
+      } else {
+        tasks.done.push(id);
+      }
+      localStorage.setItem('kz_daily_tasks', JSON.stringify(tasks));
+      window.checkDailyTasksReset();
+    };
+
+    window.checkDailyTasksReset = function() {
+      const todayStr = new Date().toISOString().split('T')[0];
+      let tasks = JSON.parse(localStorage.getItem('kz_daily_tasks') || '{}');
+      if (tasks.date !== todayStr) tasks = { date: todayStr, done: [] };
+      
+      for(let i=1; i<=3; i++) {
+        const item = document.getElementById('task-item-'+i);
+        if(item) {
+          if (tasks.done.includes(i)) item.classList.add('done');
+          else item.classList.remove('done');
+        }
+      }
+      
+      const progress = document.getElementById('daily-tasks-progress');
+      if (progress) progress.textContent = `${tasks.done.length}/3`;
+      
+      if (tasks.done.length === 3 && !tasks.awarded) {
+        // Przyznaj odznakę za 3 zadania
+        tasks.awarded = true;
+        localStorage.setItem('kz_daily_tasks', JSON.stringify(tasks));
+        if (typeof showToast === 'function') showToast('Wspaniale! Wszystkie zadania na dziś wykonane! 🎉', 3000);
+      }
+    };
+
+    window.saveMood = function(val) {
+      for(let i=1; i<=5; i++) {
+        const el = document.getElementById('mood-'+i);
+        if(el) {
+          el.classList.remove('active');
+          if(i===val) el.classList.add('active');
+        }
+      }
+      const todayStr = new Date().toISOString().split('T')[0];
+      let history = JSON.parse(localStorage.getItem('kz_mood_history') || '{}');
+      history[todayStr] = val;
+      localStorage.setItem('kz_mood_history', JSON.stringify(history));
+      
+      const thanks = document.getElementById('mood-thanks');
+      if(thanks) {
+        thanks.style.display = 'block';
+        setTimeout(()=> thanks.style.display = 'none', 3000);
+      }
+    };
+
+    window.updateBadges = function() {
+      const container = document.getElementById('badges-container');
+      const list = document.getElementById('badges-list');
+      if (!container || !list) return;
+      
+      let streak = parseInt(localStorage.getItem('kz_streak_days') || '0');
+      let html = '';
+      if (streak >= 3) html += `<div class="badge-icon">🥉 Brązowy Płomień</div>`;
+      if (streak >= 7) html += `<div class="badge-icon">🥈 Srebrny Płomień</div>`;
+      if (streak >= 14) html += `<div class="badge-icon">🥇 Złoty Płomień</div>`;
+      
+      let moodHistory = Object.keys(JSON.parse(localStorage.getItem('kz_mood_history') || '{}')).length;
+      if (moodHistory >= 3) html += `<div class="badge-icon">🧠 Uważny Obserwator</div>`;
+      
+      if (html.length > 0) {
+        list.innerHTML = html;
+        container.style.display = 'block';
+      }
+    };
