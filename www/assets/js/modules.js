@@ -6,18 +6,28 @@
 
     function saveDogTag() {
       const data = {
-        name: document.getElementById('dt-e-name').value.trim(),
-        address: document.getElementById('dt-e-address').value.trim(),
-        ice: document.getElementById('dt-e-ice').value.trim(),
-        illness: document.getElementById('dt-e-illness').value.trim(),
-        meds: document.getElementById('dt-e-meds').value.trim()
+        name: document.getElementById('dt-e-name') ? document.getElementById('dt-e-name').value.trim() : '',
+        address: document.getElementById('dt-e-address') ? document.getElementById('dt-e-address').value.trim() : '',
+        ice: document.getElementById('dt-e-ice') ? document.getElementById('dt-e-ice').value.trim() : '',
+        illness: document.getElementById('dt-e-illness') ? document.getElementById('dt-e-illness').value.trim() : '',
+        meds: document.getElementById('dt-e-meds') ? document.getElementById('dt-e-meds').value.trim() : ''
       };
-      asyncSetItem('vf_dogtag', JSON.stringify(data));
-      syncToCloud();
+      
+      localStorage.setItem('vf_dogtag', JSON.stringify(data));
+      
+      try {
+        if (typeof window.asyncSetItem === 'function') {
+          window.asyncSetItem('vf_dogtag', JSON.stringify(data));
+        }
+        if (typeof window.syncToCloud === 'function') {
+          window.syncToCloud();
+        }
+      } catch(e) { console.error(e); }
+      
       toggleDogTagEdit(false);
       loadDogTag();
-      updateLiveHelpPopup();
-      showToast('🚑 Nieśmiertelnik został pomyślnie zapisany!');
+      if (typeof updateLiveHelpPopup === 'function') updateLiveHelpPopup();
+      if (typeof showToast === 'function') showToast('🚑 Nieśmiertelnik został pomyślnie zapisany!');
     }
 
     function loadDogTag() {
