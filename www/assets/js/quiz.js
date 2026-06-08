@@ -201,6 +201,33 @@ window.applyQuizCTAs = function() {
         btn.classList.add('btn-cta-pulse');
       }
     });
+
+    // Pasek FOMO
+    if (!document.getElementById('fomo-banner')) {
+      let expiry = localStorage.getItem('kz_fomo_expiry');
+      if (!expiry) {
+        expiry = Date.now() + 15 * 60000; // 15 minut
+        localStorage.setItem('kz_fomo_expiry', expiry);
+      }
+      
+      const banner = document.createElement('div');
+      banner.id = 'fomo-banner';
+      banner.style.cssText = 'position:fixed; top:0; left:0; right:0; background:linear-gradient(90deg, #E05252, #B73232); color:white; text-align:center; padding:0.6rem; font-weight:700; font-size:0.9rem; z-index:15000; box-shadow:0 4px 12px rgba(224,82,82,0.3);';
+      document.body.prepend(banner);
+      
+      const updateTimer = () => {
+        const left = parseInt(expiry) - Date.now();
+        if (left <= 0) {
+          banner.innerHTML = 'Twój dopasowany plan nadal na Ciebie czeka. Nie odkładaj zdrowia na później!';
+          return;
+        }
+        const m = Math.floor(left / 60000);
+        const s = Math.floor((left % 60000) / 1000);
+        banner.innerHTML = `⚠️ Twój wygenerowany plan zniżkowy wygasa za: <span style="font-size:1.1rem;margin-left:5px;font-family:monospace;">${m}:${s < 10 ? '0' : ''}${s}</span>`;
+        setTimeout(updateTimer, 1000);
+      };
+      updateTimer();
+    }
   }
 };
 
