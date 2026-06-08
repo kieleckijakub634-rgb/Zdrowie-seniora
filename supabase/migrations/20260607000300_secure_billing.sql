@@ -1,3 +1,4 @@
+-- Subscription entitlements are updated only by trusted Edge Functions.
 create table if not exists public.subscriptions (
   user_id uuid primary key references auth.users(id) on delete cascade,
   stripe_customer_id text unique,
