@@ -59,67 +59,6 @@ async function findUserIdForSubscription(
   return data?.user_id || null;
 }
 
-async function provisionPaidRegistration(
-  adminClient: ReturnType<typeof createClient>,
-  registrationId: string,
-  checkout: Record<string, any>,
-) {
-  const { data: pending, error: pendingError } = await adminClient
-    .from("pending_registrations")
-    .select("*")
-    .eq("id", registrationId)
-    .maybeSingle();
-  if (pendingError) throw pendingError;
-  if (!pending) return null;
-  if (new Date(pending.expires_at).getTime() < Date.now() && pending.status !== "completed") {
-    throw new Error("Pending registration has expired.");
-  }
-
-  let userId = pending.user_id;
-  if (!userId) {
-    const { data: existingUserId, error: lookupError } = await adminClient
-      .rpc("auth_user_id_by_email", { target_email: pending.email });
-    if (lookupError) throw lookupError;
-    userId = existingUserId;
-  }
-
-  if (!userId) {
-    const { data: inviteData, error: inviteError } = await adminClient.auth.admin
-      .inviteUserByEmail(pending.email, {
-        redirectTo: "https://vitalfly.pl/?invite=1",
-        data: {
-          full_name: pending.full_name,
-          phone: pending.phone,
-        },
-      });
-    if (inviteError) throw inviteError;
-    userId = inviteData.user?.id;
-  }
-  if (!userId) throw new Error("Supabase did not return the invited user.");
-
-  const { error: profileError } = await adminClient.from("user_profiles").upsert({
-    id: userId,
-    app_data: {
-      profileName: pending.full_name,
-      profileEmail: pending.email,
-      profilePhone: pending.phone,
-    },
-  }, { onConflict: "id" });
-  if (profileError) throw profileError;
-
-  const { error: completionError } = await adminClient
-    .from("pending_registrations")
-    .update({
-      status: "completed",
-      user_id: userId,
-      stripe_session_id: checkout.id,
-      completed_at: new Date().toISOString(),
-    })
-    .eq("id", registrationId);
-  if (completionError) throw completionError;
-  return userId;
-}
-
 function hex(bytes: ArrayBuffer) {
   return Array.from(new Uint8Array(bytes))
     .map((byte) => byte.toString(16).padStart(2, "0"))
@@ -188,17 +127,11 @@ Deno.serve(async (request) => {
       event.type === "checkout.session.completed" ||
       event.type === "checkout.session.async_payment_succeeded"
     ) {
-      const referenceId = object.client_reference_id;
+      const userId = object.client_reference_id;
       const subscriptionId = typeof object.subscription === "string"
         ? object.subscription
         : object.subscription?.id;
-      if (referenceId && subscriptionId && object.payment_status !== "unpaid") {
-        const provisionedUserId = await provisionPaidRegistration(
-          adminClient,
-          referenceId,
-          object,
-        );
-        const userId = provisionedUserId || referenceId;
+      if (userId && subscriptionId && object.payment_status !== "unpaid") {
         await syncStripeSubscription(
           adminClient,
           stripeSecret,

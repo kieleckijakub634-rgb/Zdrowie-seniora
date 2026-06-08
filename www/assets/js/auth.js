@@ -144,7 +144,14 @@ window.applyUserProfileData = async function(cloud) {
     });
 
     function openModal() { openAccessibleModal(document.getElementById('signupModal'), document.getElementById('inp-name')); showStep(1); }
-    function closeModal() { closeAccessibleModal(document.getElementById('signupModal')); }
+    function closeModal() {
+      const step3 = document.getElementById('step3');
+      if (step3 && step3.style.display === 'block') {
+        alert('Potwierdź adres e-mail, aby dokończyć rejestrację i przejść do płatności.');
+        return;
+      }
+      closeAccessibleModal(document.getElementById('signupModal'));
+    }
     function handleOverlayClick(e) { if (e.target === document.getElementById('signupModal')) closeModal(); }
 
     function openLoginModal() { openAccessibleModal(document.getElementById('loginModal'), document.getElementById('login-email')); }
@@ -288,26 +295,99 @@ window.applyUserProfileData = async function(cloud) {
     window.getEmailProviderUrl = getEmailProviderUrl;
 
     function showStep(n) {
-      [1, 2].forEach(i => {
+      [1, 2, 3].forEach(i => {
         const s = document.getElementById('step' + i);
         if (s) s.style.display = (i === n) ? 'block' : 'none';
         const d = document.getElementById('dot' + i);
         if (d) d.classList.toggle('active', i <= n);
       });
-      document.getElementById('stepDots').style.display = 'flex';
+      document.getElementById('stepDots').style.display = (n === 3) ? 'none' : 'flex';
+      const closeBtn = document.querySelector('#signupModal .modal-close');
+      if (closeBtn) closeBtn.style.display = (n === 3) ? 'none' : 'block';
+      if (n === 3) {
+        const email = localStorage.getItem('kz_pending_email') || '';
+        const providerBtn = document.getElementById('btn-go-to-email');
+        if (providerBtn && email) {
+          const provider = getEmailProviderUrl(email);
+          providerBtn.href = provider.url;
+          providerBtn.textContent = `Przejdź do poczty ${provider.name} ✉️`;
+          providerBtn.style.display = 'block';
+        }
+      }
     }
     window.showStep = showStep;
+
+    async function verifyVerificationCode() {
+      window.initSupabase();
+      const codeInput = document.getElementById('verification-code');
+      const errEl = document.getElementById('err-verification');
+      const btn = document.getElementById('btn-confirm-code');
+      const email = localStorage.getItem('kz_pending_email') || '';
+      if (!codeInput || !errEl || !btn || !email) return;
+
+      const code = codeInput.value.trim();
+      errEl.style.display = 'none';
+      if (!/^\d{6}$/.test(code)) {
+        errEl.textContent = 'Wpisz 6-cyfrowy kod z wiadomości e-mail.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const originalText = btn.textContent;
+      btn.textContent = 'Potwierdzanie...';
+      btn.disabled = true;
+      try {
+        const { data, error } = await window.supabaseClient.auth.verifyOtp({
+          email,
+          token: code,
+          type: 'signup'
+        });
+        if (error) throw error;
+        if (!data?.user) throw new Error('Nie udało się pobrać potwierdzonego konta.');
+
+        const name = localStorage.getItem('kz_pending_name') || 'Seniorze';
+        const phone = localStorage.getItem('kz_pending_phone') || '';
+        if (typeof saveProfileAndEnterApp === 'function') {
+          await saveProfileAndEnterApp(data.user.id, email, name, phone, true, false);
+        }
+        const plan = localStorage.getItem('kz_pending_checkout_plan') || 'monthly';
+        await window.startStripeCheckout(data.user, plan);
+      } catch (error) {
+        errEl.textContent = error?.message || 'Nie udało się potwierdzić e-maila.';
+        errEl.style.display = 'block';
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    }
+    window.verifyVerificationCode = verifyVerificationCode;
+
+    async function resendVerificationCode(event) {
+      if (event) event.preventDefault();
+      window.initSupabase();
+      const email = localStorage.getItem('kz_pending_email') || '';
+      if (!email) return;
+      const { error } = await window.supabaseClient.auth.resend({
+        type: 'signup',
+        email,
+        options: { emailRedirectTo: window.getAuthRedirectUrl() }
+      });
+      alert(error ? 'Nie udało się wysłać wiadomości: ' + error.message : 'Nowy kod został wysłany na Twój e-mail.');
+    }
+    window.resendVerificationCode = resendVerificationCode;
 
     function goStep2() {
       let valid = true;
       const name = document.getElementById('inp-name');
       const email = document.getElementById('inp-email');
+      const pwd = document.getElementById('inp-password');
       const consent = document.getElementById('inp-consent');
       if (!name.value.trim() || name.value.trim().split(' ').length < 2) { name.classList.add('error'); document.getElementById('err-name').style.display = 'block'; valid = false; }
       else { name.classList.remove('error'); document.getElementById('err-name').style.display = 'none'; }
       const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRe.test(email.value.trim())) { email.classList.add('error'); document.getElementById('err-email').style.display = 'block'; valid = false; }
       else { email.classList.remove('error'); document.getElementById('err-email').style.display = 'none'; }
+      if (pwd.value.trim().length < 6) { pwd.classList.add('error'); document.getElementById('err-password').style.display = 'block'; valid = false; }
+      else { pwd.classList.remove('error'); document.getElementById('err-password').style.display = 'none'; }
       if (!consent.checked) { document.getElementById('err-consent').style.display = 'block'; valid = false; }
       else { document.getElementById('err-consent').style.display = 'none'; }
       if (valid) {
@@ -333,6 +413,7 @@ window.applyUserProfileData = async function(cloud) {
       const email = document.getElementById('inp-email').value.trim();
       const btn = document.querySelector('.btn-stripe');
       const isYearly = localStorage.getItem('kz_plan') === 'yearly';
+      const password = document.getElementById('inp-password').value.trim();
       const phone = document.getElementById('inp-phone') ? document.getElementById('inp-phone').value.trim() : '';
       const plan = isYearly ? 'yearly' : 'monthly';
 
@@ -352,23 +433,26 @@ window.applyUserProfileData = async function(cloud) {
 
       try {
         window.initSupabase();
-        const { data, error, response } = await window.supabaseClient.functions.invoke('registration-checkout', {
-          body: { fullName: name, email, phone, plan }
-        });
-        if (error) {
-          let serverError = '';
-          try {
-            const payload = await response?.clone().json();
-            serverError = payload?.error || '';
-          } catch {}
-          if (serverError === 'ACCOUNT_EXISTS') {
-            throw new Error('Konto z tym adresem e-mail już istnieje. Zaloguj się lub zresetuj hasło.');
+        const { data, error } = await window.supabaseClient.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.getAuthRedirectUrl(),
+            data: { full_name: name, phone }
           }
-          throw new Error(serverError || 'Nie udało się rozpocząć rejestracji.');
+        });
+        if (error) throw error;
+        if (!data?.user) throw new Error('Nie udało się utworzyć konta.');
+        if (Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          throw new Error('Konto z tym adresem e-mail już istnieje. Zaloguj się lub zresetuj hasło.');
         }
-        if (!data?.url) throw new Error('Serwer nie zwrócił adresu płatności.');
-        localStorage.setItem('kz_checkout_started', '1');
-        window.location.href = data.url;
+        if (data.session) {
+          await window.startStripeCheckout(data.user, plan);
+          return;
+        }
+        const emailDisplay = document.getElementById('verify-email-display');
+        if (emailDisplay) emailDisplay.textContent = email;
+        showStep(3);
       } catch (error) {
         const err = document.getElementById('err-email');
         if (err) {

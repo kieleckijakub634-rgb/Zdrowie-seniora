@@ -250,20 +250,25 @@
       // Wykrywanie potwierdzenia rejestracji z e-maila
       const isSignupConfirm = window.location.hash.includes('type=signup');
       const isEmailChangeConfirm = window.location.hash.includes('type=email_change');
-      const isInvite = window.location.search.includes('invite=1') || window.location.hash.includes('type=invite');
       const checkoutSessionId = new URLSearchParams(window.location.search).get('session_id');
       if (isSignupConfirm) {
         history.replaceState({}, '', window.location.pathname);
-        if (window.initSupabase && window.initSupabase()) {
+        setTimeout(async () => {
           try {
-            await window.supabaseClient.auth.signOut();
-          } catch (e) {}
-        }
-        setTimeout(() => {
+            window.initSupabase();
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (session?.user) {
+              const plan = localStorage.getItem('kz_pending_checkout_plan') || 'monthly';
+              await window.startStripeCheckout(session.user, plan);
+              return;
+            }
+          } catch (error) {
+            console.error('Nie udało się przejść do płatności po potwierdzeniu e-maila:', error);
+          }
           const successEl = document.getElementById('login-confirm-success');
           if (successEl) successEl.style.display = 'block';
           openLoginModal();
-        }, 500);
+        }, 700);
       }
 
       let hasSession = false;
@@ -366,10 +371,6 @@
         }
       }
 
-      if (isInvite) {
-        history.replaceState({}, '', window.location.pathname);
-        setTimeout(() => openResetPasswordModal(), 500);
-      }
 
       if (!hasSession && checkoutSessionId) {
         history.replaceState({}, '', window.location.pathname);
