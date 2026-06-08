@@ -28,10 +28,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/tailwind.css?v=20260608-6" />
-  <link rel="stylesheet" href="assets/style.css?v=20260608-6" />
-  <link rel="stylesheet" href="assets/css/fixes.css?v=20260608-6" />
-  <script src="assets/js/loader.js?v=20260608-6" defer></script>
+  <link rel="stylesheet" href="assets/css/tailwind.css?v=20260608-7" />
+  <link rel="stylesheet" href="assets/style.css?v=20260608-7" />
+  <link rel="stylesheet" href="assets/css/fixes.css?v=20260608-7" />
+  <script src="assets/js/loader.js?v=20260608-7" defer></script>
 </head>
 <body class="app-loading">
   <div id="app-loading-screen" role="status" aria-live="polite" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--navy, #0B3934);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:99999;transition:opacity .3s ease;">
@@ -86,9 +86,8 @@
       <div id="step2" style="display:none;text-align:center;">
         <div style="font-size:3.5rem;margin-bottom:0.75rem;">✉️</div>
         <h2 class="font-serif font-bold mb-2" style="font-size:1.6rem;color:var(--navy);">Potwierdź swój e-mail</h2>
-        <p style="color:#444;font-size:0.98rem;margin-bottom:1.25rem;">Utworzyliśmy konto i wysłaliśmy 6-cyfrowy kod na adres <strong id="verify-email-display"></strong>. Potwierdź e-mail, aby przejść do płatności.</p>
-        <a id="btn-go-to-email" href="#" target="_blank" class="btn-cta" style="width:100%;text-align:center;display:none;font-size:1.1rem;margin:1rem 0 1.5rem 0;background:#4dbfa8;color:#0b3934;font-weight:700;padding:0.75rem;border-radius:12px;text-decoration:none;box-sizing:border-box;">Przejdź do poczty →</a>
-        <input class="form-input" id="verification-code" type="text" inputmode="numeric" placeholder="np. 123456" maxlength="6" autocomplete="one-time-code" style="text-align:center;font-size:1.4rem;letter-spacing:0.22em;font-weight:700;padding:0.75rem;" />
+        <p style="color:#444;font-size:0.98rem;margin-bottom:1.25rem;">Utworzyliśmy konto i wysłaliśmy 8-cyfrowy kod na adres <strong id="verify-email-display"></strong>. Potwierdź e-mail, aby przejść do płatności.</p>
+        <input class="form-input" id="verification-code" type="text" inputmode="numeric" placeholder="np. 12345678" maxlength="8" autocomplete="one-time-code" style="text-align:center;font-size:1.4rem;letter-spacing:0.18em;font-weight:700;padding:0.75rem;" />
         <p class="field-error" id="err-verification" style="display:none;text-align:center;margin-top:0.5rem;"></p>
         <button id="btn-confirm-code" onclick="verifyVerificationCode()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.15rem;margin:1rem 0;">Potwierdź e-mail i przejdź do płatności →</button>
         <p style="font-size:0.88rem;color:var(--warm-gray);margin-bottom:1rem;">Nie otrzymałeś kodu? <a href="#" onclick="resendVerificationCode(event)" style="color:var(--mint);text-decoration:underline;font-weight:600;">Wyślij ponownie</a></p>
@@ -286,14 +285,14 @@
     </div>
   </div>
 
-  <script defer src="assets/supabase.js?v=20260608-6" onerror="window.__VF_SUPABASE_FAILED=true"></script>
-  <script defer src="assets/js/security.js?v=20260608-6"></script>
-  <script defer src="assets/js/ai.js?v=20260608-6"></script>
-  <script defer src="assets/js/auth.js?v=20260608-6"></script>
-  <script defer src="assets/js/router.js?v=20260608-6"></script>
-  <script defer src="assets/js/ui.js?v=20260608-6"></script>
-  <script defer src="assets/js/modules.js?v=20260608-6"></script>
-  <script defer src="assets/js/admin.js?v=20260608-6"></script>
-  <script defer src="assets/app.js?v=20260608-6"></script>
+  <script defer src="assets/supabase.js?v=20260608-7" onerror="window.__VF_SUPABASE_FAILED=true"></script>
+  <script defer src="assets/js/security.js?v=20260608-7"></script>
+  <script defer src="assets/js/ai.js?v=20260608-7"></script>
+  <script defer src="assets/js/auth.js?v=20260608-7"></script>
+  <script defer src="assets/js/router.js?v=20260608-7"></script>
+  <script defer src="assets/js/ui.js?v=20260608-7"></script>
+  <script defer src="assets/js/modules.js?v=20260608-7"></script>
+  <script defer src="assets/js/admin.js?v=20260608-7"></script>
+  <script defer src="assets/app.js?v=20260608-7"></script>
 </body>
 </html>
