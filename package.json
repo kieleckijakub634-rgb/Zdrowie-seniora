@@ -16,14 +16,20 @@
     "type": "git",
     "url": "git+https://github.com/kieleckijakub634-rgb/Zdrowie-seniora.git"
   },
-  "keywords": [],
+  "keywords": [
+    "seniorzy",
+    "zdrowie",
+    "ćwiczenia",
+    "dieta",
+    "capacitor"
+  ],
   "author": "VitalFly",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/kieleckijakub634-rgb/Zdrowie-seniora/issues"
   },
-  "homepage": "https://github.com/kieleckijakub634-rgb/Zdrowie-seniora#readme",
+  "homepage": "https://vitalfly.pl/",
   "dependencies": {
     "@capacitor/android": "^8.3.4",
     "@capacitor/app": "^8.1.0",

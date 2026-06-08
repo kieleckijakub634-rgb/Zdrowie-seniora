@@ -51,6 +51,8 @@
       const meds = JSON.parse(localStorage.getItem('kz_medications') || '[]');
       const el = document.getElementById('a-stat-meds');
       if (el) el.textContent = meds.length;
+      const videos = document.getElementById('a-stat-videos');
+      if (videos) videos.textContent = String(Array.isArray(APP_DATA.videos) ? APP_DATA.videos.length : 0);
       const users = document.getElementById('a-stat-users');
       if (users) users.textContent = '...';
       try {

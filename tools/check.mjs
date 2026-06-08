@@ -52,6 +52,8 @@ const home = read('www/pages/home.html');
 const kontakt = read('www/pages/kontakt.html');
 const facebook = read('www/pages/facebook.html');
 const middleware = read('functions/_middleware.js');
+const manifest = JSON.parse(read('www/manifest.json'));
+const packageMetadata = JSON.parse(read('package.json'));
 const migrationNames = readdirSync(join(root, 'supabase/migrations'))
   .filter(name => name.endsWith('.sql'));
 const migrationVersions = migrationNames.map(name => name.split('_', 1)[0]);
@@ -110,6 +112,17 @@ assert(!ui.includes('botReply.innerHTML'), 'Odpowiedź AI nadal jest renderowana
 assert(admin.includes("functions.invoke('admin-config'"), 'Panel administratora omija zabezpieczoną Edge Function.');
 assert(index.includes('Tryb testowy:') && home.includes('Środowisko testowe Stripe'), 'Interfejs nie informuje jasno o testowym Stripe.');
 assert(read('www/robots.txt').includes('sitemap.xml'), 'robots.txt nie wskazuje sitemap.xml.');
+assert(manifest.start_url === '/' && manifest.scope === '/', 'Manifest PWA powinien uruchamiać aplikację z katalogu głównego.');
+assert(!('orientation' in manifest), 'Manifest PWA nie powinien wymuszać orientacji ekranu.');
+assert(
+  manifest.icons?.length === 1 && manifest.icons[0].sizes === '562x558',
+  'Manifest PWA musi deklarować faktyczny rozmiar logo.'
+);
+assert(!home.includes('certyfikowanego'), 'Nieudokumentowane twierdzenie o certyfikacji nadal jest publikowane.');
+assert(index.includes('Leków na tym urządzeniu'), 'Lokalna statystyka leków nie jest właściwie opisana.');
+assert(index.includes('id="a-stat-videos"'), 'Licznik filmów w panelu admina nadal jest wartością stałą.');
+assert(packageMetadata.homepage === 'https://vitalfly.pl/', 'Homepage pakietu nie wskazuje produkcyjnej strony.');
+assert(packageMetadata.keywords.length > 0, 'Metadane pakietu nie zawierają słów kluczowych.');
 assert(middleware.includes("headers.set('Content-Security-Policy'"), 'Brakuje Content-Security-Policy dla Cloudflare Pages.');
 assert(middleware.includes("script-src 'self' 'unsafe-hashes'"), 'CSP nie ogranicza wykonywania skryptów.');
 assert(!middleware.includes("script-src 'self' 'unsafe-inline'"), 'CSP nie może zezwalać na dowolne skrypty inline.');
