@@ -546,40 +546,6 @@
       transform: translateY(-1px);
     }
 
-    .vf-access-required {
-      max-width: 500px;
-    }
-
-    .vf-access-required-icon {
-      width: 3.5rem;
-      height: 3.5rem;
-      margin-bottom: 1.25rem;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #EBFBF7;
-      color: #168875;
-      font-size: 1.8rem;
-      font-weight: 800;
-    }
-
-    .vf-access-required h2 {
-      color: var(--navy);
-      font-size: 1.6rem;
-    }
-
-    .vf-access-required-lead {
-      color: var(--warm-gray);
-      font-size: 1rem;
-      line-height: 1.55;
-      margin: 0.5rem 0 1.25rem;
-    }
-
-    .vf-access-required-error {
-      margin: 0 0 0.85rem;
-    }
-
     .step-dot {
       width: 10px;
       height: 10px;

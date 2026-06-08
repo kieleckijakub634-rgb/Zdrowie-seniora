@@ -321,13 +321,13 @@
       }
       try {
         const { data: { user } } = await window.supabaseClient.auth.getUser();
-        await window.startTestStripeCheckout(user, 'yearly');
+        await window.startStripeCheckout(user, 'yearly');
       } catch (error) {
         if (btn) {
           btn.textContent = 'Przejdź na plan roczny';
           btn.disabled = false;
         }
-        showToast('Nie udało się otworzyć testowej płatności Stripe.', 2600);
+        showToast('Nie udało się otworzyć płatności Stripe.', 2600);
       }
     }
     function formatSubscriptionEndDate(dateString) {

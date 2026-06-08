@@ -10,7 +10,7 @@
     const PAGE_META = {
       home: ['VitalFly | Ćwiczenia i dieta dla seniorów', 'Codzienne ćwiczenia dla seniorów, jadłospisy, przypomnienia o lekach i prosty panel użytkownika.'],
       polityka: ['Polityka prywatności | VitalFly', 'Informacje o przetwarzaniu danych osobowych, danych zdrowotnych i usługach wykorzystywanych przez VitalFly.'],
-      regulamin: ['Regulamin | VitalFly', 'Warunki korzystania z serwisu VitalFly i testowej subskrypcji.'],
+      regulamin: ['Regulamin | VitalFly', 'Warunki korzystania z serwisu VitalFly i subskrypcji.'],
       kontakt: ['Kontakt | VitalFly', 'Skontaktuj się z zespołem VitalFly w sprawie konta, dostępu i subskrypcji.'],
       facebook: ['Grupa Facebook | VitalFly', 'Informacje o społeczności VitalFly na Facebooku.']
     };
@@ -149,6 +149,7 @@
         throw new Error('Stripe nie potwierdził aktywnej subskrypcji.');
       }
       localStorage.removeItem('kz_pending_checkout_plan');
+      localStorage.removeItem('kz_checkout_started');
       return billing;
     }
 
@@ -351,11 +352,15 @@
           hasSession = Boolean(billing.hasAccess);
           const displayName = (sessionDataCloud && sessionDataCloud.profileName) || session.user?.user_metadata?.full_name || localStorage.getItem('kz_name') || 'Seniorze';
           if (billing.hasAccess) showApp(displayName);
+          const checkoutWasStarted = localStorage.getItem('kz_checkout_started') === '1';
           if (checkoutSessionId) {
             history.replaceState({}, '', window.location.pathname);
             if (billing.hasAccess && typeof showToast === 'function') {
-              setTimeout(() => showToast('Płatność testowa została potwierdzona.', 2600), 300);
+              setTimeout(() => openPaymentSuccessModal(), 300);
             }
+          } else if (billing.hasAccess && checkoutWasStarted) {
+            localStorage.removeItem('kz_checkout_started');
+            setTimeout(() => openPaymentSuccessModal(), 300);
           }
         }
       }

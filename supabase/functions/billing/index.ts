@@ -61,6 +61,42 @@ async function syncStripeSubscription(
   return subscription;
 }
 
+async function reconcileCompletedCheckout(
+  adminClient: ReturnType<typeof createClient>,
+  secretKey: string,
+  userId: string,
+  email: string | undefined,
+) {
+  if (!email) return null;
+
+  const params = new URLSearchParams({
+    status: "complete",
+    limit: "100",
+  });
+  params.set("customer_details[email]", email);
+  const sessions = await stripeRequest(
+    secretKey,
+    `/checkout/sessions?${params.toString()}`,
+  );
+  const checkout = sessions?.data?.find((session: Record<string, any>) =>
+    session.client_reference_id === userId &&
+    session.payment_status !== "unpaid" &&
+    session.subscription
+  );
+  if (!checkout) return null;
+
+  await syncStripeSubscription(
+    adminClient,
+    secretKey,
+    userId,
+    typeof checkout.subscription === "string"
+      ? checkout.subscription
+      : checkout.subscription.id,
+    typeof checkout.customer === "string" ? checkout.customer : null,
+  );
+  return checkout;
+}
+
 function corsHeaders(origin: string | null) {
   return {
     "Access-Control-Allow-Origin": origin && ALLOWED_ORIGINS.has(origin)
@@ -133,8 +169,8 @@ Deno.serve(async (request) => {
 
   if (body.action === "verify-checkout") {
     const sessionId = typeof body.sessionId === "string" ? body.sessionId : "";
-    if (!/^cs_test_[A-Za-z0-9_]+$/.test(sessionId)) {
-      return jsonResponse({ error: "Invalid test Checkout Session ID." }, 400, origin);
+    if (!/^cs_(?:test_|live_)?[A-Za-z0-9_]+$/.test(sessionId)) {
+      return jsonResponse({ error: "Invalid Checkout Session ID." }, 400, origin);
     }
     const checkout = await stripeRequest(
       stripeSecret,
@@ -178,7 +214,22 @@ Deno.serve(async (request) => {
     .select("*")
     .eq("user_id", userData.user.id)
     .maybeSingle();
-  const current = refreshedSubscription || subscription;
+  let current = refreshedSubscription || subscription;
+
+  if (!hasAccess(current?.status, current?.current_period_end)) {
+    await reconcileCompletedCheckout(
+      adminClient,
+      stripeSecret,
+      userData.user.id,
+      userData.user.email,
+    );
+    const { data: reconciledSubscription } = await adminClient
+      .from("subscriptions")
+      .select("*")
+      .eq("user_id", userData.user.id)
+      .maybeSingle();
+    current = reconciledSubscription || current;
+  }
 
   return jsonResponse({
     isAdmin: Boolean(adminRecord),

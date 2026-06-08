@@ -160,51 +160,6 @@ window.applyUserProfileData = async function(cloud) {
       const successEl = document.getElementById('login-confirm-success');
       if (successEl) successEl.style.display = 'none';
     }
-    function openAccessRequiredModal() {
-      const error = document.getElementById('err-access-checkout');
-      if (error) {
-        error.textContent = '';
-        error.style.display = 'none';
-      }
-      openAccessibleModal(document.getElementById('accessRequiredModal'), document.getElementById('btn-access-checkout'));
-    }
-    function closeAccessRequiredModal() {
-      closeAccessibleModal(document.getElementById('accessRequiredModal'));
-    }
-    function returnToLoginFromAccess() {
-      closeAccessRequiredModal();
-      openLoginModal();
-    }
-    async function startAccessCheckout() {
-      const button = document.getElementById('btn-access-checkout');
-      const error = document.getElementById('err-access-checkout');
-      const originalText = button ? button.textContent : '';
-      if (error) {
-        error.textContent = '';
-        error.style.display = 'none';
-      }
-      if (button) {
-        button.textContent = 'Przekierowanie do Stripe...';
-        button.disabled = true;
-      }
-
-      try {
-        window.initSupabase();
-        const { data: { user } } = await window.supabaseClient.auth.getUser();
-        if (!user) throw new Error('Sesja wygasła. Zaloguj się ponownie.');
-        const plan = localStorage.getItem('kz_plan') === 'yearly' ? 'yearly' : 'monthly';
-        await window.startTestStripeCheckout(user, plan);
-      } catch (checkoutError) {
-        if (error) {
-          error.textContent = checkoutError.message || 'Nie udało się rozpocząć płatności testowej.';
-          error.style.display = 'block';
-        }
-        if (button) {
-          button.textContent = originalText;
-          button.disabled = false;
-        }
-      }
-    }
     function openPaymentSuccessModal() { openAccessibleModal(document.getElementById('paymentSuccessModal')); }
     function closePaymentSuccessModal() { closeAccessibleModal(document.getElementById('paymentSuccessModal')); }
     async function handleLogin() {
@@ -263,12 +218,23 @@ window.applyUserProfileData = async function(cloud) {
           console.error("Błąd wczytywania profilu:", e);
         }
 
-        const billing = await window.fetchBillingState();
-        closeLoginModal();
+        let billing;
+        try {
+          billing = await window.fetchBillingState();
+        } catch (billingError) {
+          console.error('Błąd weryfikacji subskrypcji:', billingError);
+          errEl.textContent = 'Nie udało się sprawdzić dostępu do konta. Spróbuj ponownie lub skontaktuj się z pomocą VitalFly.';
+          errEl.style.display = 'block';
+          btn.innerHTML = origText;
+          btn.disabled = false;
+          return;
+        }
         if (billing.hasAccess) {
+          closeLoginModal();
           showApp(displayName);
         } else {
-          openAccessRequiredModal();
+          errEl.textContent = 'Nie udało się potwierdzić aktywnej subskrypcji tego konta. Skontaktuj się z pomocą VitalFly.';
+          errEl.style.display = 'block';
         }
         btn.innerHTML = origText; btn.disabled = false;
       } else {
@@ -420,12 +386,12 @@ window.applyUserProfileData = async function(cloud) {
             const pPhone = localStorage.getItem('kz_pending_phone') || '';
             
             if (userId) {
-              // Zapisz profil, a następnie przejdź do testowej płatności.
+              // Zapisz profil, a następnie przejdź do płatności.
               if (typeof saveProfileAndEnterApp === 'function') {
                 await saveProfileAndEnterApp(userId, email, pName, pPhone, true, false);
               }
               const plan = localStorage.getItem('kz_pending_checkout_plan') || 'monthly';
-              await window.startTestStripeCheckout(data.user, plan);
+              await window.startStripeCheckout(data.user, plan);
             } else {
               errEl.textContent = 'Weryfikacja powiodła się, ale nie udało się pobrać danych użytkownika. Spróbuj się zalogować.';
               errEl.style.display = 'block';
@@ -567,7 +533,7 @@ window.applyUserProfileData = async function(cloud) {
           return;
         }
 
-        await window.startTestStripeCheckout(user, plan);
+        await window.startStripeCheckout(user, plan);
       } catch (error) {
         const err = document.getElementById('err-email');
         if (err) {
@@ -639,7 +605,7 @@ window.applyUserProfileData = async function(cloud) {
       return data;
     };
 
-    window.startTestStripeCheckout = async function(user, plan) {
+    window.startStripeCheckout = async function(user, plan) {
       if (!user || !user.id) throw new Error('Brak zalogowanego użytkownika.');
       const links = {
         monthly: 'https://buy.stripe.com/test_8x29AT4Vo2Aq4ESdk19Zm00',
@@ -648,8 +614,10 @@ window.applyUserProfileData = async function(cloud) {
       const checkoutUrl = new URL(links[plan === 'yearly' ? 'yearly' : 'monthly']);
       checkoutUrl.searchParams.set('prefilled_email', user.email || '');
       checkoutUrl.searchParams.set('client_reference_id', user.id);
+      localStorage.setItem('kz_checkout_started', '1');
       window.location.href = checkoutUrl.toString();
     };
+    window.startTestStripeCheckout = window.startStripeCheckout;
 
     window.openBillingPortal = async function() {
       const billing = await window.fetchBillingState('portal');
@@ -911,7 +879,12 @@ window.applyUserProfileData = async function(cloud) {
           if (billing.hasAccess) {
             showApp(displayName);
           } else {
-            openAccessRequiredModal();
+            openLoginModal();
+            const loginError = document.getElementById('err-login');
+            if (loginError) {
+              loginError.textContent = 'Nie udało się potwierdzić aktywnej subskrypcji tego konta. Skontaktuj się z pomocą VitalFly.';
+              loginError.style.display = 'block';
+            }
           }
         }
       } else {

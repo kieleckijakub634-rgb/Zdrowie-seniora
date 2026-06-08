@@ -52,7 +52,10 @@ const fixes = read('www/assets/css/fixes.css');
 const home = read('www/pages/home.html');
 const kontakt = read('www/pages/kontakt.html');
 const facebook = read('www/pages/facebook.html');
+const polityka = read('www/pages/polityka.html');
+const regulamin = read('www/pages/regulamin.html');
 const middleware = read('functions/_middleware.js');
+const billing = read('supabase/functions/billing/index.ts');
 const manifest = JSON.parse(read('www/manifest.json'));
 const packageMetadata = JSON.parse(read('package.json'));
 const migrationNames = readdirSync(join(root, 'supabase/migrations'))
@@ -86,9 +89,9 @@ assert(index.includes('assets/css/fixes.css'), 'Brakuje bezpiecznych poprawek CS
 assert(index.includes('id="page-content"'), 'Brakuje punktu montowania podstron.');
 assert(index.includes('id="signupModal"'), 'Brakuje modala rejestracji.');
 assert(index.includes('id="loginModal"'), 'Brakuje modala logowania.');
-assert(index.includes('id="accessRequiredModal"'), 'Brakuje osobnego modala aktywacji dostępu.');
 assert(index.includes('id="adminShell"'), 'Brakuje panelu administratora.');
 assert(!app.includes('/m-c'), 'Widoczne ceny nadal używają skrótu /m-c.');
+assert(![index, home, facebook, polityka, regulamin, router, app].some(text => /testow.*stripe|stripe.*testow|sandbox|rzeczywiste środki/i.test(text)), 'Interfejs nadal ujawnia testowy tryb Stripe.');
 assert(!index.includes('style-overrides.css'), 'Nie powinno być starego style-overrides.css zmieniającego design.');
 
 assert(loader.includes('ended') && loader.includes('hideWhenReady'), 'loader.js nie czeka na koniec animacji.');
@@ -106,7 +109,9 @@ assert(!router.includes('?app=1'), 'Router nadal zawiera obejście dostępu ?app
 assert(!auth.includes('kz_pending_pwd'), 'Hasło nadal jest zapisywane na czas płatności.');
 assert(!auth.includes('kz_session'), 'Klient nadal ufa lokalnej, fałszywej sesji.');
 assert(auth.includes('openAccessibleModal') && auth.includes("aria-hidden', 'false"), 'Modale nie aktualizują stanu ARIA.');
-assert(auth.includes('openAccessRequiredModal();') && auth.includes('startAccessCheckout'), 'Logowanie bez subskrypcji nadal nie ma osobnego przepływu aktywacji.');
+assert(!index.includes('accessRequiredModal') && !auth.includes('startAccessCheckout'), 'Logowanie nadal otwiera przepływ zakupu lub ponownej płatności.');
+assert(auth.includes('Skontaktuj się z pomocą VitalFly'), 'Brakuje bezpiecznego komunikatu przy nierozpoznanej subskrypcji.');
+assert(billing.includes('reconcileCompletedCheckout') && billing.includes('customer_details[email]'), 'Billing nie odzyskuje ukończonej sesji Stripe po awarii webhooka.');
 assert(!auth.includes("notice.textContent = 'Konto jest aktywne."), 'Logowanie nadal modyfikuje modal zamówienia.');
 assert(!/openModal\(\);\s*showStep\(2\);/.test(auth), 'Istnieje ścieżka logowania otwierająca modal zamówienia.');
 assert(style.includes('.vf-link-button'), 'Przycisk powrotu nadal nie ma własnego stylu.');
@@ -117,7 +122,6 @@ assert(security.includes('document.createTextNode') && security.includes('safeMe
 assert(ui.includes("kz_ai_health_consent") && modules.includes("kz_ai_health_consent"), 'Dane zdrowotne trafiają do AI bez sprawdzenia zgody.');
 assert(!ui.includes('botReply.innerHTML'), 'Odpowiedź AI nadal jest renderowana przez innerHTML.');
 assert(admin.includes("functions.invoke('admin-config'"), 'Panel administratora omija zabezpieczoną Edge Function.');
-assert(index.includes('Tryb testowy:') && home.includes('Środowisko testowe Stripe'), 'Interfejs nie informuje jasno o testowym Stripe.');
 assert(read('www/robots.txt').includes('sitemap.xml'), 'robots.txt nie wskazuje sitemap.xml.');
 assert(manifest.start_url === '/' && manifest.scope === '/', 'Manifest PWA powinien uruchamiać aplikację z katalogu głównego.');
 assert(!('orientation' in manifest), 'Manifest PWA nie powinien wymuszać orientacji ekranu.');
