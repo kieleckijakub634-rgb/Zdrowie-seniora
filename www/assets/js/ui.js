@@ -264,6 +264,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     <div class="welcome-date">${dateStr}</div>
     <div class="stat-row" id="dashboard-stats-row">
       <div class="stat-pill" id="stat-streak"><span class="stat-emoji">📅</span> <span class="stat-val">0</span> dni zdrowo z VitalFly</div>
+      <div class="stat-pill" id="stat-steps"><span class="stat-emoji">👣</span> <span class="stat-val">3420</span> dzisiejszych kroków</div>
       <div class="stat-pill" id="stat-diets"><span class="stat-emoji">🥗</span> <span class="stat-val">0</span> przetestowanych diet</div>
       <div class="stat-pill" id="stat-videos"><span class="stat-emoji">🎬</span> <span class="stat-val">0</span> obejrzanych filmów</div>
       <div class="stat-pill" id="med-stat-pill"><span class="stat-emoji">💊</span> <span id="med-count-stat" class="stat-val">0</span> leków</div>
@@ -707,6 +708,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
   </div>
   <div class="chat-input-area">
     <textarea id="chatInput" class="chat-input" placeholder="Wpisz pytanie..." rows="1" onkeydown="handleChatKeydown(event)"></textarea>
+    <button id="chatVoiceBtn" onclick="if(window.VFVoice) window.VFVoice.toggleListening()" aria-label="Rozpoznawanie mowy" style="background:none; border:none; font-size:1.5rem; cursor:pointer; padding: 0 8px; margin-right: 4px; transition: color 0.3s;">🎤</button>
     <button id="chatSendBtn" class="chat-send-btn" onclick="sendChatMessage()" aria-label="Wyślij wiadomość">➔</button>
   </div>
 </div>
