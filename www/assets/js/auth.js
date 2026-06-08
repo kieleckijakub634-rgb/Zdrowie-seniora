@@ -144,14 +144,7 @@ window.applyUserProfileData = async function(cloud) {
     });
 
     function openModal() { openAccessibleModal(document.getElementById('signupModal'), document.getElementById('inp-name')); showStep(1); }
-    function closeModal() { 
-      const step3 = document.getElementById('step3');
-      if (step3 && step3.style.display === 'block') {
-        alert('Musisz autoryzować konto, wpisując kod lub klikając link w e-mailu, aby móc przejść dalej.');
-        return;
-      }
-      closeAccessibleModal(document.getElementById('signupModal'));
-    }
+    function closeModal() { closeAccessibleModal(document.getElementById('signupModal')); }
     function handleOverlayClick(e) { if (e.target === document.getElementById('signupModal')) closeModal(); }
 
     function openLoginModal() { openAccessibleModal(document.getElementById('loginModal'), document.getElementById('login-email')); }
@@ -175,19 +168,6 @@ window.applyUserProfileData = async function(cloud) {
         btn.innerHTML = 'Logowanie...'; btn.disabled = true;
         const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email: e, password: p });
         if (error) {
-          if (error.message && (error.message.toLowerCase().includes('confirm') || error.message.toLowerCase().includes('potwierdź'))) {
-            localStorage.setItem('kz_pending_email', e);
-            closeLoginModal();
-            const emailDisp = document.getElementById('verify-email-display');
-            if (emailDisp) emailDisp.textContent = e;
-            const signupModal = document.getElementById('signupModal');
-            if (signupModal) {
-              openAccessibleModal(signupModal, document.getElementById('verification-code'));
-            }
-            showStep(3);
-            btn.innerHTML = origText; btn.disabled = false;
-            return;
-          }
           errEl.textContent = 'Nieprawidłowy e-mail lub hasło.';
           errEl.style.display = 'block';
           btn.innerHTML = origText; btn.disabled = false; return;
@@ -308,161 +288,26 @@ window.applyUserProfileData = async function(cloud) {
     window.getEmailProviderUrl = getEmailProviderUrl;
 
     function showStep(n) {
-      [1, 2, 3].forEach(i => {
+      [1, 2].forEach(i => {
         const s = document.getElementById('step' + i);
         if (s) s.style.display = (i === n) ? 'block' : 'none';
         const d = document.getElementById('dot' + i);
         if (d) d.classList.toggle('active', i <= n);
       });
-      document.getElementById('stepDots').style.display = (n === 3) ? 'none' : 'flex';
-      
-      const closeBtn = document.querySelector('#signupModal .modal-close');
-      if (closeBtn) {
-        closeBtn.style.display = (n === 3) ? 'none' : 'block';
-      }
-
-      if (n === 3) {
-        const email = localStorage.getItem('kz_pending_email') || '';
-        const providerBtn = document.getElementById('btn-go-to-email');
-        if (providerBtn && email) {
-          const provider = getEmailProviderUrl(email);
-          if (provider) {
-            providerBtn.href = provider.url;
-            providerBtn.textContent = `Przejdź do poczty ${provider.name} ✉️`;
-            providerBtn.style.display = 'block';
-          } else {
-            providerBtn.style.display = 'none';
-          }
-        }
-      }
+      document.getElementById('stepDots').style.display = 'flex';
     }
     window.showStep = showStep;
-
-    async function verifyVerificationCode() {
-      window.initSupabase();
-      const codeInput = document.getElementById('verification-code');
-      const errEl = document.getElementById('err-verification');
-      const btn = document.getElementById('btn-confirm-code');
-      
-      if (!codeInput || !errEl || !btn) return;
-      
-      errEl.style.display = 'none';
-      const code = codeInput.value.trim();
-      
-      if (code.length !== 8 || !/^\d+$/.test(code)) {
-        errEl.textContent = 'Kod musi składać się z 8 cyfr.';
-        errEl.style.display = 'block';
-        return;
-      }
-      
-      const email = localStorage.getItem('kz_pending_email');
-      if (!email) {
-        errEl.textContent = 'Błąd: Brak zapisanego adresu e-mail. Rozpocznij rejestrację ponownie.';
-        errEl.style.display = 'block';
-        return;
-      }
-      
-      const origText = btn.innerHTML;
-      btn.innerHTML = 'Weryfikacja...';
-      btn.disabled = true;
-      
-      if (window.supabaseClient) {
-        try {
-          const { data, error } = await window.supabaseClient.auth.verifyOtp({
-            email: email,
-            token: code,
-            type: 'signup'
-          });
-          
-          if (error) {
-            errEl.textContent = 'Błąd weryfikacji: ' + error.message;
-            errEl.style.display = 'block';
-            btn.innerHTML = origText;
-            btn.disabled = false;
-          } else {
-            // Sukces!
-            const userId = data.user ? data.user.id : null;
-            const pName = localStorage.getItem('kz_pending_name') || 'Seniorze';
-            const pPhone = localStorage.getItem('kz_pending_phone') || '';
-            
-            if (userId) {
-              // Zapisz profil, a następnie przejdź do płatności.
-              if (typeof saveProfileAndEnterApp === 'function') {
-                await saveProfileAndEnterApp(userId, email, pName, pPhone, true, false);
-              }
-              const plan = localStorage.getItem('kz_pending_checkout_plan') || 'monthly';
-              await window.startStripeCheckout(data.user, plan);
-            } else {
-              errEl.textContent = 'Weryfikacja powiodła się, ale nie udało się pobrać danych użytkownika. Spróbuj się zalogować.';
-              errEl.style.display = 'block';
-              btn.innerHTML = origText;
-              btn.disabled = false;
-            }
-          }
-        } catch (e) {
-          errEl.textContent = 'Błąd systemu: ' + e.message;
-          errEl.style.display = 'block';
-          btn.innerHTML = origText;
-          btn.disabled = false;
-        }
-      } else {
-        errEl.textContent = 'Błąd połączenia z bazą danych.';
-        errEl.style.display = 'block';
-        btn.innerHTML = origText;
-        btn.disabled = false;
-      }
-    }
-    window.verifyVerificationCode = verifyVerificationCode;
-
-    async function resendVerificationCode(e) {
-      if (e) e.preventDefault();
-      window.initSupabase();
-      const email = localStorage.getItem('kz_pending_email');
-      const errEl = document.getElementById('err-verification');
-      
-      if (!email) {
-        alert('Brak zapisanego adresu e-mail. Rozpocznij rejestrację ponownie.');
-        return;
-      }
-      
-      if (window.supabaseClient) {
-        try {
-          const { error } = await window.supabaseClient.auth.resend({
-            type: 'signup',
-            email: email,
-            options: {
-              emailRedirectTo: window.getAuthRedirectUrl()
-            }
-          });
-          
-          if (error) {
-            alert('Błąd wysyłania: ' + error.message);
-          } else {
-            alert('Nowy kod weryfikacyjny został wysłany na Twój e-mail.');
-            if (errEl) errEl.style.display = 'none';
-          }
-        } catch (err) {
-          alert('Błąd systemu: ' + err.message);
-        }
-      } else {
-        alert('Błąd połączenia z bazą danych.');
-      }
-    }
-    window.resendVerificationCode = resendVerificationCode;
 
     function goStep2() {
       let valid = true;
       const name = document.getElementById('inp-name');
       const email = document.getElementById('inp-email');
-      const pwd = document.getElementById('inp-password');
       const consent = document.getElementById('inp-consent');
       if (!name.value.trim() || name.value.trim().split(' ').length < 2) { name.classList.add('error'); document.getElementById('err-name').style.display = 'block'; valid = false; }
       else { name.classList.remove('error'); document.getElementById('err-name').style.display = 'none'; }
       const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRe.test(email.value.trim())) { email.classList.add('error'); document.getElementById('err-email').style.display = 'block'; valid = false; }
       else { email.classList.remove('error'); document.getElementById('err-email').style.display = 'none'; }
-      if (pwd.value.trim().length < 6) { pwd.classList.add('error'); document.getElementById('err-password').style.display = 'block'; valid = false; }
-      else { pwd.classList.remove('error'); document.getElementById('err-password').style.display = 'none'; }
       if (!consent.checked) { document.getElementById('err-consent').style.display = 'block'; valid = false; }
       else { document.getElementById('err-consent').style.display = 'none'; }
       if (valid) {
@@ -488,7 +333,6 @@ window.applyUserProfileData = async function(cloud) {
       const email = document.getElementById('inp-email').value.trim();
       const btn = document.querySelector('.btn-stripe');
       const isYearly = localStorage.getItem('kz_plan') === 'yearly';
-      const pwd = document.getElementById('inp-password').value.trim();
       const phone = document.getElementById('inp-phone') ? document.getElementById('inp-phone').value.trim() : '';
       const plan = isYearly ? 'yearly' : 'monthly';
 
@@ -508,40 +352,38 @@ window.applyUserProfileData = async function(cloud) {
 
       try {
         window.initSupabase();
-        let { data: { session } } = await window.supabaseClient.auth.getSession();
-        let user = session && session.user;
-
-        if (!user) {
-          const { data, error } = await window.supabaseClient.auth.signUp({
-            email,
-            password: pwd,
-            options: {
-              emailRedirectTo: window.getAuthRedirectUrl(),
-              data: { full_name: name, phone }
-            }
-          });
-          if (error) throw error;
-          user = data.user;
-          session = data.session;
+        const { data, error, response } = await window.supabaseClient.functions.invoke('registration-checkout', {
+          body: { fullName: name, email, phone, plan }
+        });
+        if (error) {
+          let serverError = '';
+          try {
+            const payload = await response?.clone().json();
+            serverError = payload?.error || '';
+          } catch {}
+          if (serverError === 'ACCOUNT_EXISTS') {
+            throw new Error('Konto z tym adresem e-mail już istnieje. Zaloguj się lub zresetuj hasło.');
+          }
+          throw new Error(serverError || 'Nie udało się rozpocząć rejestracji.');
         }
-
-        if (!user) throw new Error('Nie udało się utworzyć konta.');
-        if (!session) {
-          const emailDisp = document.getElementById('verify-email-display');
-          if (emailDisp) emailDisp.textContent = email;
-          showStep(3);
-          return;
-        }
-
-        await window.startStripeCheckout(user, plan);
+        if (!data?.url) throw new Error('Serwer nie zwrócił adresu płatności.');
+        localStorage.setItem('kz_checkout_started', '1');
+        window.location.href = data.url;
       } catch (error) {
         const err = document.getElementById('err-email');
         if (err) {
-          err.textContent = error.message || 'Nie udało się utworzyć konta.';
+          const message = error?.message || '';
+          if (/rate limit|email rate/i.test(message)) {
+            err.textContent = 'Przekroczono limit wysyłki wiadomości. Odczekaj kilka minut i spróbuj ponownie.';
+          } else if (/already registered|already exists/i.test(message)) {
+            err.textContent = 'Konto z tym adresem e-mail już istnieje. Zaloguj się lub zresetuj hasło.';
+          } else {
+            err.textContent = message || 'Nie udało się utworzyć konta. Spróbuj ponownie za chwilę.';
+          }
           err.style.display = 'block';
         }
         showStep(1);
-        btn.innerHTML = 'Płacę przez Stripe';
+        btn.innerHTML = 'Przejdź do płatności';
         btn.disabled = false;
       }
     }

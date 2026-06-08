@@ -28,10 +28,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/tailwind.css?v=20260608-2" />
-  <link rel="stylesheet" href="assets/style.css?v=20260608-2" />
-  <link rel="stylesheet" href="assets/css/fixes.css?v=20260608-2" />
-  <script src="assets/js/loader.js?v=20260608-2" defer></script>
+  <link rel="stylesheet" href="assets/css/tailwind.css?v=20260608-3" />
+  <link rel="stylesheet" href="assets/style.css?v=20260608-3" />
+  <link rel="stylesheet" href="assets/css/fixes.css?v=20260608-3" />
+  <script src="assets/js/loader.js?v=20260608-3" defer></script>
 </head>
 <body class="app-loading">
   <div id="app-loading-screen" role="status" aria-live="polite" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--navy, #0B3934);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:99999;transition:opacity .3s ease;">
@@ -53,7 +53,6 @@
       <div class="flex justify-center gap-2 mb-6" id="stepDots">
         <div class="step-dot active" id="dot1"></div>
         <div class="step-dot" id="dot2"></div>
-        <div class="step-dot" id="dot3"></div>
       </div>
       <div id="step1">
         <h2 id="signup-title" class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Dołącz do Klubu</h2>
@@ -67,11 +66,6 @@
           <label class="form-label" for="inp-email">Adres e-mail</label>
           <input class="form-input" id="inp-email" type="email" placeholder="np. krystyna@poczta.pl" autocomplete="email" />
           <p class="field-error" id="err-email">Proszę wpisać poprawny adres e-mail.</p>
-        </div>
-        <div class="mb-4">
-          <label class="form-label" for="inp-password">Hasło</label>
-          <input class="form-input" id="inp-password" type="password" placeholder="Min. 6 znaków" autocomplete="new-password" />
-          <p class="field-error" id="err-password">Hasło musi mieć co najmniej 6 znaków.</p>
         </div>
         <div class="mb-6">
           <label class="form-label" for="inp-phone">Numer telefonu <span style="font-weight:400;color:var(--warm-gray);">(opcjonalnie)</span></label>
@@ -94,16 +88,6 @@
         <div class="vf-info-box">Płatność jest bezpiecznie obsługiwana przez Stripe. Dane karty nie są przechowywane przez VitalFly.</div>
         <button onclick="redirectToStripe()" class="btn-stripe" type="button">Przejdź do płatności</button>
         <button onclick="goStep1()" type="button" class="vf-link-button">← Wróć i popraw dane</button>
-      </div>
-      <div id="step3" style="display:none;text-align:center;">
-        <div style="font-size:3.5rem;margin-bottom:0.75rem;">✉️</div>
-        <h2 class="font-serif font-bold mb-2" style="font-size:1.6rem;color:var(--navy);">Autoryzuj swój e-mail</h2>
-        <p style="color:#444;font-size:0.98rem;margin-bottom:1.25rem;">Przed płatnością potwierdź konto. Wpisz 8-cyfrowy kod autoryzacyjny wysłany na adres <strong id="verify-email-display"></strong>.</p>
-        <a id="btn-go-to-email" href="#" target="_blank" class="btn-cta" style="width:100%;text-align:center;display:none;font-size:1.1rem;margin:1rem 0 1.5rem 0;background:#4dbfa8;color:#0b3934;font-weight:700;padding:0.75rem;border-radius:12px;text-decoration:none;box-sizing:border-box;">Przejdź do poczty →</a>
-        <input class="form-input" id="verification-code" type="text" placeholder="np. 12345678" maxlength="8" autocomplete="one-time-code" style="text-align:center;font-size:1.4rem;letter-spacing:0.22em;font-weight:700;padding:0.75rem;" />
-        <p class="field-error" id="err-verification" style="display:none;text-align:center;margin-top:0.5rem;"></p>
-        <button id="btn-confirm-code" onclick="verifyVerificationCode()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.15rem;margin:1rem 0;">Autoryzuj e-mail i przejdź do płatności →</button>
-        <p style="font-size:0.88rem;color:var(--warm-gray);margin-bottom:1rem;">Nie otrzymałeś kodu? <a href="#" onclick="resendVerificationCode(event)" style="color:var(--mint);text-decoration:underline;font-weight:600;">Wyślij ponownie</a></p>
       </div>
     </div>
   </div>
@@ -175,10 +159,10 @@
     <div class="modal-box" style="text-align: center; padding: 2.5rem 1.5rem; max-width: 420px;" role="dialog" aria-modal="true" aria-labelledby="success-title">
       <button class="modal-close" onclick="closePaymentSuccessModal()" aria-label="Zamknij">×</button>
       <div style="font-size: 4rem; margin-bottom: 1rem; line-height: 1;">🎉</div>
-      <h2 id="success-title" class="font-serif font-bold mb-2" style="font-size: 1.6rem; color: var(--navy);">Płatność przyjęta!</h2>
-      <p style="color: var(--navy); font-weight: 700; margin-bottom: 1rem; font-size: 1.1rem;">Dostęp do aplikacji jest aktywny.</p>
+      <h2 id="success-title" class="font-serif font-bold mb-2" style="font-size: 1.6rem; color: var(--navy);">Płatność została zakończona</h2>
+      <p style="color: var(--navy); font-weight: 700; margin-bottom: 1rem; font-size: 1.1rem;">Potwierdź teraz swój adres e-mail.</p>
       <p style="color: #444; margin-bottom: 2rem; font-size: 0.98rem; line-height: 1.5; text-align: left;">
-        Możesz już korzystać ze wszystkich funkcji VitalFly. Informacje dotyczące płatności i konta znajdziesz również w swojej skrzynce e-mail.
+        Wysłaliśmy wiadomość z linkiem potwierdzającym utworzenie konta. Sprawdź skrzynkę odbiorczą oraz folder Spam, kliknij link, a następnie zaloguj się do VitalFly.
       </p>
       <button onclick="closePaymentSuccessModal()" class="btn-cta" type="button" style="width: 100%; font-size: 1.15rem; padding: 0.9rem; border-radius: 12px;">Rozumiem →</button>
     </div>
@@ -298,14 +282,14 @@
     </div>
   </div>
 
-  <script defer src="assets/supabase.js?v=20260608-2" onerror="window.__VF_SUPABASE_FAILED=true"></script>
-  <script defer src="assets/js/security.js?v=20260608-2"></script>
-  <script defer src="assets/js/ai.js?v=20260608-2"></script>
-  <script defer src="assets/js/auth.js?v=20260608-2"></script>
-  <script defer src="assets/js/router.js?v=20260608-2"></script>
-  <script defer src="assets/js/ui.js?v=20260608-2"></script>
-  <script defer src="assets/js/modules.js?v=20260608-2"></script>
-  <script defer src="assets/js/admin.js?v=20260608-2"></script>
-  <script defer src="assets/app.js?v=20260608-2"></script>
+  <script defer src="assets/supabase.js?v=20260608-3" onerror="window.__VF_SUPABASE_FAILED=true"></script>
+  <script defer src="assets/js/security.js?v=20260608-3"></script>
+  <script defer src="assets/js/ai.js?v=20260608-3"></script>
+  <script defer src="assets/js/auth.js?v=20260608-3"></script>
+  <script defer src="assets/js/router.js?v=20260608-3"></script>
+  <script defer src="assets/js/ui.js?v=20260608-3"></script>
+  <script defer src="assets/js/modules.js?v=20260608-3"></script>
+  <script defer src="assets/js/admin.js?v=20260608-3"></script>
+  <script defer src="assets/app.js?v=20260608-3"></script>
 </body>
 </html>

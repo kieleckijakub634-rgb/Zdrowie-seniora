@@ -250,6 +250,8 @@
       // Wykrywanie potwierdzenia rejestracji z e-maila
       const isSignupConfirm = window.location.hash.includes('type=signup');
       const isEmailChangeConfirm = window.location.hash.includes('type=email_change');
+      const isInvite = window.location.search.includes('invite=1') || window.location.hash.includes('type=invite');
+      const checkoutSessionId = new URLSearchParams(window.location.search).get('session_id');
       if (isSignupConfirm) {
         history.replaceState({}, '', window.location.pathname);
         if (window.initSupabase && window.initSupabase()) {
@@ -338,7 +340,6 @@
         }
 
         if (session) {
-          const checkoutSessionId = new URLSearchParams(window.location.search).get('session_id');
           let billing;
           try {
             billing = checkoutSessionId
@@ -363,6 +364,17 @@
             setTimeout(() => openPaymentSuccessModal(), 300);
           }
         }
+      }
+
+      if (isInvite) {
+        history.replaceState({}, '', window.location.pathname);
+        setTimeout(() => openResetPasswordModal(), 500);
+      }
+
+      if (!hasSession && checkoutSessionId) {
+        history.replaceState({}, '', window.location.pathname);
+        localStorage.removeItem('kz_checkout_started');
+        setTimeout(() => openPaymentSuccessModal(), 300);
       }
 
       if (isEmailChangeConfirm) {

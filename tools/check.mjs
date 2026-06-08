@@ -56,6 +56,8 @@ const polityka = read('www/pages/polityka.html');
 const regulamin = read('www/pages/regulamin.html');
 const middleware = read('functions/_middleware.js');
 const billing = read('supabase/functions/billing/index.ts');
+const registrationCheckout = read('supabase/functions/registration-checkout/index.ts');
+const stripeWebhook = read('supabase/functions/stripe-webhook/index.ts');
 const manifest = JSON.parse(read('www/manifest.json'));
 const packageMetadata = JSON.parse(read('package.json'));
 const migrationNames = readdirSync(join(root, 'supabase/migrations'))
@@ -111,6 +113,12 @@ assert(!auth.includes('kz_session'), 'Klient nadal ufa lokalnej, fałszywej sesj
 assert(auth.includes('openAccessibleModal') && auth.includes("aria-hidden', 'false"), 'Modale nie aktualizują stanu ARIA.');
 assert(!index.includes('accessRequiredModal') && !auth.includes('startAccessCheckout'), 'Logowanie nadal otwiera przepływ zakupu lub ponownej płatności.');
 assert(auth.includes('Skontaktuj się z pomocą VitalFly'), 'Brakuje bezpiecznego komunikatu przy nierozpoznanej subskrypcji.');
+assert(!index.includes('id="inp-password"') && !auth.includes('.auth.signUp('), 'Konto nadal jest tworzone przed płatnością.');
+assert(auth.includes("functions.invoke('registration-checkout'"), 'Formularz nie korzysta z bezpiecznej funkcji przed płatnością.');
+assert(registrationCheckout.includes('pending_registrations') && registrationCheckout.includes('ACCOUNT_EXISTS'), 'Brakuje oczekującej rejestracji lub ochrony istniejących kont.');
+assert(stripeWebhook.includes('inviteUserByEmail') && stripeWebhook.includes('provisionPaidRegistration'), 'Webhook nie tworzy konta po opłaceniu subskrypcji.');
+assert(router.includes('type=invite') && router.includes('openResetPasswordModal'), 'Zaproszenie nie otwiera ustawienia hasła.');
+assert(router.includes('!hasSession && checkoutSessionId') && index.includes('Potwierdź teraz swój adres e-mail'), 'Brakuje komunikatu po płatności dla niepotwierdzonego konta.');
 assert(billing.includes('reconcileCompletedCheckout') && billing.includes('customer_details[email]'), 'Billing nie odzyskuje ukończonej sesji Stripe po awarii webhooka.');
 assert(!auth.includes("notice.textContent = 'Konto jest aktywne."), 'Logowanie nadal modyfikuje modal zamówienia.');
 assert(!/openModal\(\);\s*showStep\(2\);/.test(auth), 'Istnieje ścieżka logowania otwierająca modal zamówienia.');
