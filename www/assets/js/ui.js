@@ -264,7 +264,6 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     <div class="welcome-date">${dateStr}</div>
     <div class="stat-row" id="dashboard-stats-row">
       <div class="stat-pill" id="stat-streak"><span class="stat-emoji">📅</span> <span class="stat-val">0</span> dni zdrowo z VitalFly</div>
-      <div class="stat-pill" id="stat-steps"><span class="stat-emoji">👣</span> <span class="stat-val">3420</span> dzisiejszych kroków</div>
       <div class="stat-pill" id="stat-diets"><span class="stat-emoji">🥗</span> <span class="stat-val">0</span> przetestowanych diet</div>
       <div class="stat-pill" id="stat-videos"><span class="stat-emoji">🎬</span> <span class="stat-val">0</span> obejrzanych filmów</div>
       <div class="stat-pill" id="med-stat-pill"><span class="stat-emoji">💊</span> <span id="med-count-stat" class="stat-val">0</span> leków</div>
