@@ -81,7 +81,9 @@ function closeQuiz() {
   const modal = document.getElementById('quiz-modal');
   if (modal) {
     modal.classList.remove('open');
+    setTimeout(() => { modal.style.display = 'none'; }, 300);
   }
+  localStorage.setItem('kz_quiz_completed', '1');
 }
 
 function renderQuestion() {
@@ -164,7 +166,15 @@ function finishQuiz() {
     closeQuiz();
     // Otworz oryginalny modal po quizie
     window.quizCompleted = true;
+    localStorage.setItem('kz_quiz_completed', '1');
     if (window.openModal) {
+      const modalBox = document.querySelector('#signupModal .modal-box');
+      if (modalBox) {
+        const title = modalBox.querySelector('h2');
+        if (title) title.textContent = 'Twój spersonalizowany plan jest gotowy! ✨';
+        const desc = modalBox.querySelector('p');
+        if (desc) desc.textContent = 'Załóż konto i zasubskrybuj Klub, aby odebrać swój plan i w pełni korzystać z dopasowanej diety i ćwiczeń.';
+      }
       window.openModal();
     }
     

@@ -391,5 +391,12 @@
       hideLoadingScreen();
       if (!hasSession) {
         navigateTo(routeFromLocation(), { replace: true });
+        if (!localStorage.getItem('kz_quiz_completed')) {
+          setTimeout(() => {
+            if (typeof window.startQuiz === 'function') {
+              window.startQuiz();
+            }
+          }, 600);
+        }
       }
     });
