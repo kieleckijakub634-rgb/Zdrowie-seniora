@@ -163,6 +163,7 @@ function finishQuiz() {
   setTimeout(() => {
     closeQuiz();
     // Otworz oryginalny modal po quizie
+    window.quizCompleted = true;
     if (window.openModal) {
       window.openModal();
     }
