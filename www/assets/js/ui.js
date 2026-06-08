@@ -6,12 +6,18 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
 /* ── Formularz kontaktowy ── */
     function handleContact(e) {
       e.preventDefault();
-      const btn = e.target.querySelector('.btn-send');
-      btn.innerHTML = '⏳ Wysyłam...'; btn.disabled = true;
-      setTimeout(() => {
-        document.getElementById('contactForm').style.display = 'none';
-        document.getElementById('contactSuccess').style.display = 'block';
-      }, 1200);
+      const name = document.getElementById('c-name')?.value.trim() || '';
+      const email = document.getElementById('c-email')?.value.trim() || '';
+      const subject = document.getElementById('c-subject')?.value.trim() || 'Kontakt z VitalFly';
+      const message = document.getElementById('c-msg')?.value.trim() || '';
+      const body = `Imię i nazwisko: ${name}\nE-mail do odpowiedzi: ${email}\n\n${message}`;
+      window.location.href = `mailto:kontakt@vitalfly.pl?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const status = document.getElementById('contactStatus');
+      if (status) {
+        status.textContent = 'Otwieram program pocztowy. Wiadomość zostanie wysłana dopiero po zatwierdzeniu jej w poczcie.';
+        status.style.display = 'block';
+        status.focus();
+      }
     }
 
     /* Otwieranie regulaminu / polityki z panelu */
@@ -125,9 +131,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
               selectedDiet: selectedDiet,
               dietPrefs: dietPrefs,
               likedVideos: likedVideos,
-              healthIssues: localStorage.getItem('kz_health_issues') || '',
-              subscriptionStatus: localStorage.getItem('kz_subscription_status') || 'active',
-              subscriptionEndDate: localStorage.getItem('kz_subscription_end_date') || ''
+              healthIssues: localStorage.getItem('kz_health_issues') || ''
             };
             const { error } = await window.supabaseClient
               .from('user_profiles')
@@ -213,14 +217,14 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         window.streakNotified = true;
         setTimeout(() => {
           if (typeof showToast === 'function') {
-            showToast(`Brawo! Twój streak (dni zdrowo z VitalFly) wynosi już ${streak}! 🔥`, 10000);
+            showToast(`Brawo! Twój streak (dni zdrowo z VitalFly) wynosi już ${streak}! 🔥`, 3500);
           }
         }, 1500);
       }
     }
 
     function buildAppHTML(name) {
-      const firstName = (name || '').split(' ')[0] || 'Seniorze';
+      const firstName = VFSecurity.escapeHTML((name || '').split(' ')[0] || 'Seniorze');
       const now = new Date();
       const hour = now.getHours();
       let greeting = hour < 12 ? 'Dzień dobry' : hour < 18 ? 'Miłego popołudnia' : 'Dobry wieczór';
@@ -240,10 +244,10 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     </span>
     <div style="display:flex; align-items:center; gap:0.6rem;">
       <span class="app-badge" id="app-plan-badge" style="display:none;">✓ AKTYWNA SUBSKRYPCJA</span>
-      <button onclick="switchTab('settings', null)" class="app-logout-btn" style="padding:0; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.1); cursor:pointer;">
+      <button onclick="switchTab('settings', null)" class="app-logout-btn" aria-label="Otwórz ustawienia" style="padding:0; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.1); cursor:pointer;">
         <span style="font-size:1.15rem; line-height:1;">⚙️</span>
       </button>
-      <button class="app-logout-btn" onclick="logout()" style="padding:0; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.1); cursor:pointer;">
+      <button class="app-logout-btn" onclick="logout()" aria-label="Wyloguj się" style="padding:0; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.1); cursor:pointer;">
         <span style="font-size:1.15rem; line-height:1;">🚪</span>
       </button>
     </div>
@@ -301,7 +305,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     </div>
     <!-- Video player -->
     <div class="video-player" id="videoPlayer">
-      <button class="vp-close" onclick="closePlayer()">✕</button>
+      <button class="vp-close" onclick="closePlayer()" aria-label="Zamknij odtwarzacz">✕</button>
       <div id="vp-real-media" style="display:none; width:100%; aspect-ratio:16/9; background:#000; border-radius:14px; overflow:hidden; margin-bottom:1rem; margin-top:2rem;"></div>
       <div id="vp-fake-media">
         <div class="vp-title" id="vp-title">Ćwiczenie</div>
@@ -576,11 +580,17 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
   <!-- Tab Content: Stan zdrowia i Dolegliwości -->
   <div id="sub-tab-health-content" style="display:none;">
     <p style="font-size:0.95rem; color:var(--warm-gray); margin-bottom:1rem; font-weight:500;">
-      Wpisz swoje schorzenia lub dolegliwości (np. nadciśnienie, bóle lędźwiowe, cukrzyca, osteoporoza). Nasz autonomiczny silnik AI dostosuje jadłospisy oraz porady wirtualnego asystenta do Twojego stanu zdrowia.
+      Wpisz swoje schorzenia lub dolegliwości (np. nadciśnienie, bóle lędźwiowe, cukrzyca, osteoporoza). Dane pozostają w Twoim profilu i nie są wysyłane do AI bez osobnej zgody poniżej.
     </p>
     <div class="mb-4">
       <textarea class="form-input" id="health-issues-input" placeholder="Wpisz np. nadciśnienie tętnicze, ból kolana przy chodzeniu, cukrzyca typu 2..." style="min-height:100px; width:100%; border-radius:14px; padding:0.9rem; font-size:1rem; resize:vertical;"></textarea>
     </div>
+    <label style="display:flex;align-items:flex-start;gap:.75rem;padding:1rem;border:1px solid #DDE6F0;border-radius:14px;background:#F8FBFA;cursor:pointer;">
+      <input type="checkbox" id="ai-health-consent" style="width:20px;height:20px;margin-top:.15rem;flex:0 0 auto;" />
+      <span style="font-size:.9rem;line-height:1.5;color:var(--navy);">
+        Zgadzam się na wysyłanie wpisanych informacji o zdrowiu do zewnętrznego dostawcy AI (OpenRouter), aby personalizować odpowiedzi i jadłospisy. Zgodę mogę wycofać w każdej chwili.
+      </span>
+    </label>
     <div style="margin-top:1rem; text-align:right;">
       <button class="btn-send" style="width:auto; padding:0.75rem 2.25rem; font-size:1rem; border-radius:14px;" onclick="saveHealthProfile()">Zapisz profil zdrowotny</button>
     </div>
@@ -690,22 +700,22 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       <div style="font-family:'Lora',serif; font-weight:700; font-size:1.15rem; line-height:1.2;">Wirtualny Asystent VitalFly</div>
       <div style="font-size:0.75rem; color:#A8EDE0; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; margin-top:2px;">Medycyna, Dieta i Ruch ✦ Asystent AI</div>
     </div>
-    <button class="chat-close-btn" onclick="toggleChat(event)">×</button>
+    <button class="chat-close-btn" onclick="toggleChat(event)" aria-label="Zamknij asystenta">×</button>
   </div>
   <div id="chatMessages" class="chat-messages">
     <!-- Messages dynamically rendered -->
   </div>
   <div class="chat-input-area">
     <textarea id="chatInput" class="chat-input" placeholder="Wpisz pytanie..." rows="1" onkeydown="handleChatKeydown(event)"></textarea>
-    <button id="chatSendBtn" class="chat-send-btn" onclick="sendChatMessage()">➔</button>
+    <button id="chatSendBtn" class="chat-send-btn" onclick="sendChatMessage()" aria-label="Wyślij wiadomość">➔</button>
   </div>
 </div>
 
 <!-- Medication Modal -->
-<div class="modal-overlay" id="medModal" style="z-index: 1000;" onclick="if(event.target===this)closeMedModal()">
-  <div class="modal-box" style="text-align:center; padding:2.5rem 1.5rem; max-width:340px; margin:0 auto; display:flex; flex-direction:column; align-items:center;">
+<div class="modal-overlay" id="medModal" aria-hidden="true" style="z-index: 1000;" onclick="if(event.target===this)closeMedModal()">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="med-modal-title" style="text-align:center; padding:2.5rem 1.5rem; max-width:340px; margin:0 auto; display:flex; flex-direction:column; align-items:center;">
     <div style="font-size:4rem; margin-bottom:1rem; line-height:1;">💊</div>
-    <h2 class="font-serif font-bold mb-2" style="font-size:1.6rem; color:var(--navy);">Czas na leki</h2>
+    <h2 id="med-modal-title" class="font-serif font-bold mb-2" style="font-size:1.6rem; color:var(--navy);">Czas na leki</h2>
     <p id="medModalText" style="color:#444; margin-bottom:2rem; font-size:1.1rem; line-height:1.4;"></p>
     <button onclick="closeMedModal()" class="btn-cta" style="width:100%; font-size:1.15rem; padding:1rem; border-radius:12px;">Tak, leki zostały zażyte</button>
   </div>
@@ -757,7 +767,10 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       botMsg.className = 'chat-msg bot';
       
       const textNode = document.createElement('div');
-      textNode.innerHTML = `Witaj <strong>${firstName}</strong>! Jestem Twoim asystentem VitalFly. Wszystkie pytania i odpowiedzi znajdziesz u mnie. W czym mogę pomóc?`;
+      textNode.append('Witaj ');
+      const strongName = document.createElement('strong');
+      strongName.textContent = firstName;
+      textNode.append(strongName, '! Jestem Twoim asystentem VitalFly. Wszystkie pytania i odpowiedzi znajdziesz u mnie. W czym mogę pomóc?');
       botMsg.appendChild(textNode);
       
       const quickReplies = document.createElement('div');
@@ -798,135 +811,6 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       msgList.scrollTop = msgList.scrollHeight;
 
       chatHistory.push({
-        role: "user",
-        parts: [{ text: text }]
-      });
-
-      const loader = document.createElement('div');
-      loader.className = 'chat-loading';
-      loader.id = 'chatLoader';
-      loader.innerHTML = '<span></span><span></span><span></span>';
-      msgList.appendChild(loader);
-      msgList.scrollTop = msgList.scrollHeight;
-
-      const apiKey = (localStorage.getItem('kz_gemini_api_key') || '').trim();
-      if (!apiKey) {
-        loader.remove();
-        const errMsg = document.createElement('div');
-        errMsg.className = 'chat-msg bot';
-        errMsg.style.color = '#E05252';
-        errMsg.textContent = 'Błąd: Klucz API Gemini nie jest skonfigurowany. Poproś administratora o wklejenie klucza w panelu administracyjnym aplikacji.';
-        msgList.appendChild(errMsg);
-        msgList.scrollTop = msgList.scrollHeight;
-        return;
-      }
-
-      try {
-        const patientName = localStorage.getItem('kz_name') || 'Senior';
-        const healthIssues = localStorage.getItem('kz_health_issues') || '';
-        let systemInstructionText = `Jesteś przyjaznym, empatycznym i cierpliwym wirtualnym asystentem dla seniorów w aplikacji VitalFly. Pomagasz w zdrowym stylu życia, ćwiczeniach, diecie przeciwzapalnej, przypomnieniach o lekach i obsłudze aplikacji. Odpowiadaj po polsku, krótko, jasno i spokojnie. Najpierw podawaj praktyczną odpowiedź, potem 1-3 bezpieczne kroki. Nie diagnozuj, nie zmieniaj dawek leków, nie odstawiaj leków i nie zastępuj lekarza. Przy objawach alarmowych, chorobach, lekach, dawkowaniu, pogorszeniu samopoczucia albo diecie przy schorzeniach zalecaj kontakt z lekarzem. Jeśli polecasz seniorowi wejść do jakiejś zakładki w aplikacji (np. zrobić trening, wygenerować dietę, wejść w leki, ratunek), ZAMIAST tłumaczyć gdzie to jest, na końcu odpowiedzi użyj dokładnie tego kodu (z nawiasami kwadratowymi): [PRZEJDŹ DO: videos] (ćwiczenia), [PRZEJDŹ DO: diets] (dieta), [PRZEJDŹ DO: meds] (leki), [PRZEJDŹ DO: dogtag] (ratunek). Aplikacja sama zmieni ten kod na wygodny przycisk. Nigdy nie tłumacz nawigacji ekranu! Pacjent ma na imię: ${patientName}.`;
-        if (healthIssues) {
-          systemInstructionText += ` Pacjent zgłasza następujące dolegliwości i stan zdrowia: "${healthIssues}". Dostosuj język, poziom ostrożności, propozycje aktywności, diety i codziennego wsparcia do tych ograniczeń. Przy ruchu proponuj łagodniejsze warianty i przerwanie ćwiczeń przy bólu, duszności, zawrotach głowy lub nietypowych objawach. Nie przedstawiaj zaleceń jako leczenia.`;
-        }
-
-        const payload = {
-          contents: chatHistory,
-          system_instruction: {
-            parts: [{ text: systemInstructionText }]
-          }
-        };
-
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        if (!res.ok) {
-          throw new Error(`Status ${res.status}`);
-        }
-
-        const resData = await res.json();
-        loader.remove();
-
-        let replyText = '';
-        if (resData.candidates && resData.candidates[0] && resData.candidates[0].content && resData.candidates[0].content.parts[0]) {
-          replyText = resData.candidates[0].content.parts[0].text;
-        } else {
-          replyText = "Przepraszam, ale nie mogłem wygenerować odpowiedzi w tym momencie. Spróbuj zadać pytanie inaczej.";
-        }
-
-        const botReply = document.createElement('div');
-        botReply.className = 'chat-msg bot';
-
-        let formattedText = replyText
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/g, '<em>$1</em>')
-          .replace(/\n\n/g, '<br><br>')
-          .replace(/\n/g, '<br>')
-          .replace(/^- (.*)/gm, '• $1');
-          
-        formattedText = formattedText.replace(/\[PRZEJDŹ DO:\s*(.*?)\]/gi, (match, tab) => {
-          const tabName = tab.trim().toLowerCase();
-          let btnText = "Przejdź do zakładki";
-          if (tabName === 'videos') btnText = "Przejdź do Ćwiczeń 🎬";
-          else if (tabName === 'diets') btnText = "Przejdź do Diety 🥗";
-          else if (tabName === 'meds') btnText = "Przejdź do Leków 💊";
-          else if (tabName === 'dogtag') btnText = "Przejdź do Ratunku 🚑";
-          
-          return `<br><br><button class="chat-quick-reply" style="width:100%; margin-top:0.5rem; justify-content:center; text-align:center;" onclick="toggleChat(); switchTab('${tabName}')">${btnText}</button>`;
-        });
-
-        botReply.innerHTML = formattedText;
-        msgList.appendChild(botReply);
-        msgList.scrollTop = msgList.scrollHeight;
-
-        chatHistory.push({
-          role: "model",
-          parts: [{ text: replyText }]
-        });
-
-      } catch (err) {
-        console.error("Gemini API Error:", err);
-        loader.remove();
-        const botErr = document.createElement('div');
-        botErr.className = 'chat-msg bot';
-        botErr.style.color = '#E05252';
-        botErr.textContent = `Przepraszam, wystąpił błąd połączenia z asystentem AI. Upewnij się, że klucz API jest poprawny. (Szczegóły: ${err.message})`;
-        msgList.appendChild(botErr);
-        msgList.scrollTop = msgList.scrollHeight;
-      }
-    }
-
-    function saveGeminiKeyLegacy() {
-      const key = document.getElementById('admin-gemini-key')?.value.trim();
-      localStorage.setItem('kz_gemini_api_key', key);
-      showToast('⏳ Zapisywanie klucza w chmurze...');
-      saveToCloud().then(ok => {
-        if (ok) showToast('✅ Klucz API Gemini został zapisany!');
-      });
-    }
-
-    /* ── Tab switcher ── */
-    async function sendChatMessageLegacyGemini() {
-      const input = document.getElementById('chatInput');
-      const msgList = document.getElementById('chatMessages');
-      if (!input || !msgList) return;
-
-      const text = input.value.trim();
-      if (!text) return;
-
-      const userMsg = document.createElement('div');
-      userMsg.className = 'chat-msg user';
-      userMsg.textContent = text;
-      msgList.appendChild(userMsg);
-
-      input.value = '';
-      msgList.scrollTop = msgList.scrollHeight;
-
-      chatHistory.push({
         role: 'user',
         parts: [{ text }]
       });
@@ -938,22 +822,21 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       msgList.appendChild(loader);
       msgList.scrollTop = msgList.scrollHeight;
 
-      const aiConfig = window.VitalFlyAI ? window.VitalFlyAI.getConfig() : null;
-      if (!aiConfig || !aiConfig.apiKey) {
+      if (!window.VitalFlyAI) {
         loader.remove();
         const errMsg = document.createElement('div');
         errMsg.className = 'chat-msg bot';
         errMsg.style.color = '#E05252';
-        errMsg.textContent = 'Błąd: klucz OpenRouter nie jest skonfigurowany. Wklej go w panelu administracyjnym aplikacji.';
+        errMsg.textContent = 'Asystent AI jest chwilowo niedostępny.';
         msgList.appendChild(errMsg);
         msgList.scrollTop = msgList.scrollHeight;
         return;
       }
 
       try {
-        const patientName = localStorage.getItem('kz_name') || 'Senior';
-        const healthIssues = localStorage.getItem('kz_health_issues') || '';
-        let systemInstructionText = `Jesteś przyjaznym, empatycznym i cierpliwym wirtualnym asystentem dla seniorów w aplikacji VitalFly. Pomagasz w zdrowym stylu życia, ćwiczeniach, diecie przeciwzapalnej, przypomnieniach o lekach i obsłudze aplikacji. Odpowiadaj po polsku, krótko, jasno i spokojnie. Najpierw podawaj praktyczną odpowiedź, potem 1-3 bezpieczne kroki. Nie diagnozuj, nie zmieniaj dawek leków, nie odstawiaj leków i nie zastępuj lekarza. Przy objawach alarmowych, chorobach, lekach, dawkowaniu, pogorszeniu samopoczucia albo diecie przy schorzeniach zalecaj kontakt z lekarzem. Jeśli polecasz seniorowi wejść do jakiejś zakładki w aplikacji, na końcu odpowiedzi użyj dokładnie jednego z tych kodów: [PRZEJDŹ DO: videos], [PRZEJDŹ DO: diets], [PRZEJDŹ DO: meds] albo [PRZEJDŹ DO: dogtag]. Nigdy nie tłumacz nawigacji ekranu. Pacjent ma na imię: ${patientName}.`;
+        const shareHealthWithAI = localStorage.getItem('kz_ai_health_consent') === '1';
+        const healthIssues = shareHealthWithAI ? (localStorage.getItem('kz_health_issues') || '') : '';
+        let systemInstructionText = `Jesteś przyjaznym, empatycznym i cierpliwym wirtualnym asystentem dla seniorów w aplikacji VitalFly. Pomagasz w zdrowym stylu życia, ćwiczeniach, diecie przeciwzapalnej, przypomnieniach o lekach i obsłudze aplikacji. Odpowiadaj po polsku, krótko, jasno i spokojnie. Najpierw podawaj praktyczną odpowiedź, potem 1-3 bezpieczne kroki. Nie diagnozuj, nie zmieniaj dawek leków, nie odstawiaj leków i nie zastępuj lekarza. Przy objawach alarmowych, chorobach, lekach, dawkowaniu, pogorszeniu samopoczucia albo diecie przy schorzeniach zalecaj kontakt z lekarzem. Jeśli polecasz seniorowi wejść do jakiejś zakładki w aplikacji, na końcu odpowiedzi użyj dokładnie jednego z tych kodów: [PRZEJDŹ DO: videos], [PRZEJDŹ DO: diets], [PRZEJDŹ DO: meds] albo [PRZEJDŹ DO: dogtag]. Nigdy nie tłumacz nawigacji ekranu.`;
         if (healthIssues) {
           systemInstructionText += ` Pacjent zgłasza następujące dolegliwości i stan zdrowia: "${healthIssues}". Dostosuj język, poziom ostrożności, propozycje aktywności, diety i codziennego wsparcia do tych ograniczeń. Przy ruchu proponuj łagodniejsze warianty i przerwanie ćwiczeń przy bólu, duszności, zawrotach głowy lub nietypowych objawach. Nie przedstawiaj zaleceń jako leczenia.`;
         }
@@ -969,25 +852,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         const botReply = document.createElement('div');
         botReply.className = 'chat-msg bot';
 
-        let formattedText = replyText
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/g, '<em>$1</em>')
-          .replace(/\n\n/g, '<br><br>')
-          .replace(/\n/g, '<br>')
-          .replace(/^- (.*)/gm, '&bull; $1');
-
-        formattedText = formattedText.replace(/\[PRZEJDŹ DO:\s*(.*?)\]/gi, (match, tab) => {
-          const tabName = tab.trim().toLowerCase();
-          let btnText = 'Przejdź do zakładki';
-          if (tabName === 'videos') btnText = 'Przejdź do Ćwiczeń';
-          else if (tabName === 'diets') btnText = 'Przejdź do Diety';
-          else if (tabName === 'meds') btnText = 'Przejdź do Leków';
-          else if (tabName === 'dogtag') btnText = 'Przejdź do Ratunku';
-
-          return `<br><br><button class="chat-quick-reply" style="width:100%; margin-top:0.5rem; justify-content:center; text-align:center;" onclick="toggleChat(); switchTab('${tabName}')">${btnText}</button>`;
-        });
-
-        botReply.innerHTML = formattedText;
+        window.VFSecurity.renderAIMessage(botReply, replyText);
         msgList.appendChild(botReply);
         msgList.scrollTop = msgList.scrollHeight;
 
@@ -1007,55 +872,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       }
     }
 
-    async function saveAIConfig() {
-      const model = document.getElementById('admin-ai-model')?.value.trim() || 'google/gemma-4-31b-it';
-      const apiKey = document.getElementById('admin-ai-key')?.value.trim() || '';
-      const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
-
-      if (window.VitalFlyAI) {
-        window.VitalFlyAI.saveConfig({
-          provider: 'openrouter',
-          model,
-          apiKey,
-          endpoint
-        });
-      } else {
-        localStorage.setItem('kz_ai_provider', 'openrouter');
-        localStorage.setItem('kz_ai_model', model);
-        localStorage.setItem('kz_ai_api_key', apiKey);
-        localStorage.setItem('kz_ai_endpoint', endpoint);
-      }
-
-      showToast('⏳ Zapisywanie konfiguracji AI w chmurze...');
-      const ok = await saveToCloud();
-      if (ok) {
-        showToast('✅ Konfiguracja OpenRouter została zapisana!');
-        if (typeof loadModuleSettings === 'function') loadModuleSettings();
-      }
-    }
-
-    async function clearAIConfig() {
-      if (window.VitalFlyAI) {
-        window.VitalFlyAI.clearStoredConfig();
-      } else {
-        localStorage.removeItem('kz_ai_provider');
-        localStorage.removeItem('kz_ai_model');
-        localStorage.removeItem('kz_ai_api_key');
-        localStorage.removeItem('kz_ai_endpoint');
-      }
-
-      const modelInput = document.getElementById('admin-ai-model');
-      const keyInput = document.getElementById('admin-ai-key');
-      if (modelInput) modelInput.value = 'google/gemma-4-31b-it';
-      if (keyInput) keyInput.value = '';
-
-      showToast('⏳ Usuwanie konfiguracji AI z chmury...');
-      const ok = await saveToCloud();
-      if (ok) showToast('🗑️ Konfiguracja AI została wyczyszczona.');
-    }
-
-    sendChatMessage = sendChatMessageLegacyGemini;
-    window.sendChatMessage = sendChatMessageLegacyGemini;
+    window.sendChatMessage = sendChatMessage;
 
     function switchTab(name, btn) {
       if (name !== 'settings') {
@@ -1217,7 +1034,12 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     }
 
     function initLiveHelpPopup() {
-      updateLiveHelpPopup();
+      const box = document.getElementById('liveHelpPopup');
+      if (box) box.classList.add('delayed');
+      setTimeout(() => {
+        if (box) box.classList.remove('delayed');
+        updateLiveHelpPopup();
+      }, 5500);
       if (window.vfLiveHelpTimer) clearInterval(window.vfLiveHelpTimer);
       window.vfLiveHelpTimer = setInterval(updateLiveHelpPopup, 30000);
     }
@@ -1252,7 +1074,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       }
 
       if (nextMedMinutes < 60) {
-         suggestion = `Zbliża się czas na leki: <strong>${nextMed}</strong>! 💊`;
+         suggestion = `Zbliża się czas na leki: ${nextMed}! 💊`;
       } else if (watchedCount === 0 || !localStorage.getItem('kz_daily_focus_date') || localStorage.getItem('kz_daily_focus_date') !== new Date().toISOString().split('T')[0]) {
          suggestion = `Czas na trening! Wybierz dzisiejsze ćwiczenia. 🎬`;
       } else if (dietCount === 0 || !localStorage.getItem('kz_cached_diet_1')) {
@@ -1261,13 +1083,15 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
          suggestion = `Wszystkie zadania na dziś zrobione, świetnie! 👍`;
       }
 
-      body.innerHTML = `
-      <strong style="color:var(--mint); font-size:1.05rem;">Asystent VitalFly radzi:</strong><br><br>
-      ${suggestion}<br><br>
-      <div style="font-size:0.75rem; opacity:0.7; border-top:1px solid rgba(255,255,255,0.1); padding-top:0.5rem; margin-top:0.2rem;">
-        ICE: ${ice} • Leki: ${medsCount} ${medsCount === 1 ? 'pozycja' : 'pozycji'}
-      </div>
-    `;
+      body.replaceChildren();
+      const title = document.createElement('strong');
+      title.style.cssText = 'color:var(--mint);font-size:1.05rem;';
+      title.textContent = 'Asystent VitalFly radzi:';
+      const details = document.createElement('div');
+      details.style.cssText = 'font-size:0.75rem;opacity:0.7;border-top:1px solid rgba(255,255,255,0.1);padding-top:0.5rem;margin-top:0.2rem;';
+      details.textContent = `ICE: ${ice} • Leki: ${medsCount} ${medsCount === 1 ? 'pozycja' : 'pozycji'}`;
+      body.append(title, document.createElement('br'), document.createElement('br'));
+      body.append(document.createTextNode(suggestion), document.createElement('br'), document.createElement('br'), details);
     }
 
     function getNextMedicationLabel() {

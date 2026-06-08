@@ -22,7 +22,7 @@
 
     function loadDogTag() {
       const dataStr = localStorage.getItem('vf_dogtag');
-      let medsText = APP_DATA.medications.map(m => `• ${m.name} ${m.dose ? '(' + m.dose + ')' : ''} ${m.time}`).join('<br/>');
+      let medsText = APP_DATA.medications.map(m => `• ${window.VFSecurity.escapeHTML(m.name)} ${m.dose ? '(' + window.VFSecurity.escapeHTML(m.dose) + ')' : ''} ${window.VFSecurity.escapeHTML(m.time)}`).join('<br/>');
       if (!medsText) medsText = '<span style="color:#8A9BB0;">Brak wpisanych leków w zakładce "Leki"</span>';
 
       // Zawsze aktualizujemy listę leków w trybie odczytu i edycji
@@ -126,21 +126,22 @@
     }
 
     function renderVideoCard(v, reason = '') {
+      const safeId = Number(v.id);
       return `
-      <div class="video-card" id="vcard-${v.id}" onclick="playVideo(${v.id})">
-        <span class="video-emoji">${v.emoji}</span>
-        <div class="video-tag">${v.tag}</div>
-        <div class="video-title">${v.title}</div>
-        <div class="video-desc">${v.desc}</div>
-        ${reason ? `<div class="video-reason">✨ ${reason}</div>` : ''}
+      <div class="video-card" id="vcard-${safeId}" onclick="playVideo(${safeId})">
+        <span class="video-emoji">${window.VFSecurity.escapeHTML(v.emoji)}</span>
+        <div class="video-tag">${window.VFSecurity.escapeHTML(v.tag)}</div>
+        <div class="video-title">${window.VFSecurity.escapeHTML(v.title)}</div>
+        <div class="video-desc">${window.VFSecurity.escapeHTML(v.desc)}</div>
+        ${reason ? `<div class="video-reason">✨ ${window.VFSecurity.escapeHTML(reason)}</div>` : ''}
         <div class="video-meta">
           <div>
-            <div class="video-dur">⏱ ${v.duration}</div>
-            <div class="video-day">${v.day}</div>
+            <div class="video-dur">⏱ ${window.VFSecurity.escapeHTML(v.duration)}</div>
+            <div class="video-day">${window.VFSecurity.escapeHTML(v.day)}</div>
           </div>
           <div style="display:flex; gap:0.5rem; align-items:center;">
-            <button onclick="event.stopPropagation(); toggleLikeVideo(${v.id})" class="video-like-btn" aria-label="Polub film">
-              ${isLiked(v.id) ? '❤️' : '🤍'}
+            <button onclick="event.stopPropagation(); toggleLikeVideo(${safeId})" class="video-like-btn" aria-label="Polub film">
+              ${isLiked(safeId) ? '❤️' : '🤍'}
             </button>
             <div class="video-play-btn">▶</div>
           </div>
@@ -175,19 +176,20 @@
 
     function renderShopVideoCard(item) {
       const inCart = videoCart.includes(item.id);
+      const safeItemId = window.VFSecurity.escapeHTML(item.id);
       return `
       <div class="video-card video-shop-card">
-        <span class="video-emoji">${item.emoji}</span>
-        <div class="video-tag">${item.tag}</div>
-        <div class="video-title">${item.title}</div>
-        <div class="video-desc">${item.desc}</div>
-        <div class="shop-match">${getShopVideoMatch(item)}</div>
+        <span class="video-emoji">${window.VFSecurity.escapeHTML(item.emoji)}</span>
+        <div class="video-tag">${window.VFSecurity.escapeHTML(item.tag)}</div>
+        <div class="video-title">${window.VFSecurity.escapeHTML(item.title)}</div>
+        <div class="video-desc">${window.VFSecurity.escapeHTML(item.desc)}</div>
+        <div class="shop-match">${window.VFSecurity.escapeHTML(getShopVideoMatch(item))}</div>
         <div class="video-meta">
           <div>
-            <div class="video-dur">${item.duration}</div>
-            <div class="video-day">${item.price}</div>
+            <div class="video-dur">${window.VFSecurity.escapeHTML(item.duration)}</div>
+            <div class="video-day">${window.VFSecurity.escapeHTML(item.price)}</div>
           </div>
-          <button type="button" onclick="toggleVideoCart('${item.id}')" class="video-play-btn">${inCart ? '✓ Na liście' : 'Dodaj'}</button>
+          <button type="button" data-shop-id="${safeItemId}" class="video-play-btn" onclick="toggleVideoCart(this.dataset.shopId)">${inCart ? '✓ Na liście' : 'Dodaj'}</button>
         </div>
       </div>
     `;
@@ -226,7 +228,7 @@
           
           if (match) {
             grid.innerHTML = `
-              <div class="daily-focus-header" style="text-align:center; font-size:1.2rem; margin-bottom:1rem; font-weight:600; color:var(--text);">Twój cel na dziś: <strong style="color:var(--mint);">${focus}</strong></div>
+              <div class="daily-focus-header" style="text-align:center; font-size:1.2rem; margin-bottom:1rem; font-weight:600; color:var(--text);">Twój cel na dziś: <strong style="color:var(--mint);">${window.VFSecurity.escapeHTML(focus)}</strong></div>
               <div class="featured-video-wrapper">
                 ${renderVideoCard(match.video, match.reason).replace('class="video-card"', 'class="video-card featured-video-card"')}
               </div>
@@ -285,17 +287,38 @@
         document.getElementById('vp-fake-media').style.display = 'none';
         const rm = document.getElementById('vp-real-media');
         rm.style.display = 'block';
-        let url = v.url.trim();
+        let url = window.VFSecurity.safeMediaUrl(v.url);
+        if (!url) {
+          rm.textContent = 'Nieprawidłowy lub niedozwolony adres filmu.';
+          return;
+        }
         if (url.includes('youtube.com') || url.includes('youtu.be')) {
           const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
           const ytId = match ? match[1] : null;
           if (ytId) {
-            rm.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${ytId}?origin=https://vitalfly.pl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            rm.replaceChildren();
+            const iframe = document.createElement('iframe');
+            iframe.width = '100%';
+            iframe.height = '100%';
+            iframe.src = `https://www.youtube-nocookie.com/embed/${ytId}?origin=https://vitalfly.pl`;
+            iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+            iframe.allowFullscreen = true;
+            iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+            rm.appendChild(iframe);
           } else {
             rm.innerHTML = `<div style="color:white;padding:2rem;text-align:center;font-family:sans-serif;">Błędny link YouTube. Skopiuj poprawny link.</div>`;
           }
         } else {
-          rm.innerHTML = `<video width="100%" height="100%" controls autoplay src="${url}"></video>`;
+          rm.replaceChildren();
+          const video = document.createElement('video');
+          video.width = 100;
+          video.height = 100;
+          video.style.width = '100%';
+          video.style.height = '100%';
+          video.controls = true;
+          video.autoplay = true;
+          video.src = url;
+          rm.appendChild(video);
         }
       } else {
         document.getElementById('vp-real-media').style.display = 'none';
@@ -448,7 +471,7 @@
           ${dietPlan.days.map((day, idx) => {
             const isActive = idx === window.activeDietDayIndex;
             const isCompleted = idx < todayIdx;
-            const displayText = isCompleted ? `✓ ${day.dayName}` : day.dayName;
+            const displayText = VFSecurity.escapeHTML(isCompleted ? `✓ ${day.dayName}` : day.dayName);
             return `
               <button onclick="setActiveDietDay(${idx})" class="diet-day-pill ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}" type="button">
                 ${displayText}
@@ -465,8 +488,8 @@
       <div class="diet-ai-meals-day-content">
         ${activeDay.meals.map(meal => `
           <div class="diet-ai-meal-row">
-            <span class="diet-ai-meal-type">[ ${meal.type} ]</span>
-            <span class="diet-ai-meal-content">${meal.content}</span>
+            <span class="diet-ai-meal-type">[ ${VFSecurity.escapeHTML(meal.type)} ]</span>
+            <span class="diet-ai-meal-content">${VFSecurity.escapeHTML(meal.content)}</span>
           </div>
         `).join('')}
       </div>
@@ -488,7 +511,7 @@
             </button>
           </div>
           <div class="diet-ai-shopping-tags-wrapper">
-            ${dietPlan.shopping.map(item => `<span class="diet-ai-shopping-tag">${item}</span>`).join('')}
+            ${dietPlan.shopping.map(item => `<span class="diet-ai-shopping-tag">${VFSecurity.escapeHTML(item)}</span>`).join('')}
           </div>
         </div>
       `;
@@ -560,8 +583,8 @@
         ? window.VitalFlyAI.getConfig()
         : { isConfigured: false };
       const activePrefs = JSON.parse(localStorage.getItem('kz_diet_prefs') || '[]');
-      const patientName = localStorage.getItem('kz_name') || 'Pacjent VitalFly';
-      const healthIssues = localStorage.getItem('kz_health_issues') || '';
+      const shareHealthWithAI = localStorage.getItem('kz_ai_health_consent') === '1';
+      const healthIssues = shareHealthWithAI ? (localStorage.getItem('kz_health_issues') || '') : '';
       const dietProfileCacheKey = getDietProfileCacheKey(activePrefs, healthIssues);
 
       // Pobranie aktualnego dnia, aby LLM wiedział, na jaki dzień generuje dietę
@@ -626,7 +649,7 @@
       container.innerHTML = `
       <div class="py-8 text-center space-y-3">
         <div class="inline-block w-8 h-8 border-4 border-t-transparent border-[#4DBFA8] rounded-full animate-spin"></div>
-        <p class="text-xs font-cyber text-slate-500 tracking-widest uppercase">Model LLM optymalizuje plan żywieniowy na ${durationName} dla: ${patientName}...</p>
+        <p class="text-xs font-cyber text-slate-500 tracking-widest uppercase">Model LLM przygotowuje plan żywieniowy na ${durationName}...</p>
       </div>
     `;
 
@@ -764,7 +787,7 @@
 
       const systemPrompt = `
       Jesteś zaawansowanym systemem dietetycznym AI w aplikacji VitalFly dla seniorów (osób 50+).
-      Twoim zadaniem jest wygenerowanie zbalansowanej, łatwostrawnej i przeciwzapalnej diety dla pacjenta o imieniu: ${patientName}.
+      Twoim zadaniem jest wygenerowanie zbalansowanej, łatwostrawnej i przeciwzapalnej diety dla użytkownika aplikacji.
       
       Czas trwania: ${durationPrompt}
       ${preferencesPrompt}
@@ -844,7 +867,7 @@
         <html>
         <head>
           <meta charset="utf-8">
-          <title>VitalFly – Jadłospis AI (${dietPlan.title})</title>
+          <title>VitalFly – Jadłospis AI (${VFSecurity.escapeHTML(dietPlan.title)})</title>
           <style>
             body {
               font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
@@ -960,7 +983,7 @@
           <div class="header-print">
             <div>
               <h1 class="title-print">VitalFly – Jadłospis AI</h1>
-              <p class="patient-name">Dla pacjenta: <strong>${patientName}</strong></p>
+              <p class="patient-name">Dla pacjenta: <strong>${VFSecurity.escapeHTML(patientName)}</strong></p>
             </div>
             <div style="font-size:0.85rem; text-align:right; color:#888;">
               Długość planu: ${dietPlan.days.length > 1 ? dietPlan.days.length + ' dni' : '1 dzień'}<br>
@@ -968,17 +991,17 @@
             </div>
           </div>
           
-          <div style="font-size:1.4rem; font-weight:700; color:#0B3934; margin-bottom:1.5rem;">🥗 Plan: ${dietPlan.title}</div>
+          <div style="font-size:1.4rem; font-weight:700; color:#0B3934; margin-bottom:1.5rem;">🥗 Plan: ${VFSecurity.escapeHTML(dietPlan.title)}</div>
           
           <div>
             ${dietPlan.days.map(day => `
               <div class="day-section">
-                <div class="day-title">📅 ${day.dayName}</div>
+                <div class="day-title">📅 ${VFSecurity.escapeHTML(day.dayName)}</div>
                 <div>
                   ${day.meals.map(m => `
                     <div class="meal-box">
-                      <div class="meal-type">${m.type}</div>
-                      <div class="meal-content">${m.content}</div>
+                      <div class="meal-type">${VFSecurity.escapeHTML(m.type)}</div>
+                      <div class="meal-content">${VFSecurity.escapeHTML(m.content)}</div>
                     </div>
                   `).join('')}
                 </div>
@@ -990,7 +1013,7 @@
             <div class="shopping-box">
               <h3 class="shopping-title">🛒 Lista zakupów (${dietPlan.days.length > 1 ? 'na cały okres' : 'na dziś'})</h3>
               <ul class="shopping-list">
-                ${dietPlan.shopping.map(s => `<li><span style="font-size:1.1rem; color:#bbb;">☐</span> ${s}</li>`).join('')}
+                ${dietPlan.shopping.map(s => `<li><span style="font-size:1.1rem; color:#bbb;">☐</span> ${VFSecurity.escapeHTML(s)}</li>`).join('')}
               </ul>
             </div>
           ` : ''}
@@ -1024,11 +1047,11 @@
       <div class="med-item" id="mitem-${i}">
         <div class="med-icon">💊</div>
         <div class="med-info">
-          <div class="med-name">${m.name}</div>
+          <div class="med-name">${VFSecurity.escapeHTML(m.name)}</div>
           <div class="med-time">
-            🕐 ${m.time}
-            ${m.dose ? `<span class="med-dose">${m.dose}</span>` : ''}
-            ${m.note ? `<span style="font-size:.85rem;color:#8A9BB0;">– ${m.note}</span>` : ''}
+            🕐 ${VFSecurity.escapeHTML(m.time)}
+            ${m.dose ? `<span class="med-dose">${VFSecurity.escapeHTML(m.dose)}</span>` : ''}
+            ${m.note ? `<span style="font-size:.85rem;color:#8A9BB0;">– ${VFSecurity.escapeHTML(m.note)}</span>` : ''}
           </div>
         </div>
         <button class="med-del" onclick="deleteMed(${i})" title="Usuń lek">🗑</button>
@@ -1191,26 +1214,40 @@
 
     /* ── TOAST ── */
     let toastTimeout;
-    function showToast(msg, duration = 10000) {
+    function showToast(msg, duration = 4000) {
       const box = document.getElementById('medToast');
       const body = document.getElementById('medToastText');
       if (!box || !body) return;
 
       body.textContent = msg;
       box.classList.add('show');
+      document.body.classList.add('toast-open');
 
       clearTimeout(toastTimeout);
       toastTimeout = setTimeout(() => {
         box.classList.remove('show');
+        document.body.classList.remove('toast-open');
       }, duration);
     }
 
     function showMedModal(msg) {
       document.getElementById('medModalText').textContent = msg;
-      document.getElementById('medModal').classList.add('open');
+      const modal = document.getElementById('medModal');
+      if (typeof window.openAccessibleModal === 'function') {
+        window.openAccessibleModal(modal, modal?.querySelector('button'));
+      } else {
+        modal?.classList.add('open');
+        modal?.setAttribute('aria-hidden', 'false');
+      }
     }
     function closeMedModal() {
-      document.getElementById('medModal').classList.remove('open');
+      const modal = document.getElementById('medModal');
+      if (typeof window.closeAccessibleModal === 'function') {
+        window.closeAccessibleModal(modal);
+      } else {
+        modal?.classList.remove('open');
+        modal?.setAttribute('aria-hidden', 'true');
+      }
     }
 
     function renderLikedTab() {
@@ -1247,14 +1284,14 @@
         ${likedDiets.map((diet, idx) => `
           <div class="diet-card" style="grid-column: 1 / -1; padding: 1.5rem; border-radius: 16px; background: rgba(255,255,255,0.78); border: 1px solid rgba(0,0,0,0.06); position: relative; margin-bottom: 0.5rem;">
             <button onclick="removeLikedDiet(${idx})" style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; font-size:1.3rem; cursor:pointer;" title="Usuń z ulubionych">❤️</button>
-            <h4 style="font-weight:700; color:var(--navy); font-size:1.05rem; margin-bottom:0.75rem; padding-right:2rem;">${diet.title} (${diet.days.length > 1 ? diet.days.length + ' dni' : '1 dzień'})</h4>
+            <h4 style="font-weight:700; color:var(--navy); font-size:1.05rem; margin-bottom:0.75rem; padding-right:2rem;">${VFSecurity.escapeHTML(diet.title)} (${diet.days.length > 1 ? diet.days.length + ' dni' : '1 dzień'})</h4>
             <div class="diet-ai-meals-day-content" style="max-height: 200px; overflow-y: auto; padding-right: 0.5rem;">
               ${diet.days.map(day => `
-                <div style="font-weight:700; font-size:0.85rem; color:#4DBFA8; margin-top:0.5rem; margin-bottom:0.25rem; text-transform:uppercase;">${day.dayName}</div>
+                <div style="font-weight:700; font-size:0.85rem; color:#4DBFA8; margin-top:0.5rem; margin-bottom:0.25rem; text-transform:uppercase;">${VFSecurity.escapeHTML(day.dayName)}</div>
                 ${day.meals.map(meal => `
                   <div class="diet-ai-meal-row" style="margin-bottom:0.2rem;">
-                    <span class="diet-ai-meal-type" style="font-size:0.75rem; font-weight:700;">[ ${meal.type} ]</span>
-                    <span class="diet-ai-meal-content" style="font-size:0.85rem;">${meal.content}</span>
+                    <span class="diet-ai-meal-type" style="font-size:0.75rem; font-weight:700;">[ ${VFSecurity.escapeHTML(meal.type)} ]</span>
+                    <span class="diet-ai-meal-content" style="font-size:0.85rem;">${VFSecurity.escapeHTML(meal.content)}</span>
                   </div>
                 `).join('')}
               `).join('')}
@@ -1272,9 +1309,9 @@
         ${likedShopping.map((shop, idx) => `
           <div class="diet-card" style="grid-column: 1 / -1; padding: 1.5rem; border-radius: 16px; background: rgba(255,255,255,0.78); border: 1px solid rgba(0,0,0,0.06); position: relative; margin-bottom: 0.5rem;">
             <button onclick="removeLikedShopping(${idx})" style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; font-size:1.3rem; cursor:pointer;" title="Usuń z ulubionych">❤️</button>
-            <h4 style="font-weight:700; color:var(--navy); font-size:1.05rem; margin-bottom:0.75rem; padding-right:2rem;">${shop.title}</h4>
+            <h4 style="font-weight:700; color:var(--navy); font-size:1.05rem; margin-bottom:0.75rem; padding-right:2rem;">${VFSecurity.escapeHTML(shop.title)}</h4>
             <div class="diet-ai-shopping-tags-wrapper" style="margin-top:0.5rem;">
-              ${shop.items.map(item => `<span class="diet-ai-shopping-tag">${item}</span>`).join('')}
+              ${shop.items.map(item => `<span class="diet-ai-shopping-tag">${VFSecurity.escapeHTML(item)}</span>`).join('')}
             </div>
           </div>
         `).join('')}

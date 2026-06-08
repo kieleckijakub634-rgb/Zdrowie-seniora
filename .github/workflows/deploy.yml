@@ -1,11 +1,9 @@
-name: Deploy www to GitHub Pages
+name: Quality, Android and GitHub Pages
 
 on:
-  # Uruchom na push do brancha main
   push:
     branches: ["main"]
-
-  # Pozwala również na manualne wywołanie
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -14,11 +12,115 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: "pages-${{ github.ref }}"
+  cancel-in-progress: true
 
 jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build local CSS
+        run: npm run build
+
+      - name: Run regression checks
+        run: npm test
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Reject known secret formats
+        shell: bash
+        run: |
+          if git grep -nE 'sk_live_[A-Za-z0-9]|sk-or-v1-[A-Za-z0-9]{20,}' -- . ':!package-lock.json'; then
+            echo "Potential production secret committed to the repository."
+            exit 1
+          fi
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Sync Capacitor Android
+        run: npm run android:sync
+
+      - name: Build debug APK
+        run: |
+          chmod +x android/gradlew
+          android/gradlew -p android assembleDebug
+
+      - name: Restore Android upload key
+        if: github.event_name != 'pull_request'
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          for secret_name in \
+            ANDROID_KEYSTORE_BASE64 \
+            ANDROID_KEYSTORE_PASSWORD \
+            ANDROID_KEY_ALIAS \
+            ANDROID_KEY_PASSWORD
+          do
+            if [ -z "${!secret_name}" ]; then
+              echo "$secret_name is not configured."
+              exit 1
+            fi
+          done
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/vitalfly-upload.jks"
+          test -s "$RUNNER_TEMP/vitalfly-upload.jks"
+
+      - name: Build signed release bundle
+        if: github.event_name != 'pull_request'
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/vitalfly-upload.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: android/gradlew -p android bundleRelease
+
+      - name: Upload signed Android bundle
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitalfly-android-release
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 30
+
   deploy:
+    if: github.event_name != 'pull_request'
+    needs: [quality, android]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -26,16 +128,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
-        
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Skonfiguruj akcję tak, aby wysyłała TYLKO folder www na główny adres
           path: './www'
-          
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

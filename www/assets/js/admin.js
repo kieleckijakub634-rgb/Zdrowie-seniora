@@ -1,24 +1,43 @@
-    function adminLogin() {
-      const pass = document.getElementById('admin-pass-input').value;
-      if (pass === ADMIN_PASS) {
+    async function adminLogin() {
+      const errorElement = document.getElementById('admin-login-err');
+      const statusElement = document.getElementById('admin-login-status');
+      if (errorElement) errorElement.style.display = 'none';
+      if (statusElement) statusElement.textContent = 'Sprawdzanie uprawnień...';
+
+      try {
+        window.initSupabase();
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        if (!session) throw new Error('Najpierw zaloguj się do aplikacji kontem administratora.');
+
+        const { data, error } = await window.supabaseClient.functions.invoke('admin-config', {
+          body: { action: 'check' }
+        });
+        if (error || !data || data.isAdmin !== true) {
+          throw new Error('To konto nie ma uprawnień administratora.');
+        }
+
         document.getElementById('adminLoginView').style.display = 'none';
         document.getElementById('adminPanelView').style.display = 'block';
         renderAdminContent();
         loadModuleSettings();
         updateAdminStats();
-      } else {
-        document.getElementById('admin-login-err').style.display = 'block';
+      } catch (error) {
+        if (statusElement) statusElement.textContent = '';
+        if (errorElement) {
+          errorElement.textContent = error.message || 'Nie udało się zweryfikować uprawnień.';
+          errorElement.style.display = 'block';
+        }
       }
     }
 
-    function adminLogout() {
-      document.getElementById('adminLoginView').style.display = 'block';
-      document.getElementById('adminPanelView').style.display = 'none';
-      document.getElementById('admin-pass-input').value = '';
+    async function adminLogout() {
+      closeAdmin();
+      if (typeof logout === 'function') await logout();
     }
 
     function closeAdmin() {
       document.getElementById('adminShell').style.display = 'none';
+      document.body.classList.remove('admin-open');
     }
 
     function switchAdminTab(name, btn) {
@@ -28,12 +47,21 @@
       btn.classList.add('active');
     }
 
-    function updateAdminStats() {
+    async function updateAdminStats() {
       const meds = JSON.parse(localStorage.getItem('kz_medications') || '[]');
       const el = document.getElementById('a-stat-meds');
       if (el) el.textContent = meds.length;
       const users = document.getElementById('a-stat-users');
-      if (users) users.textContent = localStorage.getItem('kz_name') ? '1' : '0';
+      if (users) users.textContent = '...';
+      try {
+        const { data, error } = await window.supabaseClient.functions.invoke('admin-config', {
+          body: { action: 'stats' }
+        });
+        if (error) throw error;
+        if (users) users.textContent = String(data.userCount || 0);
+      } catch (_) {
+        if (users) users.textContent = '—';
+      }
     }
 
     async function saveData(type) {
@@ -65,21 +93,34 @@
 
 
     async function saveAdminPrices() {
-      const pm = document.getElementById('admin-price-monthly').value;
-      const py = document.getElementById('admin-price-yearly').value;
+      const pm = Number(document.getElementById('admin-price-monthly').value);
+      const py = Number(document.getElementById('admin-price-yearly').value);
       const promoE = document.getElementById('admin-promo-enabled').checked ? '1' : '0';
-      const promoP = document.getElementById('admin-promo-percent').value;
+      const promoP = Number(document.getElementById('admin-promo-percent').value);
       const presaleE = document.getElementById('admin-presale-enabled').checked ? '1' : '0';
-      const presalePm = document.getElementById('admin-presale-price-monthly').value;
-      const presalePy = document.getElementById('admin-presale-price-yearly').value;
+      const presalePm = Number(document.getElementById('admin-presale-price-monthly').value);
+      const presalePy = Number(document.getElementById('admin-presale-price-yearly').value);
+
+      if (!Number.isFinite(pm) || pm <= 0 || !Number.isFinite(py) || py <= 0) {
+        showToast('❌ Ceny regularne muszą być dodatnimi liczbami.');
+        return;
+      }
+      if (!Number.isFinite(promoP) || promoP < 0 || promoP > 90) {
+        showToast('❌ Rabat musi mieścić się w zakresie 0–90%.');
+        return;
+      }
+      if (presaleE === '1' && (!Number.isFinite(presalePm) || presalePm <= 0 || !Number.isFinite(presalePy) || presalePy <= 0)) {
+        showToast('❌ Ceny przedsprzedaży muszą być dodatnimi liczbami.');
+        return;
+      }
       
-      if (pm) localStorage.setItem('kz_price_monthly', pm);
-      if (py) localStorage.setItem('kz_price_yearly', py);
+      localStorage.setItem('kz_price_monthly', String(pm));
+      localStorage.setItem('kz_price_yearly', String(py));
       localStorage.setItem('kz_promo_enabled', promoE);
-      if (promoP) localStorage.setItem('kz_promo_percent', promoP);
+      localStorage.setItem('kz_promo_percent', String(promoP));
       localStorage.setItem('kz_presale_enabled', presaleE);
-      if (presalePm) localStorage.setItem('kz_presale_price_monthly', presalePm);
-      if (presalePy) localStorage.setItem('kz_presale_price_yearly', presalePy);
+      if (presaleE === '1') localStorage.setItem('kz_presale_price_monthly', String(presalePm));
+      if (presaleE === '1') localStorage.setItem('kz_presale_price_yearly', String(presalePy));
       
       if (typeof switchPlan === 'function' && typeof currentPlan !== 'undefined') switchPlan(currentPlan);
       if (typeof updateDynamicPrices === 'function') updateDynamicPrices();
@@ -114,21 +155,21 @@
       <div style="background:#f8f9fa;border:1px solid #e2e8f0;border-radius:12px;padding:1rem;margin-bottom:1rem;position:relative;">
         <button onclick="delAdminVideo(${i})" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:#e53e3e;cursor:pointer;font-weight:bold;padding:0;">✕ Usuń</button>
         <div style="display:flex;gap:.5rem;margin-bottom:.5rem;padding-right:4rem;flex-wrap:wrap;">
-          <input class="admin-input" style="width:4rem;text-align:center;" value="${v.emoji}" onchange="APP_DATA.videos[${i}].emoji=this.value" placeholder="🎥" />
-          <input class="admin-input" style="flex:1;min-width:150px;" value="${v.title}" onchange="APP_DATA.videos[${i}].title=this.value" placeholder="Tytuł filmu" />
-          <input class="admin-input" style="width:7rem;" value="${v.tag}" onchange="APP_DATA.videos[${i}].tag=this.value" placeholder="Tag" />
+          <input class="admin-input" style="width:4rem;text-align:center;" value="${VFSecurity.escapeHTML(v.emoji)}" onchange="APP_DATA.videos[${i}].emoji=this.value" placeholder="🎥" />
+          <input class="admin-input" style="flex:1;min-width:150px;" value="${VFSecurity.escapeHTML(v.title)}" onchange="APP_DATA.videos[${i}].title=this.value" placeholder="Tytuł filmu" />
+          <input class="admin-input" style="width:7rem;" value="${VFSecurity.escapeHTML(v.tag)}" onchange="APP_DATA.videos[${i}].tag=this.value" placeholder="Tag" />
         </div>
         <div style="display:flex;gap:.5rem;margin-bottom:.5rem;flex-wrap:wrap;">
-          <input class="admin-input" style="width:6rem;" value="${v.duration}" onchange="APP_DATA.videos[${i}].duration=this.value" placeholder="15 min" />
-          <input class="admin-input" style="width:8rem;" value="${v.day}" onchange="APP_DATA.videos[${i}].day=this.value" placeholder="Dzień" />
-          <input class="admin-input" style="flex:1;min-width:150px;" value="${v.desc}" onchange="APP_DATA.videos[${i}].desc=this.value" placeholder="Krótki opis..." />
+          <input class="admin-input" style="width:6rem;" value="${VFSecurity.escapeHTML(v.duration)}" onchange="APP_DATA.videos[${i}].duration=this.value" placeholder="15 min" />
+          <input class="admin-input" style="width:8rem;" value="${VFSecurity.escapeHTML(v.day)}" onchange="APP_DATA.videos[${i}].day=this.value" placeholder="Dzień" />
+          <input class="admin-input" style="flex:1;min-width:150px;" value="${VFSecurity.escapeHTML(v.desc)}" onchange="APP_DATA.videos[${i}].desc=this.value" placeholder="Krótki opis..." />
         </div>
         
         <div style="border:2px dashed #DDE6F0; border-radius:8px; padding:0.4rem; text-align:center; font-size:0.8rem; color:var(--warm-gray); transition:all 0.2s;"
           ondragover="event.preventDefault(); this.style.borderColor='#4DBFA8'; this.style.background='#F0F8F5';" 
           ondragleave="this.style.borderColor='#DDE6F0'; this.style.background='transparent';" 
           ondrop="handleVideoDrop(event, ${i})">
-          <input class="admin-input" style="width:100%; padding:0.3rem; margin-bottom:0.2rem; font-size:0.8rem;" value="${v.url && v.url.startsWith('blob:') ? '(Wgrano plik lokalny)' : (v.url || '')}" onchange="if(!this.value.includes('Wgrano')){APP_DATA.videos[${i}].url=this.value}" placeholder="Link YouTube lub przeciągnij plik .mp4 z komputera tutaj" />
+          <input class="admin-input" style="width:100%; padding:0.3rem; margin-bottom:0.2rem; font-size:0.8rem;" value="${VFSecurity.escapeHTML(v.url && v.url.startsWith('blob:') ? '(Wgrano plik lokalny)' : (v.url || ''))}" onchange="if(!this.value.includes('Wgrano')){APP_DATA.videos[${i}].url=this.value}" placeholder="Link YouTube lub przeciągnij plik .mp4 z komputera tutaj" />
         </div>
         <div style="text-align:right;margin-top:.5rem;"><button class="admin-btn" style="padding:.4rem 1rem;" onclick="saveData('videos')">Zapisz ten film</button></div>
       </div>
@@ -167,17 +208,6 @@
         const adminChk = document.getElementById('mod-' + name);
         if (adminChk) adminChk.checked = enabled;
       });
-      const aiModel = document.getElementById('admin-ai-model');
-      const aiKey = document.getElementById('admin-ai-key');
-      const aiConfig = window.VitalFlyAI
-        ? window.VitalFlyAI.getConfig()
-        : {
-            model: localStorage.getItem('kz_ai_model') || 'google/gemma-4-31b-it',
-            apiKey: localStorage.getItem('kz_ai_api_key') || ''
-          };
-
-      if (aiModel) aiModel.value = aiConfig.model || 'google/gemma-4-31b-it';
-      if (aiKey) aiKey.value = aiConfig.apiKey || '';
     }
 
     async function saveAnnounce() {
@@ -215,40 +245,15 @@
       }
     }
 
-    /* Patch showApp — zapisz sesję i init ustawień */
+    /* Patch showApp — inicjalizacja ustawień użytkownika */
     const _origShowApp = showApp;
     window.showApp = function (userName) {
-      asyncSetItem('kz_session', JSON.stringify({ name: userName, plan: localStorage.getItem('kz_plan') || 'monthly', ts: Date.now() }));
       _origShowApp(userName);
       setTimeout(() => { initSettings(); showAnnounceIfExists(); }, 100);
     };
 
-    /* Przy starcie sprawdź czy jest aktywna sesja */
+    /* Przy starcie pobierz publiczną konfigurację i obsłuż skrót admina. */
     window.addEventListener('DOMContentLoaded', async () => {
-      let sessionStr = localStorage.getItem('kz_session');
-      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
-        try {
-          const capSession = await window.Capacitor.Plugins.Preferences.get({ key: 'kz_session' });
-          if (capSession && capSession.value) {
-            sessionStr = capSession.value;
-            localStorage.setItem('kz_session', sessionStr);
-          }
-        } catch (e) {
-          console.error("Błąd odczytu sesji z Preferences:", e);
-        }
-      }
-
-      if (sessionStr) {
-        try {
-          const session = JSON.parse(sessionStr);
-          if (session && session.name) {
-            showApp(session.name);
-          }
-        } catch (e) {
-          console.error("Błąd wczytywania sesji:", e);
-        }
-      }
-
       syncFromCloud(); // non-blocking fetch from Supabase
 
       /* Sprawdź hash #admin */

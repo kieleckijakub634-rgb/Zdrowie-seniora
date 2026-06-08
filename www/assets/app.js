@@ -1,13 +1,3 @@
-    /* ── TRIGGER APP on payment success OR ?app=1 demo ── */
-
-
-    // Check URL for demo mode
-    window.addEventListener('DOMContentLoaded', () => {
-      if (new URLSearchParams(window.location.search).get('app') === '1') {
-        showApp('Krystyna Wiśniewska');
-      }
-    });
-
     /* ══════ NOWE FUNKCJE ══════ */
 
     /* Plan toggle (landing) */
@@ -57,6 +47,12 @@
       const prices = getPlanPrices();
       const pM = prices.monthly;
       const pY = prices.yearly;
+      const yearlyDiscount = pM > 0 ? Math.max(0, Math.round((1 - pY / (pM * 12)) * 100)) : 0;
+      const yearlyBadge = document.getElementById('yearly-discount-badge');
+      if (yearlyBadge) {
+        yearlyBadge.textContent = yearlyDiscount > 0 ? `-${yearlyDiscount}%` : '';
+        yearlyBadge.style.display = yearlyDiscount > 0 ? '' : 'none';
+      }
 
       document.querySelectorAll('.dynamic-price-m').forEach(el => {
         if (el.tagName === 'BUTTON') {
@@ -317,20 +313,22 @@
     }
 
     /* Plan w ustawieniach */
-    function upgradePlan() {
-      const email = localStorage.getItem('kz_email') || '';
-      const STRIPE_LINK_YEARLY = 'https://buy.stripe.com/test_cNi28rdrU5MCfjwa7P9Zm01';
-      
-      localStorage.setItem('kz_pending_upgrade', 'yearly');
-      
+    async function upgradePlan() {
       const btn = document.getElementById('upgrade-btn');
       if (btn) {
-        btn.textContent = '⏳ Przekierowuję do Stripe...';
+        btn.textContent = 'Przekierowuję do Stripe...';
         btn.disabled = true;
       }
-      
-      // Redirect to Stripe with prefilled email
-      window.location.href = `${STRIPE_LINK_YEARLY}?prefilled_email=${encodeURIComponent(email)}`;
+      try {
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        await window.startTestStripeCheckout(user, 'yearly');
+      } catch (error) {
+        if (btn) {
+          btn.textContent = 'Przejdź na plan roczny';
+          btn.disabled = false;
+        }
+        showToast('Nie udało się otworzyć testowej płatności Stripe.', 2600);
+      }
     }
     function formatSubscriptionEndDate(dateString) {
       if (!dateString) return '';
@@ -339,108 +337,31 @@
       return date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
-    function getSubscriptionEndDate(plan) {
-      const currentValue = localStorage.getItem('kz_subscription_end_date') || '';
-      if (currentValue) return currentValue;
-
-      const date = new Date();
-      if (plan === 'yearly') date.setFullYear(date.getFullYear() + 1);
-      else date.setMonth(date.getMonth() + 1);
-      return date.toISOString();
-    }
-
     async function cancelSubscription() {
-      if (confirm('Czy na pewno chcesz anulować subskrypcję? Zachowasz dostęp do końca opłaconego okresu.')) {
-        localStorage.setItem('kz_subscription_status', 'cancelled');
-        loadPlanSettings();
-        syncToCloud();
-        showToast('🔒 Subskrypcja została anulowana.', 800);
-      }
-    }
-    function loadPlanSettings() {
-      const plan = localStorage.getItem('kz_plan') || 'monthly';
-      const subStatus = localStorage.getItem('kz_subscription_status') || 'active';
-      const label = document.getElementById('plan-current-label');
-      const btn = document.getElementById('upgrade-btn');
-      const badge = document.getElementById('app-plan-badge');
-      const upgradeRow = document.getElementById('upgrade-plan-row');
-      const cancelBtn = document.getElementById('cancel-sub-btn');
-      
-      const prices = getPlanPrices();
-      const pM = prices.monthly;
-      const pY = prices.yearly;
-
-      if (plan === 'yearly') {
-        if (label) label.textContent = `📅 Roczny • ${pY} zł/rok`;
-        if (badge) {
-          badge.textContent = '✓ PLAN ROCZNY';
-          badge.style.display = 'inline-block';
-          badge.style.background = '';
-        }
-        if (upgradeRow) upgradeRow.style.display = 'none';
-      } else {
-        if (label) label.textContent = `📅 Miesięczny • ${pM} zł/miesiąc`;
-        if (badge) {
-          badge.textContent = '✓ PLAN MIESIĘCZNY';
-          badge.style.display = 'inline-block';
-          badge.style.background = '';
-        }
-        if (upgradeRow) upgradeRow.style.display = 'flex';
-      }
-
-      if (subStatus === 'cancelled') {
-        if (cancelBtn) {
-          cancelBtn.textContent = 'Subskrypcja anulowana';
-          cancelBtn.disabled = true;
-          cancelBtn.style.background = '#6B7A8D';
-          cancelBtn.style.color = '#fff';
-          cancelBtn.style.borderColor = 'transparent';
-          cancelBtn.style.cursor = 'default';
-        }
-      } else {
-        if (cancelBtn) {
-          cancelBtn.textContent = 'Rezygnuj z subskrypcji';
-          cancelBtn.disabled = false;
-          cancelBtn.style.background = '';
-          cancelBtn.style.color = '';
-          cancelBtn.style.borderColor = '';
-          cancelBtn.style.cursor = 'pointer';
-        }
+      if (!confirm('Otworzyć bezpieczny portal Stripe do zarządzania subskrypcją?')) return;
+      try {
+        await window.openBillingPortal();
+      } catch (error) {
+        showToast(error.message || 'Nie udało się otworzyć portalu Stripe.', 2800);
       }
     }
 
     async function resumeSubscription() {
-      if (!confirm('Przywrócić automatyczne odnawianie subskrypcji?')) return;
-
-      localStorage.setItem('kz_subscription_status', 'active');
-      localStorage.removeItem('kz_subscription_end_date');
-      loadPlanSettings();
-      const synced = await syncToCloud();
-      if (synced) showToast('✅ Automatyczne odnawianie subskrypcji zostało przywrócone.', 2400);
-      else showToast('❌ Nie udało się przywrócić odnawiania subskrypcji.', 2600);
+      await cancelSubscription();
     }
 
-    cancelSubscription = async function () {
-      const plan = localStorage.getItem('kz_plan') || 'monthly';
-      const endDate = getSubscriptionEndDate(plan);
-      const formattedDate = formatSubscriptionEndDate(endDate);
-      const confirmText = formattedDate
-        ? `Czy na pewno chcesz anulować subskrypcję? Zachowasz dostęp do ${formattedDate}.`
-        : 'Czy na pewno chcesz anulować subskrypcję? Zachowasz dostęp do końca opłaconego okresu.';
-
-      if (!confirm(confirmText)) return;
-
-      localStorage.setItem('kz_subscription_status', 'cancelled');
-      localStorage.setItem('kz_subscription_end_date', endDate);
+    async function refreshBillingState() {
+      try {
+        await window.fetchBillingState();
+      } catch (error) {
+        console.warn('Nie udało się odświeżyć subskrypcji:', error);
+      }
       loadPlanSettings();
-      const synced = await syncToCloud();
-      if (synced) showToast(`🔒 Subskrypcja została anulowana. Dostęp wygaśnie ${formattedDate}.`, 2600);
-      else showToast('❌ Nie udało się zsynchronizować anulowania subskrypcji.', 2600);
-    };
+    }
 
     loadPlanSettings = function () {
       const plan = localStorage.getItem('kz_plan') || 'monthly';
-      const subStatus = localStorage.getItem('kz_subscription_status') || 'active';
+      const subStatus = localStorage.getItem('kz_subscription_status') || 'inactive';
       const subEndDate = localStorage.getItem('kz_subscription_end_date') || '';
       const label = document.getElementById('plan-current-label');
       const renewalInfo = document.getElementById('plan-renewal-info');
@@ -471,13 +392,13 @@
         if (upgradeRow) upgradeRow.style.display = 'flex';
       }
 
-      if (subStatus === 'cancelled') {
+      if (subStatus === 'canceled' || subStatus === 'cancelled') {
         const formattedDate = formatSubscriptionEndDate(subEndDate);
         if (renewalInfo && formattedDate) renewalInfo.textContent = `Subskrypcja zakończy się ${formattedDate}`;
         if (cancelBtn) {
-          cancelBtn.textContent = 'Przywróć subskrypcję';
+          cancelBtn.textContent = 'Zarządzaj subskrypcją';
           cancelBtn.disabled = false;
-          cancelBtn.onclick = resumeSubscription;
+          cancelBtn.onclick = cancelSubscription;
           cancelBtn.style.background = '#4DBFA8';
           cancelBtn.style.color = '#fff';
           cancelBtn.style.borderColor = 'transparent';
@@ -485,7 +406,7 @@
         }
       } else {
         if (cancelBtn) {
-          cancelBtn.textContent = 'Rezygnuj z subskrypcji';
+          cancelBtn.textContent = 'Zarządzaj subskrypcją';
           cancelBtn.disabled = false;
           cancelBtn.onclick = cancelSubscription;
           cancelBtn.style.background = '';
@@ -573,12 +494,14 @@
 
     async function saveHealthProfile() {
       const text = document.getElementById('health-issues-input')?.value.trim() || '';
+      const shareWithAI = document.getElementById('ai-health-consent')?.checked === true;
       try {
         if (typeof window.asyncSetItem === 'function') {
           await window.asyncSetItem('kz_health_issues', text);
         } else {
           localStorage.setItem('kz_health_issues', text);
         }
+        localStorage.setItem('kz_ai_health_consent', shareWithAI ? '1' : '0');
         clearDietCache();
         const synced = await syncToCloud({ throwOnError: true });
         if (!synced) throw new Error('Brak aktywnej sesji użytkownika.');
@@ -602,6 +525,8 @@
       }
       const input = document.getElementById('health-issues-input');
       if (input) input.value = text;
+      const consent = document.getElementById('ai-health-consent');
+      if (consent) consent.checked = localStorage.getItem('kz_ai_health_consent') === '1';
     }
 
     /* Rozmiar tekstu */
@@ -661,7 +586,6 @@
     }
 
     /* ══ ADMIN ══ */
-    const ADMIN_PASS = 'admin2025';
     let adminClickCount = 0;
     let adminClickTimer = null;
 
@@ -672,13 +596,13 @@
       if (adminClickCount >= 5) { adminClickCount = 0; openAdmin(); }
     }
 
-    function openAdmin() {
+    async function openAdmin() {
       const shell = document.getElementById('adminShell');
       if (!shell) return;
       shell.style.display = 'block';
+      document.body.classList.add('admin-open');
       document.getElementById('adminLoginView').style.display = 'block';
       document.getElementById('adminPanelView').style.display = 'none';
       document.getElementById('admin-login-err').style.display = 'none';
-      document.getElementById('admin-pass-input').value = '';
-      document.getElementById('admin-pass-input').focus();
+      if (typeof adminLogin === 'function') await adminLogin();
     }

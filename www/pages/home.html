@@ -139,7 +139,7 @@
         </div>
       </div>
 
-      <div class="text-center mt-14"><button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse">Chcę to wszystko - dołączam za 39 zł/miesiąc →</button></div>
+      <div class="text-center mt-14"><button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse dynamic-price-m">Chcę to wszystko - dołączam za 39 zł/miesiąc →</button></div>
     </div>
   </section>
 
@@ -203,7 +203,7 @@
           <ul class="space-y-4">
             <li class="flex items-center gap-3 text-white" style="font-size:1.05rem;"><span class="check-icon flex-shrink-0" style="background:#fff;color:var(--navy);">✓</span> Bez umów długoterminowych</li>
             <li class="flex items-center gap-3 text-white" style="font-size:1.05rem;"><span class="check-icon flex-shrink-0" style="background:#fff;color:var(--navy);">✓</span> Rezygnacja jednym kliknięciem</li>
-            <li class="flex items-center gap-3 text-white" style="font-size:1.05rem;"><span class="check-icon flex-shrink-0" style="background:#fff;color:var(--navy);">✓</span> Odpowiadamy na pytania w ciągu 24 godzin</li>
+            <li class="flex items-center gap-3 text-white" style="font-size:1.05rem;"><span class="check-icon flex-shrink-0" style="background:#fff;color:var(--navy);">✓</span> Kontakt e-mail w sprawach konta i dostępu</li>
             <li class="flex items-center gap-3 text-white" style="font-size:1.05rem;"><span class="check-icon flex-shrink-0" style="background:#fff;color:var(--navy);">✓</span> Dane osobowe chronione zgodnie z RODO</li>
           </ul>
         </div>
@@ -221,7 +221,7 @@
 
       <div class="plan-toggle" id="planToggle">
         <button class="plan-toggle-btn active" id="btn-monthly" onclick="switchPlan('monthly')">Miesięczny</button>
-        <button class="plan-toggle-btn" id="btn-yearly" onclick="switchPlan('yearly')">Roczny <span class="plan-badge">-17%</span></button>
+        <button class="plan-toggle-btn" id="btn-yearly" onclick="switchPlan('yearly')">Roczny <span class="plan-badge" id="yearly-discount-badge"></span></button>
       </div>
 
       <div class="price-box">
@@ -241,7 +241,7 @@
         </ul>
 
         <button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse" style="width:100%;text-align:center;display:block;" id="main-join-btn">Dołączam do Klubu za 39 zł/miesiąc →</button>
-        <p class="mt-5 text-center" style="font-size:.95rem;color:var(--warm-gray);line-height:1.55;font-weight:500;">Bezpieczna płatność przez <strong>Stripe</strong> - BLIK, karta, Apple Pay lub Google Pay.<br />Bez umowy. Rezygnacja w każdej chwili.</p>
+        <p class="mt-5 text-center" style="font-size:.95rem;color:var(--warm-gray);line-height:1.55;font-weight:500;"><strong>Środowisko testowe Stripe — rzeczywiste środki nie zostaną pobrane.</strong><br />Dostępne metody zależą od konfiguracji konta testowego.</p>
       </div>
     </div>
   </section>
@@ -262,23 +262,23 @@
 
       <div class="space-y-4">
         <div class="faq-item">
-          <div class="faq-q" onclick="toggleFaq(this)">Czy to bezpieczne dla mojego zdrowia? Mam problemy z kręgosłupem i kolanami.</div>
-          <div class="faq-a">Tak, absolutnie. Wszystkie ćwiczenia są zaprojektowane przez dyplomowanego fizjoterapeutę z 20-letnim doświadczeniem w pracy z seniorami. Przed każdym wideo prowadzący wyjaśnia, kto <em>nie powinien</em> wykonywać danego ćwiczenia. W razie wątpliwości fizjoterapeuta osobiście odpowie na pytania w grupie.</div>
+          <button class="faq-q" type="button" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-answer-1">Czy to bezpieczne dla mojego zdrowia? Mam problemy z kręgosłupem i kolanami.</button>
+          <div class="faq-a" id="faq-answer-1" hidden>Ćwiczenia mają charakter informacyjny i zawierają łagodne warianty. Przy chorobach, bólu lub wątpliwościach skonsultuj rozpoczęcie ćwiczeń z lekarzem albo fizjoterapeutą i przerwij aktywność przy niepokojących objawach.</div>
         </div>
         <div class="faq-item">
-          <div class="faq-q" onclick="toggleFaq(this)">Jak zapłacić? Nie umiem robić przelewów przez internet.</div>
-          <div class="faq-a">To żaden problem! Możesz zapłacić przez <strong>BLIK (telefonem)</strong>, <strong>kartę płatniczą</strong>, <strong>Apple Pay</strong> lub <strong>Google Pay</strong> - wszystko przez bezpieczny system płatności Stripe. Jeśli potrzebujesz pomocy, zadzwoń do nas. Nasz konsultant przeprowadzi Cię przez cały proces przez telefon, krok po kroku.</div>
+          <button class="faq-q" type="button" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-answer-2">Jak zapłacić? Nie umiem robić przelewów przez internet.</button>
+          <div class="faq-a" id="faq-answer-2" hidden>Płatność jest obsługiwana przez Stripe w trybie testowym. Dostępne metody zależą od konfiguracji Stripe i urządzenia użytkownika.</div>
         </div>
         <div class="faq-item">
-          <div class="faq-q" onclick="toggleFaq(this)">Co jeśli nie mam kondycji i nigdy wcześniej nie ćwiczyłem/-am?</div>
-          <div class="faq-a">To jest właśnie klub stworzony <em>dla Ciebie</em>. Zaczynamy od podstawowych, łagodnych ruchów - takich, które możesz wykonać siedząc na krześle lub trzymając się blatu kuchennego. Żadnego wyścigu, żadnego oceniania. Twój jedyny rywal to Ty z wczoraj.</div>
+          <button class="faq-q" type="button" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-answer-3">Co jeśli nie mam kondycji i nigdy wcześniej nie ćwiczyłem/-am?</button>
+          <div class="faq-a" id="faq-answer-3" hidden>Zacznij od najłatwiejszych wariantów i krótkich sesji, w swoim tempie. W razie bólu, duszności, zawrotów głowy lub nietypowych objawów przerwij ćwiczenie.</div>
         </div>
       </div>
 
       <div class="text-center mt-16">
         <p class="font-serif mb-6" style="font-size:1.35rem;color:var(--navy);line-height:1.5;">Masz inne pytanie? Napisz do nas -<br />odpowiemy w ciągu 24 godzin.</p>
         <a href="mailto:kontakt@vitalfly.pl" style="color:var(--mint);font-weight:700;font-size:1.15rem;text-decoration:underline;">kontakt@vitalfly.pl</a>
-        <div class="mt-10"><button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse">Dołączam do Klubu za 39 zł/miesiąc →</button></div>
+        <div class="mt-10"><button onclick="openModal()" class="btn-cta btn-cta-lg btn-cta-pulse dynamic-price-m">Dołączam do Klubu za 39 zł/miesiąc →</button></div>
       </div>
     </div>
   </section>
@@ -293,7 +293,7 @@
         <a href="/kontakt" onclick="event.preventDefault();navigateTo('kontakt')" style="color:rgba(255,255,255,.7);text-decoration:none;margin:0 .85rem;font-weight:500;transition:var(--transition-smooth);">Kontakt</a>
         <a href="/facebook" onclick="event.preventDefault();navigateTo('facebook')" style="color:rgba(255,255,255,.7);text-decoration:none;margin:0 .85rem;font-weight:500;transition:var(--transition-smooth);">Grupa na Facebooku</a>
       </p>
-      <p style="opacity:.6;cursor:pointer;font-weight:500;display:inline-block;" id="copyright-trigger" onclick="adminClickTrigger()">© 2025 VitalFly. Wszelkie prawa zastrzeżone.</p>
+      <p style="opacity:.6;cursor:pointer;font-weight:500;display:inline-block;" id="copyright-trigger" onclick="adminClickTrigger()">© 2026 VitalFly. Wszelkie prawa zastrzeżone.</p>
       <p class="mt-4" style="opacity:.45;font-size:.82rem;line-height:1.5;max-width:680px;margin-left:auto;margin-right:auto;">Ćwiczenia zaprezentowane na stronie mają charakter informacyjny. Przed rozpoczęciem aktywności fizycznej skonsultuj się ze swoim lekarzem.</p>
     </div>
   </footer>

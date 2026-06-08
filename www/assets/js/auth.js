@@ -94,40 +94,74 @@ window.applyUserProfileData = async function(cloud) {
   const healthIssuesVal = hasCloudField('healthIssues') ? (cloud.healthIssues || '') : (localStorage.getItem('kz_health_issues') || '');
   await window.asyncSetItem('kz_health_issues', healthIssuesVal);
 
-  // 10. Subscription state
-  const subscriptionStatusVal = hasCloudField('subscriptionStatus') ? (cloud.subscriptionStatus || 'active') : (localStorage.getItem('kz_subscription_status') || 'active');
-  await window.asyncSetItem('kz_subscription_status', subscriptionStatusVal);
-
-  const subscriptionEndDateVal = hasCloudField('subscriptionEndDate') ? (cloud.subscriptionEndDate || '') : (localStorage.getItem('kz_subscription_end_date') || '');
-  if (subscriptionEndDateVal) {
-    await window.asyncSetItem('kz_subscription_end_date', subscriptionEndDateVal);
-  } else {
-    await window.asyncRemoveItem('kz_subscription_end_date');
-  }
 };
 
 /* ── Modal ── */
-    function openModal() { document.getElementById('signupModal').classList.add('open'); document.body.style.overflow = 'hidden'; showStep(1); }
+    let lastModalTrigger = null;
+    function openAccessibleModal(modal, preferredFocus) {
+      if (!modal) return;
+      lastModalTrigger = document.activeElement;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => {
+        const target = preferredFocus || modal.querySelector('input:not([type="hidden"]), button, select, textarea, a[href]');
+        if (target) target.focus();
+      });
+    }
+    function closeAccessibleModal(modal) {
+      if (!modal) return;
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      if (!document.querySelector('.modal-overlay.open')) document.body.style.overflow = '';
+      if (lastModalTrigger && typeof lastModalTrigger.focus === 'function') lastModalTrigger.focus();
+      lastModalTrigger = null;
+    }
+    window.openAccessibleModal = openAccessibleModal;
+    window.closeAccessibleModal = closeAccessibleModal;
+
+    document.addEventListener('keydown', (event) => {
+      const modal = document.querySelector('.modal-overlay.open');
+      if (!modal) return;
+      if (event.key === 'Escape') {
+        const closeButton = modal.querySelector('.modal-close');
+        if (closeButton && closeButton.offsetParent !== null) closeButton.click();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const focusable = [...modal.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+        .filter(element => element.offsetParent !== null);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    function openModal() { openAccessibleModal(document.getElementById('signupModal'), document.getElementById('inp-name')); showStep(1); }
     function closeModal() { 
       const step3 = document.getElementById('step3');
       if (step3 && step3.style.display === 'block') {
         alert('Musisz autoryzować konto, wpisując kod lub klikając link w e-mailu, aby móc przejść dalej.');
         return;
       }
-      document.getElementById('signupModal').classList.remove('open'); 
-      document.body.style.overflow = ''; 
+      closeAccessibleModal(document.getElementById('signupModal'));
     }
     function handleOverlayClick(e) { if (e.target === document.getElementById('signupModal')) closeModal(); }
 
-    function openLoginModal() { document.getElementById('loginModal').classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function openLoginModal() { openAccessibleModal(document.getElementById('loginModal'), document.getElementById('login-email')); }
     function closeLoginModal() { 
-      document.getElementById('loginModal').classList.remove('open'); 
-      document.body.style.overflow = ''; 
+      closeAccessibleModal(document.getElementById('loginModal'));
       const successEl = document.getElementById('login-confirm-success');
       if (successEl) successEl.style.display = 'none';
     }
-    function openPaymentSuccessModal() { document.getElementById('paymentSuccessModal').classList.add('open'); document.body.style.overflow = 'hidden'; }
-    function closePaymentSuccessModal() { document.getElementById('paymentSuccessModal').classList.remove('open'); document.body.style.overflow = ''; }
+    function openPaymentSuccessModal() { openAccessibleModal(document.getElementById('paymentSuccessModal')); }
+    function closePaymentSuccessModal() { closeAccessibleModal(document.getElementById('paymentSuccessModal')); }
     async function handleLogin() {
       window.initSupabase();
       const e = document.getElementById('login-email').value.trim();
@@ -148,8 +182,7 @@ window.applyUserProfileData = async function(cloud) {
             if (emailDisp) emailDisp.textContent = e;
             const signupModal = document.getElementById('signupModal');
             if (signupModal) {
-              signupModal.classList.add('open');
-              document.body.style.overflow = 'hidden';
+              openAccessibleModal(signupModal, document.getElementById('verification-code'));
             }
             showStep(3);
             btn.innerHTML = origText; btn.disabled = false;
@@ -185,8 +218,16 @@ window.applyUserProfileData = async function(cloud) {
           console.error("Błąd wczytywania profilu:", e);
         }
 
+        const billing = await window.fetchBillingState();
         closeLoginModal();
-        showApp(displayName);
+        if (billing.hasAccess) {
+          showApp(displayName);
+        } else {
+          openModal();
+          showStep(2);
+          const notice = document.querySelector('#step2 .vf-info-box');
+          if (notice) notice.textContent = 'Konto jest aktywne. Dokończ testową płatność Stripe, aby uzyskać dostęp do aplikacji.';
+        }
         btn.innerHTML = origText; btn.disabled = false;
       } else {
         errEl.textContent = 'Błąd połączenia z bazą danych.'; errEl.style.display = 'block';
@@ -337,16 +378,12 @@ window.applyUserProfileData = async function(cloud) {
             const pPhone = localStorage.getItem('kz_pending_phone') || '';
             
             if (userId) {
-              // Zapisujemy profil i wchodzimy do aplikacji
+              // Zapisz profil, a następnie przejdź do testowej płatności.
               if (typeof saveProfileAndEnterApp === 'function') {
-                await saveProfileAndEnterApp(userId, email, pName, pPhone, true);
-              } else {
-                localStorage.setItem('kz_session', JSON.stringify({ name: pName, plan: 'monthly', ts: Date.now() }));
-                showApp(pName);
+                await saveProfileAndEnterApp(userId, email, pName, pPhone, true, false);
               }
-              const step3El = document.getElementById('step3');
-              if (step3El) step3El.style.display = 'none';
-              closeModal();
+              const plan = localStorage.getItem('kz_pending_checkout_plan') || 'monthly';
+              await window.startTestStripeCheckout(data.user, plan);
             } else {
               errEl.textContent = 'Weryfikacja powiodła się, ale nie udało się pobrać danych użytkownika. Spróbuj się zalogować.';
               errEl.style.display = 'block';
@@ -438,57 +475,83 @@ window.applyUserProfileData = async function(cloud) {
        4. Skopiuj wygenerowany link URL i wklej go poniżej (zastąp STRIPE_LINK_MONTHLY)
        5. Powtórz kroki dla "Subskrypcji rocznej" (390 zł) i wklej w STRIPE_LINK_YEARLY
     ──────────────────────────────────────────────────────────────── */
-    function redirectToStripe() {
-      // ↓↓↓ PODMIEŃ NA SWOJE LINKI Z PANELU STRIPE ↓↓↓
-      const STRIPE_LINK_MONTHLY = 'https://buy.stripe.com/test_8x29AT4Vo2Aq4ESdk19Zm00'; // np. "https://buy.stripe.com/test_12345"
-      const STRIPE_LINK_YEARLY = 'https://buy.stripe.com/test_cNi28rdrU5MCfjwa7P9Zm01';      // np. "https://buy.stripe.com/test_67890"
-      // ↑↑↑ PODMIEŃ NA SWOJE DANE ↑↑↑
-
+    async function redirectToStripe() {
       const name = document.getElementById('inp-name').value.trim();
       const email = document.getElementById('inp-email').value.trim();
       const btn = document.querySelector('.btn-stripe');
       const isYearly = localStorage.getItem('kz_plan') === 'yearly';
-
-      if (STRIPE_LINK_MONTHLY === 'TWOJ_LINK_MIESIECZNY') {
-        // Tryb demo – symulacja
-        btn.innerHTML = '⏳ Przetwarzam płatność... (TRYB DEMO)';
-        btn.disabled = true;
-        setTimeout(() => showStep(3), 1800);
-        return;
-      }
-
-      btn.innerHTML = '⏳ Przekierowuję do Stripe...';
-      btn.disabled = true;
-
-      // Tymczasowy zapis danych do zalogowania po udanej płatności
       const pwd = document.getElementById('inp-password').value.trim();
       const phone = document.getElementById('inp-phone') ? document.getElementById('inp-phone').value.trim() : '';
+      const plan = isYearly ? 'yearly' : 'monthly';
+
+      btn.innerHTML = 'Tworzenie bezpiecznego konta...';
+      btn.disabled = true;
+
       localStorage.setItem('kz_pending_email', email);
       localStorage.setItem('kz_pending_name', name);
-      localStorage.setItem('kz_pending_pwd', pwd);
       localStorage.setItem('kz_pending_phone', phone);
+      localStorage.setItem('kz_pending_checkout_plan', plan);
 
       if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
         window.Capacitor.Plugins.Preferences.set({ key: 'kz_pending_email', value: email });
         window.Capacitor.Plugins.Preferences.set({ key: 'kz_pending_name', value: name });
-        window.Capacitor.Plugins.Preferences.set({ key: 'kz_pending_pwd', value: pwd });
         window.Capacitor.Plugins.Preferences.set({ key: 'kz_pending_phone', value: phone });
       }
 
-      // Przekierowanie na odpowiedni link Stripe z automatycznie uzupełnionym emailem
-      const baseUrl = isYearly ? STRIPE_LINK_YEARLY : STRIPE_LINK_MONTHLY;
-      const returnUrl = encodeURIComponent(window.location.href.split('?')[0] + '?sukces=1');
+      try {
+        window.initSupabase();
+        let { data: { session } } = await window.supabaseClient.auth.getSession();
+        let user = session && session.user;
 
-      // Stripe Payment Links pozwala przekazać e-mail jako parametr, ale powrót ustawia się w panelu
-      window.location.href = `${baseUrl}?prefilled_email=${encodeURIComponent(email)}`;
+        if (!user) {
+          const { data, error } = await window.supabaseClient.auth.signUp({
+            email,
+            password: pwd,
+            options: {
+              emailRedirectTo: window.getAuthRedirectUrl(),
+              data: { full_name: name, phone }
+            }
+          });
+          if (error) throw error;
+          user = data.user;
+          session = data.session;
+        }
+
+        if (!user) throw new Error('Nie udało się utworzyć konta.');
+        if (!session) {
+          const emailDisp = document.getElementById('verify-email-display');
+          if (emailDisp) emailDisp.textContent = email;
+          showStep(3);
+          return;
+        }
+
+        await window.startTestStripeCheckout(user, plan);
+      } catch (error) {
+        const err = document.getElementById('err-email');
+        if (err) {
+          err.textContent = error.message || 'Nie udało się utworzyć konta.';
+          err.style.display = 'block';
+        }
+        showStep(1);
+        btn.innerHTML = 'Płacę przez Stripe';
+        btn.disabled = false;
+      }
     }
 
     /* ── FAQ accordion ── */
     function toggleFaq(el) {
       const a = el.nextElementSibling;
-      const isOpen = a.style.display === 'block';
-      document.querySelectorAll('.faq-a').forEach(x => x.style.display = 'none');
-      if (!isOpen) a.style.display = 'block';
+      const isOpen = el.getAttribute('aria-expanded') === 'true';
+      document.querySelectorAll('.faq-q').forEach(button => button.setAttribute('aria-expanded', 'false'));
+      document.querySelectorAll('.faq-a').forEach(answer => {
+        answer.hidden = true;
+        answer.parentElement?.classList.remove('active');
+      });
+      if (!isOpen) {
+        el.setAttribute('aria-expanded', 'true');
+        a.hidden = false;
+        el.parentElement?.classList.add('active');
+      }
     }
 
     /* ── CLOUD DATABASE (SUPABASE) ── */
@@ -514,6 +577,44 @@ window.applyUserProfileData = async function(cloud) {
 
     window.initSupabase();
 
+    window.fetchBillingState = async function(action = 'status', extra = {}) {
+      window.initSupabase();
+      const { data, error } = await window.supabaseClient.functions.invoke('billing', {
+        body: { action, ...extra }
+      });
+      if (error) throw error;
+      if (!data) throw new Error('Brak odpowiedzi usługi rozliczeniowej.');
+
+      if (data.subscription) {
+        localStorage.setItem('kz_plan', data.subscription.plan || 'monthly');
+        localStorage.setItem('kz_subscription_status', data.subscription.status || 'inactive');
+        if (data.subscription.currentPeriodEnd) {
+          localStorage.setItem('kz_subscription_end_date', data.subscription.currentPeriodEnd);
+        } else {
+          localStorage.removeItem('kz_subscription_end_date');
+        }
+      }
+      return data;
+    };
+
+    window.startTestStripeCheckout = async function(user, plan) {
+      if (!user || !user.id) throw new Error('Brak zalogowanego użytkownika.');
+      const links = {
+        monthly: 'https://buy.stripe.com/test_8x29AT4Vo2Aq4ESdk19Zm00',
+        yearly: 'https://buy.stripe.com/test_cNi28rdrU5MCfjwa7P9Zm01'
+      };
+      const checkoutUrl = new URL(links[plan === 'yearly' ? 'yearly' : 'monthly']);
+      checkoutUrl.searchParams.set('prefilled_email', user.email || '');
+      checkoutUrl.searchParams.set('client_reference_id', user.id);
+      window.location.href = checkoutUrl.toString();
+    };
+
+    window.openBillingPortal = async function() {
+      const billing = await window.fetchBillingState('portal');
+      if (!billing.url) throw new Error('Stripe nie zwrócił adresu portalu klienta.');
+      window.location.href = billing.url;
+    };
+
     async function syncFromCloud() {
       window.initSupabase();
       try {
@@ -533,11 +634,6 @@ window.applyUserProfileData = async function(cloud) {
           if (cloud.presalePriceM !== undefined) localStorage.setItem('kz_presale_price_monthly', cloud.presalePriceM);
           if (cloud.presalePriceY !== undefined) localStorage.setItem('kz_presale_price_yearly', cloud.presalePriceY);
           if (cloud.announce !== undefined) localStorage.setItem('kz_announce', cloud.announce);
-          if (cloud.aiProvider !== undefined) localStorage.setItem('kz_ai_provider', cloud.aiProvider);
-          if (cloud.aiApiKey !== undefined) localStorage.setItem('kz_ai_api_key', cloud.aiApiKey);
-          if (cloud.aiModel !== undefined) localStorage.setItem('kz_ai_model', cloud.aiModel);
-          if (cloud.aiEndpoint !== undefined) localStorage.setItem('kz_ai_endpoint', cloud.aiEndpoint);
-
           // Sync module settings
           if (cloud.modVideos !== undefined) localStorage.setItem('kz_mod_videos', cloud.modVideos);
           if (cloud.modDiets !== undefined) localStorage.setItem('kz_mod_diets', cloud.modDiets);
@@ -583,10 +679,6 @@ window.applyUserProfileData = async function(cloud) {
         presalePriceM: localStorage.getItem('kz_presale_price_monthly') || '29',
         presalePriceY: localStorage.getItem('kz_presale_price_yearly') || '290',
         announce: localStorage.getItem('kz_announce') || '',
-        aiProvider: localStorage.getItem('kz_ai_provider') || 'openrouter',
-        aiApiKey: localStorage.getItem('kz_ai_api_key') || '',
-        aiModel: localStorage.getItem('kz_ai_model') || 'google/gemma-4-31b-it',
-        aiEndpoint: localStorage.getItem('kz_ai_endpoint') || 'https://openrouter.ai/api/v1/chat/completions',
         modVideos: localStorage.getItem('kz_mod_videos') || '1',
         modDiets: localStorage.getItem('kz_mod_diets') || '1',
         modMeds: localStorage.getItem('kz_mod_meds') || '1',
@@ -595,20 +687,11 @@ window.applyUserProfileData = async function(cloud) {
       };
 
       try {
-        const res = await fetch(`${SUPA_URL}?id=eq.1`, {
-          method: 'PATCH',
-          headers: {
-            'apikey': SUPA_KEY,
-            'Authorization': 'Bearer ' + SUPA_KEY,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify({ payload })
+        const { data, error } = await window.supabaseClient.functions.invoke('admin-config', {
+          body: { action: 'update', payload }
         });
-        if (!res.ok) {
-          const errBody = await res.text();
-          throw new Error('Status ' + res.status + '\nSzczegóły: ' + errBody);
-        }
+        if (error) throw error;
+        if (!data || data.saved !== true) throw new Error('Serwer nie potwierdził zapisu.');
         return true;
       } catch (e) {
         if (typeof showToast === 'function') {
@@ -703,8 +786,7 @@ window.applyUserProfileData = async function(cloud) {
       closeModal();
       const modal = document.getElementById('resetPasswordModal');
       if (modal) {
-        modal.classList.add('open');
-        document.body.style.overflow = 'hidden';
+        openAccessibleModal(modal, document.getElementById('reset-password'));
       }
       const p1 = document.getElementById('reset-password');
       const p2 = document.getElementById('reset-password-confirm');
@@ -717,8 +799,7 @@ window.applyUserProfileData = async function(cloud) {
     function closeResetPasswordModal() {
       const modal = document.getElementById('resetPasswordModal');
       if (modal) {
-        modal.classList.remove('open');
-        document.body.style.overflow = '';
+        closeAccessibleModal(modal);
       }
     }
 
@@ -784,7 +865,13 @@ window.applyUserProfileData = async function(cloud) {
           } catch (e) {
             console.error("Błąd wczytywania profilu po zmianie hasła:", e);
           }
-          showApp(displayName);
+          const billing = await window.fetchBillingState();
+          if (billing.hasAccess) {
+            showApp(displayName);
+          } else {
+            openModal();
+            showStep(2);
+          }
         }
       } else {
         if (errEl) {

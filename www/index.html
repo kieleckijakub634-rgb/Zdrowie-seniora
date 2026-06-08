@@ -7,7 +7,7 @@
     }
   </script>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="index, follow" />
   <title>VitalFly | Ćwiczenia i dieta dla seniorów</title>
   <meta name="description" content="Codzienne ćwiczenia dla seniorów, jadłospisy, przypomnienia o lekach i prosty panel użytkownika." />
@@ -20,16 +20,18 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content="VitalFly" />
   <meta property="og:description" content="Ćwiczenia, dieta i przypomnienia o lekach dla seniorów." />
-  <meta property="og:image" content="assets/logo.png" />
+  <meta property="og:image" content="https://vitalfly.pl/assets/logo.png" />
+  <meta property="og:url" content="https://vitalfly.pl/" />
+  <meta name="twitter:card" content="summary" />
   <meta property="og:locale" content="pl_PL" />
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"VitalFly","description":"Subskrypcja zdrowotna dla seniorów: ćwiczenia, dieta, przypomnienia o lekach i społeczność wsparcia.","offers":{"@type":"Offer","price":"39","priceCurrency":"PLN"},"provider":{"@type":"Organization","name":"VitalFly"}}</script>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css" />
-  <link rel="stylesheet" href="assets/css/fixes.css" />
-  <script src="assets/js/loader.js" defer></script>
+  <link rel="stylesheet" href="assets/css/tailwind.css?v=20260607" />
+  <link rel="stylesheet" href="assets/style.css?v=20260607" />
+  <link rel="stylesheet" href="assets/css/fixes.css?v=20260607" />
+  <script src="assets/js/loader.js?v=20260607" defer></script>
 </head>
 <body class="app-loading">
   <div id="app-loading-screen" role="status" aria-live="polite" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--navy, #0B3934);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:99999;transition:opacity .3s ease;">
@@ -40,7 +42,7 @@
 
   <div class="mobile-bottom-bar" id="mobileBottomBar">
     <p onclick="openLoginModal()">Masz już konto? <span>Zaloguj się</span></p>
-    <button onclick="openModal()" class="btn-cta btn-cta-pulse" type="button">Dołącz do Klubu za 39 zł/miesiąc</button>
+    <button onclick="openModal()" class="btn-cta btn-cta-pulse dynamic-price-m" type="button">Dołącz do Klubu za 39 zł/miesiąc</button>
   </div>
 
   <main id="page-content" tabindex="-1"></main>
@@ -89,19 +91,19 @@
           <div><span>Subskrypcja</span><strong id="modal-plan-label">39,00 zł</strong></div>
           <div><span>Razem</span><strong id="modal-total-label">39,00 zł / miesiąc</strong></div>
         </div>
-        <div class="vf-info-box">Zostaniesz przekierowany do bezpiecznej bramki Stripe: BLIK, karta, Apple Pay lub Google Pay.</div>
-        <button onclick="redirectToStripe()" class="btn-stripe" type="button">Płacę przez Stripe</button>
-        <p style="text-align:center;font-size:.85rem;color:#999;margin-top:.75rem;">Szyfrowane połączenie SSL</p>
+        <div class="vf-info-box"><strong>Tryb testowy:</strong> zostaniesz przekierowany do Stripe Sandbox. Rzeczywiste środki nie zostaną pobrane.</div>
+        <button onclick="redirectToStripe()" class="btn-stripe" type="button">Przejdź do testowego Stripe</button>
+        <p style="text-align:center;font-size:.85rem;color:#999;margin-top:.75rem;">Użyj wyłącznie danych testowych Stripe.</p>
         <button onclick="goStep1()" type="button" class="vf-link-button">← Wróć i popraw dane</button>
       </div>
       <div id="step3" style="display:none;text-align:center;">
         <div style="font-size:3.5rem;margin-bottom:0.75rem;">✉️</div>
         <h2 class="font-serif font-bold mb-2" style="font-size:1.6rem;color:var(--navy);">Autoryzuj swój e-mail</h2>
-        <p style="color:#444;font-size:0.98rem;margin-bottom:1.25rem;">Płatność przyjęta! Wpisz 8-cyfrowy kod autoryzacyjny wysłany na adres <strong id="verify-email-display"></strong>.</p>
+        <p style="color:#444;font-size:0.98rem;margin-bottom:1.25rem;">Przed płatnością potwierdź konto. Wpisz 8-cyfrowy kod autoryzacyjny wysłany na adres <strong id="verify-email-display"></strong>.</p>
         <a id="btn-go-to-email" href="#" target="_blank" class="btn-cta" style="width:100%;text-align:center;display:none;font-size:1.1rem;margin:1rem 0 1.5rem 0;background:#4dbfa8;color:#0b3934;font-weight:700;padding:0.75rem;border-radius:12px;text-decoration:none;box-sizing:border-box;">Przejdź do poczty →</a>
         <input class="form-input" id="verification-code" type="text" placeholder="np. 12345678" maxlength="8" autocomplete="one-time-code" style="text-align:center;font-size:1.4rem;letter-spacing:0.22em;font-weight:700;padding:0.75rem;" />
         <p class="field-error" id="err-verification" style="display:none;text-align:center;margin-top:0.5rem;"></p>
-        <button id="btn-confirm-code" onclick="verifyVerificationCode()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.15rem;margin:1rem 0;">Autoryzuj e-mail i przejdź do aplikacji →</button>
+        <button id="btn-confirm-code" onclick="verifyVerificationCode()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.15rem;margin:1rem 0;">Autoryzuj e-mail i przejdź do płatności →</button>
         <p style="font-size:0.88rem;color:var(--warm-gray);margin-bottom:1rem;">Nie otrzymałeś kodu? <a href="#" onclick="resendVerificationCode(event)" style="color:var(--mint);text-decoration:underline;font-weight:600;">Wyślij ponownie</a></p>
       </div>
     </div>
@@ -174,7 +176,7 @@
     <div class="modal-box" style="text-align: center; padding: 2.5rem 1.5rem; max-width: 420px;" role="dialog" aria-modal="true" aria-labelledby="success-title">
       <button class="modal-close" onclick="closePaymentSuccessModal()" aria-label="Zamknij">×</button>
       <div style="font-size: 4rem; margin-bottom: 1rem; line-height: 1;">🎉</div>
-      <h2 id="success-title" class="font-serif font-bold mb-2" style="font-size: 1.6rem; color: var(--navy);">Płatność przyjęta!</h2>
+      <h2 id="success-title" class="font-serif font-bold mb-2" style="font-size: 1.6rem; color: var(--navy);">Płatność testowa przyjęta!</h2>
       <p style="color: var(--navy); font-weight: 700; margin-bottom: 1rem; font-size: 1.1rem;">Konto zostało utworzone.</p>
       <p style="color: #444; margin-bottom: 2rem; font-size: 0.98rem; line-height: 1.5; text-align: left;">
         Wysłaliśmy do Ciebie **wiadomość e-mail z linkiem aktywacyjnym**. Zajrzyj na swoją pocztę (sprawdź również foldery **Spam** oraz **Oferty**) i kliknij w link, aby potwierdzić stworzenie konta i móc się zalogować.
@@ -188,10 +190,9 @@
       <div class="admin-login-box">
         <div style="font-size:3rem;margin-bottom:1rem;text-align:center;">🔐</div>
         <div class="admin-login-title">Panel Administratora</div>
-        <p style="color:#6A8FB0;font-size:.95rem;margin-bottom:1.5rem;">Zaloguj się aby zarządzać treścią.</p>
-        <input type="password" id="admin-pass-input" class="admin-input" placeholder="Hasło administratora" style="margin-bottom:1rem;" onkeydown="if(event.key==='Enter')adminLogin()" />
-        <button class="admin-btn" style="width:100%;padding:.85rem;" onclick="adminLogin()" type="button">Zaloguj się →</button>
-        <p id="admin-login-err" style="color:#E05252;font-size:.88rem;margin-top:.75rem;display:none;">Błędne hasło. Spróbuj ponownie.</p>
+        <p id="admin-login-status" style="color:#6A8FB0;font-size:.95rem;margin-bottom:1.5rem;">Zaloguj się do aplikacji kontem z rolą administratora.</p>
+        <button class="admin-btn" style="width:100%;padding:.85rem;" onclick="adminLogin()" type="button">Sprawdź uprawnienia →</button>
+        <p id="admin-login-err" style="color:#E05252;font-size:.88rem;margin-top:.75rem;display:none;"></p>
         <button onclick="closeAdmin()" type="button" style="margin-top:1.25rem;background:none;border:none;color:#6A8FB0;cursor:pointer;font-size:.9rem;">← Wróć do strony</button>
       </div>
     </div>
@@ -230,18 +231,10 @@
             <div class="module-toggle-row"><span>🛒 Opcja Zakupy</span><label class="toggle-sw"><input type="checkbox" id="mod-shop" checked onchange="toggleModule('shop',this.checked)"><span class="toggle-sw-slider"></span></label></div>
           </div>
           <div class="admin-card" style="margin-top:1rem;">
-            <div class="vf-admin-card-title">🤖 Konfiguracja AI (OpenRouter)</div>
+            <div class="vf-admin-card-title">🤖 Asystent AI</div>
             <p id="admin-ai-description" style="color:#A0AEC0;font-size:0.85rem;margin-bottom:0.75rem;line-height:1.4;">
-              Wklej klucz OpenRouter i podaj dokladna nazwe modelu, z ktorego aplikacja ma korzystac.
+              Asystent korzysta z zabezpieczonej Supabase Edge Function. Klucz dostawcy AI jest przechowywany wyłącznie jako sekret serwerowy i nie jest dostępny w aplikacji ani panelu administratora.
             </p>
-            <label style="display:block;color:#DDE6F0;font-size:0.82rem;margin-bottom:0.35rem;">Model OpenRouter</label>
-            <input type="text" id="admin-ai-model" class="admin-input" placeholder="np. google/gemma-4-31b-it" style="margin-bottom:0.75rem;width:100%;" />
-            <label style="display:block;color:#DDE6F0;font-size:0.82rem;margin-bottom:0.35rem;">Klucz API OpenRouter</label>
-            <input type="password" id="admin-ai-key" class="admin-input" placeholder="Wklej klucz OpenRouter..." style="margin-bottom:0.75rem;width:100%;" />
-            <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-              <button class="admin-btn" onclick="saveAIConfig()" type="button">Zapisz konfiguracje AI</button>
-              <button class="admin-btn admin-btn-danger" onclick="clearAIConfig()" type="button">Wyczysc klucz AI</button>
-            </div>
           </div>
           <div class="admin-card"><div class="vf-admin-card-title">👁️ Podgląd jako użytkownik</div><button class="admin-btn" onclick="closeAdmin();showApp('Podgląd Admin')" type="button">Przełącz na widok użytkownika →</button></div>
         </div>
@@ -306,13 +299,14 @@
     </div>
   </div>
 
-  <script defer src="assets/supabase.js" onerror="window.__VF_SUPABASE_FAILED=true"></script>
-  <script defer src="assets/js/ai.js"></script>
-  <script defer src="assets/js/auth.js"></script>
-  <script defer src="assets/js/router.js"></script>
-  <script defer src="assets/js/ui.js"></script>
-  <script defer src="assets/js/modules.js"></script>
-  <script defer src="assets/js/admin.js"></script>
-  <script defer src="assets/app.js"></script>
+  <script defer src="assets/supabase.js?v=20260607" onerror="window.__VF_SUPABASE_FAILED=true"></script>
+  <script defer src="assets/js/security.js?v=20260607"></script>
+  <script defer src="assets/js/ai.js?v=20260607"></script>
+  <script defer src="assets/js/auth.js?v=20260607"></script>
+  <script defer src="assets/js/router.js?v=20260607"></script>
+  <script defer src="assets/js/ui.js?v=20260607"></script>
+  <script defer src="assets/js/modules.js?v=20260607"></script>
+  <script defer src="assets/js/admin.js?v=20260607"></script>
+  <script defer src="assets/app.js?v=20260607"></script>
 </body>
 </html>

@@ -7,6 +7,13 @@
     const PAGES = ['polityka', 'regulamin', 'kontakt', 'facebook'];
     const pageCache = {};
     const cleanPathRouting = window.location.protocol !== 'file:' && !window.Capacitor;
+    const PAGE_META = {
+      home: ['VitalFly | Ćwiczenia i dieta dla seniorów', 'Codzienne ćwiczenia dla seniorów, jadłospisy, przypomnienia o lekach i prosty panel użytkownika.'],
+      polityka: ['Polityka prywatności | VitalFly', 'Informacje o przetwarzaniu danych osobowych, danych zdrowotnych i usługach wykorzystywanych przez VitalFly.'],
+      regulamin: ['Regulamin | VitalFly', 'Warunki korzystania z serwisu VitalFly i testowej subskrypcji.'],
+      kontakt: ['Kontakt | VitalFly', 'Skontaktuj się z zespołem VitalFly w sprawie konta, dostępu i subskrypcji.'],
+      facebook: ['Grupa Facebook | VitalFly', 'Informacje o społeczności VitalFly na Facebooku.']
+    };
 
     function routeFromLocation() {
       const hashRoute = window.location.hash.replace('#', '').replace(/^\//, '');
@@ -42,6 +49,21 @@
       });
     }
 
+    function updatePageMetadata(pageId) {
+      const meta = PAGE_META[pageId] || PAGE_META.home;
+      const canonicalUrl = `https://vitalfly.pl${pageId === 'home' ? '/' : `/${pageId}`}`;
+      document.title = meta[0];
+      const setAttribute = (selector, attribute, value) => {
+        const element = document.querySelector(selector);
+        if (element) element.setAttribute(attribute, value);
+      };
+      setAttribute('meta[name="description"]', 'content', meta[1]);
+      setAttribute('link[rel="canonical"]', 'href', canonicalUrl);
+      setAttribute('meta[property="og:title"]', 'content', meta[0]);
+      setAttribute('meta[property="og:description"]', 'content', meta[1]);
+      setAttribute('meta[property="og:url"]', 'content', canonicalUrl);
+    }
+
     async function navigateTo(id, options = {}) {
       const pageId = id || 'home';
       const routeId = pageId === 'home' ? '' : pageId;
@@ -57,6 +79,7 @@
 
         container.innerHTML = pageCache[pageId];
         normalizeInternalLinks(container);
+        updatePageMetadata(pageId);
         window.scrollTo(0, 0);
 
         const nextUrl = routePath(routeId);
@@ -66,6 +89,15 @@
         } else if (options.replace && currentUrl !== nextUrl) {
           history.replaceState({ page: routeId }, '', nextUrl);
         }
+        requestAnimationFrame(() => {
+          const heading = container.querySelector('h1');
+          if (heading) {
+            heading.setAttribute('tabindex', '-1');
+            heading.focus();
+          } else {
+            container.focus();
+          }
+        });
       } catch (err) {
         console.error('Błąd nawigacji:', err);
         container.innerHTML = '<div style="padding:4rem 1.5rem;text-align:center;"><h2 style="font-size:1.5rem;color:#0B3934;margin-bottom:1rem;">Wystąpił błąd</h2><p>Nie udało się wczytać podstrony.</p><button onclick="navigateTo(\'\')" style="margin-top:1.5rem;padding:0.75rem 1.5rem;background:#35BBA0;color:white;border:none;border-radius:8px;cursor:pointer;">Wróć na stronę główną</button></div>';
@@ -94,8 +126,12 @@
 
       const signupModal = document.getElementById('signupModal');
       if (signupModal) {
-        signupModal.classList.add('open');
-        document.body.style.overflow = 'hidden';
+        if (typeof window.openAccessibleModal === 'function') {
+          window.openAccessibleModal(signupModal, document.getElementById('verification-code'));
+        } else {
+          signupModal.classList.add('open');
+          signupModal.setAttribute('aria-hidden', 'false');
+        }
       }
 
       if (typeof showStep === 'function') {
@@ -104,147 +140,19 @@
     }
     window.showSignupVerification = showSignupVerification;
 
-    async function processPaymentSuccess() {
-      // Check if this was a plan upgrade instead of a new registration
-      if (localStorage.getItem('kz_pending_upgrade') === 'yearly') {
-        localStorage.removeItem('kz_pending_upgrade');
-        localStorage.setItem('kz_plan', 'yearly');
-        
-        // Sync with supabase and update UI
-        if (typeof syncToCloud === 'function') {
-          await syncToCloud();
-        }
-        if (typeof loadPlanSettings === 'function') {
-          loadPlanSettings();
-        }
-        if (typeof showToast === 'function') {
-          showToast('🎉 Upgrade na plan roczny zakończony sukcesem!');
-        }
-        return;
+    async function processPaymentSuccess(sessionId) {
+      if (!sessionId || !window.fetchBillingState) {
+        throw new Error('Brak identyfikatora Checkout Session.');
       }
-
-      let pEmail = localStorage.getItem('kz_pending_email');
-      let pName = localStorage.getItem('kz_pending_name');
-      let pPwd = localStorage.getItem('kz_pending_pwd');
-      let pPhone = localStorage.getItem('kz_pending_phone') || '';
-
-      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
-        try {
-          if (!pEmail) { const pe = await window.Capacitor.Plugins.Preferences.get({ key: 'kz_pending_email' }); if (pe.value) pEmail = pe.value; }
-          if (!pName) { const pn = await window.Capacitor.Plugins.Preferences.get({ key: 'kz_pending_name' }); if (pn.value) pName = pn.value; }
-          if (!pPwd) { const pp = await window.Capacitor.Plugins.Preferences.get({ key: 'kz_pending_pwd' }); if (pp.value) pPwd = pp.value; }
-          if (!pPhone) { const ph = await window.Capacitor.Plugins.Preferences.get({ key: 'kz_pending_phone' }); if (ph.value) pPhone = ph.value; }
-        } catch (e) {
-          console.error("Preferences load error:", e);
-        }
+      const billing = await window.fetchBillingState('verify-checkout', { sessionId });
+      if (!billing.hasAccess) {
+        throw new Error('Stripe nie potwierdził aktywnej subskrypcji.');
       }
-
-      if (!pEmail || !pPwd) {
-        console.error("No pending email or password found");
-        window.isSuccessVerificationPending = true;
-        
-        const signupModal = document.getElementById('signupModal');
-        if (signupModal) {
-          signupModal.classList.add('open');
-          document.body.style.overflow = 'hidden';
-          if (typeof showStep === 'function') {
-            showStep(1);
-          }
-          
-          let notice = document.getElementById('lost-session-notice');
-          if (!notice) {
-            notice = document.createElement('div');
-            notice.id = 'lost-session-notice';
-            notice.style.cssText = 'background:#EBFBFA; border:2px solid var(--mint-mid); color:var(--navy); padding:0.85rem 1rem; border-radius:12px; font-size:0.95rem; font-weight:600; margin-bottom:1.25rem; text-align:left;';
-            notice.innerHTML = '✅ Płatność przyjęta! Wprowadź swoje dane poniżej, aby dokończyć rejestrację konta.';
-            const step1 = document.getElementById('step1');
-            if (step1) {
-              step1.insertBefore(notice, step1.firstChild);
-            }
-          }
-          
-          const ctaBtn = document.querySelector('#step1 .btn-cta');
-          if (ctaBtn) {
-            ctaBtn.textContent = 'Potwierdź dane i wyślij kod autoryzacyjny →';
-          }
-        }
-        return;
-      }
-
-      let userId = null;
-      let hasSess = false;
-
-      if (window.initSupabase && window.initSupabase()) {
-        // Inicjalizacja rejestracji
-        try {
-          let signUpError = null;
-          const { data, error } = await window.supabaseClient.auth.signUp({
-            email: pEmail,
-            password: pPwd,
-            options: {
-              emailRedirectTo: getSupabaseAuthRedirectUrl(),
-              data: {
-                full_name: pName,
-                phone: pPhone
-              }
-            }
-          });
-
-          if (!error && data && data.user) {
-            userId = data.user.id;
-            hasSess = !!data.session;
-          } else {
-            signUpError = error;
-            console.log("SignUp did not return user. Trying login...", error);
-            const logRes = await window.supabaseClient.auth.signInWithPassword({
-              email: pEmail,
-              password: pPwd
-            });
-            if (!logRes.error && logRes.data && logRes.data.user) {
-              userId = logRes.data.user.id;
-              hasSess = !!logRes.data.session;
-            } else {
-              const isUnconfirmed = (signUpError && (signUpError.message.toLowerCase().includes('confirm') || signUpError.message.toLowerCase().includes('potwierdź') || signUpError.message.toLowerCase().includes('email_not_confirmed'))) ||
-                                    (logRes.error && (logRes.error.message.toLowerCase().includes('confirm') || logRes.error.message.toLowerCase().includes('potwierdź') || logRes.error.message.toLowerCase().includes('email_not_confirmed')));
-              
-              if (isUnconfirmed) {
-                try {
-                  await window.supabaseClient.auth.resend({
-                    type: 'signup',
-                    email: pEmail,
-                    options: { emailRedirectTo: getSupabaseAuthRedirectUrl() }
-                  });
-                } catch (resendErr) {
-                  console.error("Auto resend error:", resendErr);
-                }
-                await saveProfileAndEnterApp(null, pEmail, pName, pPhone, false);
-                return;
-              }
-
-              console.error("SignUp failed:", signUpError);
-              console.error("SignIn failed:", logRes.error);
-              alert("Błąd rejestracji Supabase/Resend:\nRejestracja: " + (signUpError ? signUpError.message : "nieznany błąd") + "\nLogowanie: " + (logRes.error ? logRes.error.message : "nieznany błąd"));
-            }
-          }
-        } catch (e) {
-          console.error("SignUp/Login exception:", e);
-          alert("Wyjątek podczas autoryzacji: " + e.message);
-        }
-      }
-
-      if (userId) {
-        await saveProfileAndEnterApp(userId, pEmail, pName, pPhone, hasSess);
-      } else {
-        if (pName) {
-          localStorage.setItem('kz_logged_in_name', pName);
-          localStorage.setItem('kz_name', pName);
-        }
-        closeModal();
-        showApp(pName || 'Seniorze');
-      }
+      localStorage.removeItem('kz_pending_checkout_plan');
+      return billing;
     }
 
-    async function saveProfileAndEnterApp(userId, email, name, phone, hasSess = false) {
+    async function saveProfileAndEnterApp(userId, email, name, phone, hasSess = false, enterApp = true) {
       window.saveProfileAndEnterApp = saveProfileAndEnterApp;
       if (name) {
         localStorage.setItem('kz_logged_in_name', name);
@@ -298,18 +206,22 @@
       if (hasSess) {
         // Usuń dane tymczasowe rejestracji dopiero po realnym potwierdzeniu i sesji.
         localStorage.removeItem('kz_pending_email');
-        localStorage.removeItem('kz_pending_pwd');
         localStorage.removeItem('kz_pending_name');
         localStorage.removeItem('kz_pending_phone');
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
           window.Capacitor.Plugins.Preferences.remove({ key: 'kz_pending_email' });
-          window.Capacitor.Plugins.Preferences.remove({ key: 'kz_pending_pwd' });
           window.Capacitor.Plugins.Preferences.remove({ key: 'kz_pending_name' });
           window.Capacitor.Plugins.Preferences.remove({ key: 'kz_pending_phone' });
         }
 
-        closeModal();
-        showApp(name || 'Seniorze');
+        if (enterApp) {
+          const billing = await window.fetchBillingState();
+          if (!billing.hasAccess) {
+            throw new Error('Konto nie ma aktywnego dostępu do aplikacji.');
+          }
+          closeModal();
+          showApp(name || 'Seniorze');
+        }
       } else {
         showSignupVerification(email);
       }
@@ -322,13 +234,12 @@
         if (data.url) {
           try {
             const parsedUrl = new URL(data.url);
-            if (parsedUrl.searchParams.get('sukces') === '1' || parsedUrl.href.includes('sukces=1')) {
-              await processPaymentSuccess();
+            const checkoutSessionId = parsedUrl.searchParams.get('session_id');
+            if (checkoutSessionId) {
+              await processPaymentSuccess(checkoutSessionId);
             }
           } catch (e) {
-            if (data.url.includes('sukces=1')) {
-              await processPaymentSuccess();
-            }
+            console.error('Błąd obsługi powrotu z płatności:', e);
           }
         }
       });
@@ -345,12 +256,6 @@
             await window.supabaseClient.auth.signOut();
           } catch (e) {}
         }
-        localStorage.removeItem('kz_session');
-        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
-          try {
-            await window.Capacitor.Plugins.Preferences.remove({ key: 'kz_session' });
-          } catch (e) {}
-        }
         setTimeout(() => {
           const successEl = document.getElementById('login-confirm-success');
           if (successEl) successEl.style.display = 'block';
@@ -359,19 +264,8 @@
       }
 
       let hasSession = false;
-      if (localStorage.getItem('kz_session')) {
-        hasSession = true;
-      } else if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
-        try {
-          const capSession = await window.Capacitor.Plugins.Preferences.get({ key: 'kz_session' });
-          if (capSession && capSession.value) {
-            hasSession = true;
-            localStorage.setItem('kz_session', capSession.value);
-          }
-        } catch (e) {}
-      }
       // Check if user is logged in
-      if (window.initSupabase && window.initSupabase() && new URLSearchParams(window.location.search).get('sukces') !== '1') {
+      if (window.initSupabase && window.initSupabase()) {
         const withTimeout = (promise, ms, defaultVal) => {
           return new Promise((resolve) => {
             let timer = setTimeout(() => {
@@ -443,22 +337,29 @@
         }
 
         if (session) {
-          hasSession = true;
+          const checkoutSessionId = new URLSearchParams(window.location.search).get('session_id');
+          let billing;
+          try {
+            billing = checkoutSessionId
+              ? await processPaymentSuccess(checkoutSessionId)
+              : await window.fetchBillingState();
+          } catch (error) {
+            console.error('Weryfikacja dostępu nie powiodła się:', error);
+            billing = { hasAccess: false };
+          }
+
+          hasSession = Boolean(billing.hasAccess);
           const displayName = (sessionDataCloud && sessionDataCloud.profileName) || session.user?.user_metadata?.full_name || localStorage.getItem('kz_name') || 'Seniorze';
-          showApp(displayName);
+          if (billing.hasAccess) showApp(displayName);
+          if (checkoutSessionId) {
+            history.replaceState({}, '', window.location.pathname);
+            if (billing.hasAccess && typeof showToast === 'function') {
+              setTimeout(() => showToast('Płatność testowa została potwierdzona.', 2600), 300);
+            }
+          }
         }
       }
 
-      const isSuccess = new URLSearchParams(window.location.search).get('sukces') === '1';
-      if (isSuccess) {
-        try {
-          await processPaymentSuccess();
-        } catch (e) {
-          console.error("Błąd przetwarzania sukcesu płatności:", e);
-        }
-        hasSession = true;
-        history.replaceState({}, '', window.location.pathname);
-      }
       if (isEmailChangeConfirm) {
         history.replaceState({}, '', window.location.pathname);
         setTimeout(() => {
