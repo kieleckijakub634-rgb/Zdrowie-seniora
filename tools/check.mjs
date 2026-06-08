@@ -47,6 +47,7 @@ const modules = read('www/assets/js/modules.js');
 const admin = read('www/assets/js/admin.js');
 const ai = read('www/assets/js/ai.js');
 const security = read('www/assets/js/security.js');
+const style = read('www/assets/style.css');
 const fixes = read('www/assets/css/fixes.css');
 const home = read('www/pages/home.html');
 const kontakt = read('www/pages/kontakt.html');
@@ -85,7 +86,9 @@ assert(index.includes('assets/css/fixes.css'), 'Brakuje bezpiecznych poprawek CS
 assert(index.includes('id="page-content"'), 'Brakuje punktu montowania podstron.');
 assert(index.includes('id="signupModal"'), 'Brakuje modala rejestracji.');
 assert(index.includes('id="loginModal"'), 'Brakuje modala logowania.');
+assert(index.includes('id="accessRequiredModal"'), 'Brakuje osobnego modala aktywacji dostępu.');
 assert(index.includes('id="adminShell"'), 'Brakuje panelu administratora.');
+assert(!app.includes('/m-c'), 'Widoczne ceny nadal używają skrótu /m-c.');
 assert(!index.includes('style-overrides.css'), 'Nie powinno być starego style-overrides.css zmieniającego design.');
 
 assert(loader.includes('ended') && loader.includes('hideWhenReady'), 'loader.js nie czeka na koniec animacji.');
@@ -103,6 +106,10 @@ assert(!router.includes('?app=1'), 'Router nadal zawiera obejście dostępu ?app
 assert(!auth.includes('kz_pending_pwd'), 'Hasło nadal jest zapisywane na czas płatności.');
 assert(!auth.includes('kz_session'), 'Klient nadal ufa lokalnej, fałszywej sesji.');
 assert(auth.includes('openAccessibleModal') && auth.includes("aria-hidden', 'false"), 'Modale nie aktualizują stanu ARIA.');
+assert(auth.includes('openAccessRequiredModal();') && auth.includes('startAccessCheckout'), 'Logowanie bez subskrypcji nadal nie ma osobnego przepływu aktywacji.');
+assert(!auth.includes("notice.textContent = 'Konto jest aktywne."), 'Logowanie nadal modyfikuje modal zamówienia.');
+assert(!/openModal\(\);\s*showStep\(2\);/.test(auth), 'Istnieje ścieżka logowania otwierająca modal zamówienia.');
+assert(style.includes('.vf-link-button'), 'Przycisk powrotu nadal nie ma własnego stylu.');
 assert(home.includes('aria-expanded="false"') && home.includes('aria-controls="faq-answer-1"'), 'FAQ nie jest dostępne klawiaturowo.');
 assert(ai.includes("functions.invoke('ai-proxy'"), 'AI nie korzysta z zabezpieczonej Edge Function.');
 assert(!ai.includes('OPENROUTER_API_KEY'), 'Sekret OpenRouter nie może występować w kliencie.');

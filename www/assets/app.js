@@ -57,13 +57,13 @@
       document.querySelectorAll('.dynamic-price-m').forEach(el => {
         if (el.tagName === 'BUTTON') {
           if (el.textContent.includes('Chcę to wszystko')) {
-            el.textContent = `Chcę to wszystko – dołączam za ${pM} zł/m-c →`;
+            el.textContent = `Chcę to wszystko – dołączam za ${pM} zł/miesiąc →`;
           } else if (el.textContent.includes('Dołączam do Klubu')) {
-            el.textContent = `Dołączam do Klubu za ${pM} zł/m-c →`;
+            el.textContent = `Dołączam do Klubu za ${pM} zł/miesiąc →`;
           } else if (el.textContent.includes('Dołącz za')) {
-            el.textContent = `Dołącz za ${pM} zł/m-c`;
+            el.textContent = `Dołącz za ${pM} zł/miesiąc`;
           } else {
-            el.textContent = `Dołącz do Klubu za ${pM} zł/m-c`;
+            el.textContent = `Dołącz do Klubu za ${pM} zł/miesiąc`;
           }
         } else {
           el.textContent = `${pM} zł`;

@@ -28,10 +28,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/tailwind.css?v=20260607" />
-  <link rel="stylesheet" href="assets/style.css?v=20260607" />
-  <link rel="stylesheet" href="assets/css/fixes.css?v=20260607" />
-  <script src="assets/js/loader.js?v=20260607" defer></script>
+  <link rel="stylesheet" href="assets/css/tailwind.css?v=20260608" />
+  <link rel="stylesheet" href="assets/style.css?v=20260608" />
+  <link rel="stylesheet" href="assets/css/fixes.css?v=20260608" />
+  <script src="assets/js/loader.js?v=20260608" defer></script>
 </head>
 <body class="app-loading">
   <div id="app-loading-screen" role="status" aria-live="polite" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--navy, #0B3934);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:99999;transition:opacity .3s ease;">
@@ -149,6 +149,21 @@
           <a href="#" onclick="showLoginView(event)" style="color:var(--mint);text-decoration:underline;font-weight:600;">← Wróć do logowania</a>
         </p>
       </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="accessRequiredModal" onclick="if(event.target===this)closeAccessRequiredModal()" aria-hidden="true">
+    <div class="modal-box vf-access-required" role="dialog" aria-modal="true" aria-labelledby="access-required-title">
+      <button class="modal-close" onclick="closeAccessRequiredModal()" aria-label="Zamknij">×</button>
+      <div class="vf-access-required-icon" aria-hidden="true">✓</div>
+      <h2 id="access-required-title" class="font-serif font-bold mb-1">Logowanie powiodło się</h2>
+      <p class="vf-access-required-lead">To konto nie ma jeszcze aktywnego dostępu do aplikacji.</p>
+      <div class="vf-info-box">
+        Aktywuj subskrypcję w testowym środowisku Stripe. Rzeczywiste środki nie zostaną pobrane.
+      </div>
+      <p class="field-error vf-access-required-error" id="err-access-checkout" aria-live="polite"></p>
+      <button id="btn-access-checkout" onclick="startAccessCheckout()" class="btn-stripe" type="button">Aktywuj dostęp w testowym Stripe</button>
+      <button onclick="returnToLoginFromAccess()" type="button" class="vf-link-button">← Wróć do logowania</button>
     </div>
   </div>
 
@@ -299,14 +314,14 @@
     </div>
   </div>
 
-  <script defer src="assets/supabase.js?v=20260607" onerror="window.__VF_SUPABASE_FAILED=true"></script>
-  <script defer src="assets/js/security.js?v=20260607"></script>
-  <script defer src="assets/js/ai.js?v=20260607"></script>
-  <script defer src="assets/js/auth.js?v=20260607"></script>
-  <script defer src="assets/js/router.js?v=20260607"></script>
-  <script defer src="assets/js/ui.js?v=20260607"></script>
-  <script defer src="assets/js/modules.js?v=20260607"></script>
-  <script defer src="assets/js/admin.js?v=20260607"></script>
-  <script defer src="assets/app.js?v=20260607"></script>
+  <script defer src="assets/supabase.js?v=20260608" onerror="window.__VF_SUPABASE_FAILED=true"></script>
+  <script defer src="assets/js/security.js?v=20260608"></script>
+  <script defer src="assets/js/ai.js?v=20260608"></script>
+  <script defer src="assets/js/auth.js?v=20260608"></script>
+  <script defer src="assets/js/router.js?v=20260608"></script>
+  <script defer src="assets/js/ui.js?v=20260608"></script>
+  <script defer src="assets/js/modules.js?v=20260608"></script>
+  <script defer src="assets/js/admin.js?v=20260608"></script>
+  <script defer src="assets/app.js?v=20260608"></script>
 </body>
 </html>

@@ -160,6 +160,51 @@ window.applyUserProfileData = async function(cloud) {
       const successEl = document.getElementById('login-confirm-success');
       if (successEl) successEl.style.display = 'none';
     }
+    function openAccessRequiredModal() {
+      const error = document.getElementById('err-access-checkout');
+      if (error) {
+        error.textContent = '';
+        error.style.display = 'none';
+      }
+      openAccessibleModal(document.getElementById('accessRequiredModal'), document.getElementById('btn-access-checkout'));
+    }
+    function closeAccessRequiredModal() {
+      closeAccessibleModal(document.getElementById('accessRequiredModal'));
+    }
+    function returnToLoginFromAccess() {
+      closeAccessRequiredModal();
+      openLoginModal();
+    }
+    async function startAccessCheckout() {
+      const button = document.getElementById('btn-access-checkout');
+      const error = document.getElementById('err-access-checkout');
+      const originalText = button ? button.textContent : '';
+      if (error) {
+        error.textContent = '';
+        error.style.display = 'none';
+      }
+      if (button) {
+        button.textContent = 'Przekierowanie do Stripe...';
+        button.disabled = true;
+      }
+
+      try {
+        window.initSupabase();
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) throw new Error('Sesja wygasła. Zaloguj się ponownie.');
+        const plan = localStorage.getItem('kz_plan') === 'yearly' ? 'yearly' : 'monthly';
+        await window.startTestStripeCheckout(user, plan);
+      } catch (checkoutError) {
+        if (error) {
+          error.textContent = checkoutError.message || 'Nie udało się rozpocząć płatności testowej.';
+          error.style.display = 'block';
+        }
+        if (button) {
+          button.textContent = originalText;
+          button.disabled = false;
+        }
+      }
+    }
     function openPaymentSuccessModal() { openAccessibleModal(document.getElementById('paymentSuccessModal')); }
     function closePaymentSuccessModal() { closeAccessibleModal(document.getElementById('paymentSuccessModal')); }
     async function handleLogin() {
@@ -223,10 +268,7 @@ window.applyUserProfileData = async function(cloud) {
         if (billing.hasAccess) {
           showApp(displayName);
         } else {
-          openModal();
-          showStep(2);
-          const notice = document.querySelector('#step2 .vf-info-box');
-          if (notice) notice.textContent = 'Konto jest aktywne. Dokończ testową płatność Stripe, aby uzyskać dostęp do aplikacji.';
+          openAccessRequiredModal();
         }
         btn.innerHTML = origText; btn.disabled = false;
       } else {
@@ -869,8 +911,7 @@ window.applyUserProfileData = async function(cloud) {
           if (billing.hasAccess) {
             showApp(displayName);
           } else {
-            openModal();
-            showStep(2);
+            openAccessRequiredModal();
           }
         }
       } else {
