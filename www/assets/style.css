@@ -3234,14 +3234,16 @@
     position: fixed;
     bottom: calc(5.75rem + env(safe-area-inset-bottom));
     left: 50%;
-    transform: translate(-50%, 120px);
+    transform: translate(-50%, 0);
+    opacity: 0;
+    pointer-events: none;
     background: rgba(11, 57, 52, 0.95);
     color: white;
     border-radius: 999px;
     padding: 0.85rem 1.75rem;
     box-shadow: 0 10px 35px rgba(5, 34, 31, 0.25);
     z-index: 9999;
-    transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+    transition: opacity .4s ease;
     font-size: 1rem;
     font-weight: 700;
     display: flex;
@@ -3252,7 +3254,8 @@
     border: 1px solid rgba(255, 255, 255, 0.15);
   }
   .med-toast.show {
-    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
   }
   
   /* Wirtualny Asystent AI Chatbot */
@@ -4647,7 +4650,7 @@
     width: min(360px, calc(100vw - 2rem));
     border-radius: 26px;
     padding: 1rem;
-    background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(240,250,247,0.88));
+    background: linear-gradient(145deg, #FFFFFF, #F0FAF7);
     border: 1px solid rgba(255,255,255,0.82);
     box-shadow: 0 22px 58px rgba(11,57,52,0.18), inset 0 1px 0 rgba(255,255,255,0.92);
     z-index: 1140;

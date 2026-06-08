@@ -308,7 +308,6 @@ body.theme-dark .tab-nav-wrapper::after {
   white-space: normal !important;
   cursor: pointer;
   z-index: 12000 !important;
-  pointer-events: auto !important;
 }
 
 #appShell .video-card {
