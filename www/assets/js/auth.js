@@ -438,13 +438,10 @@ window.applyUserProfileData = async function(cloud) {
         });
         if (error) throw error;
         const registeredUser = data?.user || data?.session?.user;
-        if (!registeredUser) {
-          throw new Error('Serwer rejestracji nie zwrócił utworzonego konta. Sprawdź ustawienia rejestracji e-mail w Supabase.');
-        }
-        if (Array.isArray(registeredUser.identities) && registeredUser.identities.length === 0) {
+        if (registeredUser && Array.isArray(registeredUser.identities) && registeredUser.identities.length === 0) {
           throw new Error('Konto z tym adresem e-mail już istnieje. Zaloguj się lub zresetuj hasło.');
         }
-        if (data.session) {
+        if (data?.session?.user) {
           await window.startStripeCheckout(registeredUser, plan);
           return;
         }
