@@ -118,6 +118,10 @@ assert(middleware.includes("headers.set('X-Content-Type-Options', 'nosniff')"), 
 assert(middleware.includes("frame-ancestors 'none'"), 'Brakuje ochrony przed osadzaniem strony w ramce.');
 assert(new Set(migrationVersions).size === migrationVersions.length, 'Migracje Supabase mają zduplikowane numery wersji.');
 assert(
+  migrationVersions.every(version => /^\d{14}$/.test(version)),
+  'Każda migracja Supabase musi mieć unikalny, 14-cyfrowy znacznik czasu.'
+);
+assert(
   migrationNames.every(name => !read(`supabase/migrations/${name}`).includes('kieleckijakub634@gmail.com')),
   'Migracja schematu nie może zależeć od prywatnego konta administratora.'
 );
