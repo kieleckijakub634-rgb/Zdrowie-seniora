@@ -31,7 +31,9 @@
   <link rel="stylesheet" href="assets/css/tailwind.css?v=20260608-7" />
   <link rel="stylesheet" href="assets/style.css?v=20260608-7" />
   <link rel="stylesheet" href="assets/css/fixes.css?v=20260608-7" />
+  <link rel="stylesheet" href="assets/css/quiz.css?v=20260608-8" />
   <script src="assets/js/loader.js?v=20260608-7" defer></script>
+  <script src="assets/js/quiz.js?v=20260608-8" defer></script>
 </head>
 <body class="app-loading">
   <div id="app-loading-screen" role="status" aria-live="polite" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--navy, #0B3934);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:99999;transition:opacity .3s ease;">
@@ -46,6 +48,16 @@
   </div>
 
   <main id="page-content" tabindex="-1"></main>
+
+  <div id="quiz-modal" aria-hidden="true">
+    <div class="quiz-header">
+      <button class="quiz-close" onclick="closeQuiz()" aria-label="Zamknij ankietę">×</button>
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+    </div>
+    <div class="quiz-content" id="quiz-content-area">
+      <!-- Quiz dynamic content -->
+    </div>
+  </div>
 
   <div class="modal-overlay" id="signupModal" onclick="handleOverlayClick(event)" aria-hidden="true">
     <div class="modal-box" id="modalBox" role="dialog" aria-modal="true" aria-labelledby="signup-title">
@@ -293,6 +305,7 @@
   <script defer src="assets/js/router.js?v=20260608-7"></script>
   <script defer src="assets/js/ui.js?v=20260608-7"></script>
   <script defer src="assets/js/modules.js?v=20260608-7"></script>
+  <script defer src="assets/js/prefs.js?v=20260608-8"></script>
   <script defer src="assets/js/admin.js?v=20260608-7"></script>
   <script defer src="assets/app.js?v=20260608-7"></script>
 </body>

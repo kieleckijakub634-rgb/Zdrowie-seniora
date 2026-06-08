@@ -143,7 +143,14 @@ window.applyUserProfileData = async function(cloud) {
       }
     });
 
-    function openModal() { openAccessibleModal(document.getElementById('signupModal'), document.getElementById('inp-name')); showStep(1); }
+    function openModal() {
+      if (typeof startQuiz === 'function' && !window.quizCompleted) {
+        startQuiz();
+      } else {
+        openAccessibleModal(document.getElementById('signupModal'), document.getElementById('inp-name'));
+        showStep(1);
+      }
+    }
     function closeModal() {
       const confirmationStep = document.getElementById('step2');
       if (confirmationStep && confirmationStep.style.display === 'block') {
