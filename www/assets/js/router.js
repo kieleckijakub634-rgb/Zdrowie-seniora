@@ -81,6 +81,7 @@
         normalizeInternalLinks(container);
         updatePageMetadata(pageId);
         window.scrollTo(0, 0);
+        if (typeof window.applyQuizCTAs === 'function') window.applyQuizCTAs();
 
         const nextUrl = routePath(routeId);
         const currentUrl = cleanPathRouting ? window.location.pathname : window.location.hash || '#';
@@ -397,6 +398,8 @@
               window.startQuiz();
             }
           }, 600);
+        } else {
+          if (typeof window.applyQuizCTAs === 'function') window.applyQuizCTAs();
         }
       }
     });

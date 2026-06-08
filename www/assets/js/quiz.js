@@ -164,18 +164,22 @@ function finishQuiz() {
   
   setTimeout(() => {
     closeQuiz();
-    // Otworz oryginalny modal po quizie
+    // Otworz oryginalny modal po quizie - ZMIANA: usunięto automatyczne otwieranie modalu.
     window.quizCompleted = true;
     localStorage.setItem('kz_quiz_completed', '1');
-    if (window.openModal) {
-      const modalBox = document.querySelector('#signupModal .modal-box');
-      if (modalBox) {
-        const title = modalBox.querySelector('h2');
-        if (title) title.textContent = 'Twój spersonalizowany plan jest gotowy! ✨';
-        const desc = modalBox.querySelector('p');
-        if (desc) desc.textContent = 'Załóż konto i zasubskrybuj Klub, aby odebrać swój plan i w pełni korzystać z dopasowanej diety i ćwiczeń.';
-      }
-      window.openModal();
+    
+    // Nadpisanie tekstów modalu (w tle), by po ręcznym kliknięciu w "atakujący" CTA użytkownik widział zaktualizowany przekaz:
+    const modalBox = document.querySelector('#signupModal .modal-box');
+    if (modalBox) {
+      const title = modalBox.querySelector('h2');
+      if (title) title.textContent = 'Twój spersonalizowany plan jest gotowy! ✨';
+      const desc = modalBox.querySelector('p');
+      if (desc) desc.textContent = 'Załóż konto i zasubskrybuj Klub, aby odebrać swój plan i w pełni korzystać z dopasowanej diety i ćwiczeń.';
+    }
+    
+    // Aktywacja agresywnego CTA na stronie:
+    if (typeof window.applyQuizCTAs === 'function') {
+      window.applyQuizCTAs();
     }
     
     // Sprobuj od razu zaktualizowac UI jesli uzytkownik jest gdzies zalogowany/ma otwarte okno
@@ -184,6 +188,21 @@ function finishQuiz() {
     }
   }, 2500);
 }
+
+window.applyQuizCTAs = function() {
+  if (localStorage.getItem('kz_quiz_completed') === '1') {
+    document.querySelectorAll('.btn-cta').forEach(btn => {
+      if(btn.textContent.includes('ankiety') || btn.textContent.includes('Dołącz') || btn.textContent.includes('rezultaty')) {
+        btn.innerHTML = '🔥 Odbierz spersonalizowany plan i uzyskaj najlepsze rezultaty! ➔';
+        btn.style.background = 'linear-gradient(135deg, #E05252, #B73232)';
+        btn.style.boxShadow = '0 12px 30px rgba(224, 82, 82, 0.4)';
+        btn.style.color = '#fff';
+        btn.style.border = 'none';
+        btn.classList.add('btn-cta-pulse');
+      }
+    });
+  }
+};
 
 window.startQuiz = startQuiz;
 window.closeQuiz = closeQuiz;
