@@ -1092,6 +1092,24 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       const details = document.createElement('div');
       details.style.cssText = 'font-size:0.75rem;opacity:0.7;border-top:1px solid rgba(255,255,255,0.1);padding-top:0.5rem;margin-top:0.2rem;';
       details.textContent = `ICE: ${ice} • Leki: ${medsCount} ${medsCount === 1 ? 'pozycja' : 'pozycji'}`;
+      
+      const btn = box.querySelector('.live-help-action');
+      if (btn) {
+        if (nextMedMinutes < 60) {
+          btn.textContent = 'Sprawdź Leki';
+          btn.onclick = (e) => { dismissLiveHelpPopup(e); if(typeof switchTab === 'function') switchTab('meds', null); };
+        } else if (watchedCount === 0 || !localStorage.getItem('kz_daily_focus_date') || localStorage.getItem('kz_daily_focus_date') !== new Date().toISOString().split('T')[0]) {
+          btn.textContent = 'Włącz Trening';
+          btn.onclick = (e) => { dismissLiveHelpPopup(e); if(typeof switchTab === 'function') switchTab('videos', null); };
+        } else if (dietCount === 0 || !localStorage.getItem('kz_cached_diet_1')) {
+          btn.textContent = 'Otwórz Dietę';
+          btn.onclick = (e) => { dismissLiveHelpPopup(e); if(typeof switchTab === 'function') switchTab('diets', null); };
+        } else {
+          btn.textContent = 'Otwórz kartę ratunkową';
+          btn.onclick = (e) => { dismissLiveHelpPopup(e); if(typeof switchTab === 'function') switchTab('dogtag', null); };
+        }
+      }
+      
       body.append(title, document.createElement('br'), document.createElement('br'));
       body.append(document.createTextNode(suggestion), document.createElement('br'), document.createElement('br'), details);
     }
