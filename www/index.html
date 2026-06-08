@@ -28,10 +28,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/tailwind.css?v=20260608-4" />
-  <link rel="stylesheet" href="assets/style.css?v=20260608-4" />
-  <link rel="stylesheet" href="assets/css/fixes.css?v=20260608-4" />
-  <script src="assets/js/loader.js?v=20260608-4" defer></script>
+  <link rel="stylesheet" href="assets/css/tailwind.css?v=20260608-5" />
+  <link rel="stylesheet" href="assets/style.css?v=20260608-5" />
+  <link rel="stylesheet" href="assets/css/fixes.css?v=20260608-5" />
+  <script src="assets/js/loader.js?v=20260608-5" defer></script>
 </head>
 <body class="app-loading">
   <div id="app-loading-screen" role="status" aria-live="polite" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--navy, #0B3934);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:99999;transition:opacity .3s ease;">
@@ -53,7 +53,6 @@
       <div class="flex justify-center gap-2 mb-6" id="stepDots">
         <div class="step-dot active" id="dot1"></div>
         <div class="step-dot" id="dot2"></div>
-        <div class="step-dot" id="dot3"></div>
       </div>
       <div id="step1">
         <h2 id="signup-title" class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Dołącz do Klubu</h2>
@@ -82,20 +81,9 @@
           <label for="inp-consent" style="font-size:.92rem;color:#555;cursor:pointer;">Wyrażam zgodę na przetwarzanie danych zgodnie z <a href="/polityka" data-route="polityka" style="color:var(--mint);">Polityką prywatności</a> i <a href="/regulamin" data-route="regulamin" style="color:var(--mint);">Regulaminem</a>.</label>
         </div>
         <p class="field-error" id="err-consent">Proszę zaznaczyć zgodę.</p>
-        <button onclick="goStep2()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Dalej - do płatności →</button>
+        <button id="btn-create-account" onclick="registerAccount()" class="btn-cta" type="button" style="width:100%;text-align:center;display:block;font-size:1.2rem;margin-top:1.25rem;">Utwórz konto →</button>
       </div>
-      <div id="step2" style="display:none;">
-        <h2 class="font-serif font-bold mb-1" style="font-size:1.5rem;color:var(--navy);">Podsumowanie zamówienia</h2>
-        <p style="color:var(--warm-gray);font-size:1rem;margin-bottom:1.5rem;">Sprawdź dane i przejdź do bezpiecznej płatności.</p>
-        <div class="vf-order-summary">
-          <div><span>Subskrypcja</span><strong id="modal-plan-label">39,00 zł</strong></div>
-          <div><span>Razem</span><strong id="modal-total-label">39,00 zł / miesiąc</strong></div>
-        </div>
-        <div class="vf-info-box">Płatność jest bezpiecznie obsługiwana przez Stripe. Dane karty nie są przechowywane przez VitalFly.</div>
-        <button onclick="redirectToStripe()" class="btn-stripe" type="button">Przejdź do płatności</button>
-        <button onclick="goStep1()" type="button" class="vf-link-button">← Wróć i popraw dane</button>
-      </div>
-      <div id="step3" style="display:none;text-align:center;">
+      <div id="step2" style="display:none;text-align:center;">
         <div style="font-size:3.5rem;margin-bottom:0.75rem;">✉️</div>
         <h2 class="font-serif font-bold mb-2" style="font-size:1.6rem;color:var(--navy);">Potwierdź swój e-mail</h2>
         <p style="color:#444;font-size:0.98rem;margin-bottom:1.25rem;">Utworzyliśmy konto i wysłaliśmy 6-cyfrowy kod na adres <strong id="verify-email-display"></strong>. Potwierdź e-mail, aby przejść do płatności.</p>
@@ -298,14 +286,14 @@
     </div>
   </div>
 
-  <script defer src="assets/supabase.js?v=20260608-4" onerror="window.__VF_SUPABASE_FAILED=true"></script>
-  <script defer src="assets/js/security.js?v=20260608-4"></script>
-  <script defer src="assets/js/ai.js?v=20260608-4"></script>
-  <script defer src="assets/js/auth.js?v=20260608-4"></script>
-  <script defer src="assets/js/router.js?v=20260608-4"></script>
-  <script defer src="assets/js/ui.js?v=20260608-4"></script>
-  <script defer src="assets/js/modules.js?v=20260608-4"></script>
-  <script defer src="assets/js/admin.js?v=20260608-4"></script>
-  <script defer src="assets/app.js?v=20260608-4"></script>
+  <script defer src="assets/supabase.js?v=20260608-5" onerror="window.__VF_SUPABASE_FAILED=true"></script>
+  <script defer src="assets/js/security.js?v=20260608-5"></script>
+  <script defer src="assets/js/ai.js?v=20260608-5"></script>
+  <script defer src="assets/js/auth.js?v=20260608-5"></script>
+  <script defer src="assets/js/router.js?v=20260608-5"></script>
+  <script defer src="assets/js/ui.js?v=20260608-5"></script>
+  <script defer src="assets/js/modules.js?v=20260608-5"></script>
+  <script defer src="assets/js/admin.js?v=20260608-5"></script>
+  <script defer src="assets/app.js?v=20260608-5"></script>
 </body>
 </html>

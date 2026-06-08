@@ -145,8 +145,8 @@ window.applyUserProfileData = async function(cloud) {
 
     function openModal() { openAccessibleModal(document.getElementById('signupModal'), document.getElementById('inp-name')); showStep(1); }
     function closeModal() {
-      const step3 = document.getElementById('step3');
-      if (step3 && step3.style.display === 'block') {
+      const confirmationStep = document.getElementById('step2');
+      if (confirmationStep && confirmationStep.style.display === 'block') {
         alert('Potwierdź adres e-mail, aby dokończyć rejestrację i przejść do płatności.');
         return;
       }
@@ -295,16 +295,16 @@ window.applyUserProfileData = async function(cloud) {
     window.getEmailProviderUrl = getEmailProviderUrl;
 
     function showStep(n) {
-      [1, 2, 3].forEach(i => {
+      [1, 2].forEach(i => {
         const s = document.getElementById('step' + i);
         if (s) s.style.display = (i === n) ? 'block' : 'none';
         const d = document.getElementById('dot' + i);
         if (d) d.classList.toggle('active', i <= n);
       });
-      document.getElementById('stepDots').style.display = (n === 3) ? 'none' : 'flex';
+      document.getElementById('stepDots').style.display = (n === 2) ? 'none' : 'flex';
       const closeBtn = document.querySelector('#signupModal .modal-close');
-      if (closeBtn) closeBtn.style.display = (n === 3) ? 'none' : 'block';
-      if (n === 3) {
+      if (closeBtn) closeBtn.style.display = (n === 2) ? 'none' : 'block';
+      if (n === 2) {
         const email = localStorage.getItem('kz_pending_email') || '';
         const providerBtn = document.getElementById('btn-go-to-email');
         if (providerBtn && email) {
@@ -375,7 +375,7 @@ window.applyUserProfileData = async function(cloud) {
     }
     window.resendVerificationCode = resendVerificationCode;
 
-    function goStep2() {
+    function validateRegistrationForm() {
       let valid = true;
       const name = document.getElementById('inp-name');
       const email = document.getElementById('inp-email');
@@ -390,15 +390,8 @@ window.applyUserProfileData = async function(cloud) {
       else { pwd.classList.remove('error'); document.getElementById('err-password').style.display = 'none'; }
       if (!consent.checked) { document.getElementById('err-consent').style.display = 'block'; valid = false; }
       else { document.getElementById('err-consent').style.display = 'none'; }
-      if (valid) {
-        const welcomeEl = document.getElementById('welcome-name') || document.getElementById('app-username');
-        if (welcomeEl) {
-          welcomeEl.textContent = name.value.trim().split(' ')[0];
-        }
-        showStep(2);
-      }
+      return valid;
     }
-    function goStep1() { showStep(1); }
 
     /* ── Stripe Payment Links ─────────────────────────────────────────
        INSTRUKCJA KONFIGURACJI:
@@ -408,10 +401,12 @@ window.applyUserProfileData = async function(cloud) {
        4. Skopiuj wygenerowany link URL i wklej go poniżej (zastąp STRIPE_LINK_MONTHLY)
        5. Powtórz kroki dla "Subskrypcji rocznej" (390 zł) i wklej w STRIPE_LINK_YEARLY
     ──────────────────────────────────────────────────────────────── */
-    async function redirectToStripe() {
+    async function registerAccount() {
+      if (!validateRegistrationForm()) return;
+
       const name = document.getElementById('inp-name').value.trim();
       const email = document.getElementById('inp-email').value.trim();
-      const btn = document.querySelector('.btn-stripe');
+      const btn = document.getElementById('btn-create-account');
       const isYearly = localStorage.getItem('kz_plan') === 'yearly';
       const password = document.getElementById('inp-password').value.trim();
       const phone = document.getElementById('inp-phone') ? document.getElementById('inp-phone').value.trim() : '';
@@ -442,18 +437,22 @@ window.applyUserProfileData = async function(cloud) {
           }
         });
         if (error) throw error;
-        if (!data?.user) throw new Error('Nie udało się utworzyć konta.');
-        if (Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        const registeredUser = data?.user || data?.session?.user;
+        if (!registeredUser) {
+          throw new Error('Serwer rejestracji nie zwrócił utworzonego konta. Sprawdź ustawienia rejestracji e-mail w Supabase.');
+        }
+        if (Array.isArray(registeredUser.identities) && registeredUser.identities.length === 0) {
           throw new Error('Konto z tym adresem e-mail już istnieje. Zaloguj się lub zresetuj hasło.');
         }
         if (data.session) {
-          await window.startStripeCheckout(data.user, plan);
+          await window.startStripeCheckout(registeredUser, plan);
           return;
         }
         const emailDisplay = document.getElementById('verify-email-display');
         if (emailDisplay) emailDisplay.textContent = email;
-        showStep(3);
+        showStep(2);
       } catch (error) {
+        console.error('Błąd rejestracji konta:', error);
         const err = document.getElementById('err-email');
         if (err) {
           const message = error?.message || '';
@@ -467,10 +466,11 @@ window.applyUserProfileData = async function(cloud) {
           err.style.display = 'block';
         }
         showStep(1);
-        btn.innerHTML = 'Przejdź do płatności';
+        btn.innerHTML = 'Utwórz konto →';
         btn.disabled = false;
       }
     }
+    window.registerAccount = registerAccount;
 
     /* ── FAQ accordion ── */
     function toggleFaq(el) {
