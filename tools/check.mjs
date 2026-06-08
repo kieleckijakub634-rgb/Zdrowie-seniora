@@ -52,6 +52,9 @@ const home = read('www/pages/home.html');
 const kontakt = read('www/pages/kontakt.html');
 const facebook = read('www/pages/facebook.html');
 const middleware = read('functions/_middleware.js');
+const migrationNames = readdirSync(join(root, 'supabase/migrations'))
+  .filter(name => name.endsWith('.sql'));
+const migrationVersions = migrationNames.map(name => name.split('_', 1)[0]);
 
 const jsFiles = [
   'www/assets/app.js',
@@ -113,5 +116,10 @@ assert(!middleware.includes("script-src 'self' 'unsafe-inline'"), 'CSP nie może
 assert(middleware.includes("headers.set('Strict-Transport-Security'"), 'Brakuje HSTS.');
 assert(middleware.includes("headers.set('X-Content-Type-Options', 'nosniff')"), 'Brakuje ochrony MIME sniffing.');
 assert(middleware.includes("frame-ancestors 'none'"), 'Brakuje ochrony przed osadzaniem strony w ramce.');
+assert(new Set(migrationVersions).size === migrationVersions.length, 'Migracje Supabase mają zduplikowane numery wersji.');
+assert(
+  migrationNames.every(name => !read(`supabase/migrations/${name}`).includes('kieleckijakub634@gmail.com')),
+  'Migracja schematu nie może zależeć od prywatnego konta administratora.'
+);
 
 console.log('OK - kod, routing, loader i punkty funkcjonalne są poprawne.');
