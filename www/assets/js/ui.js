@@ -432,6 +432,9 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
             <button onclick="setDietDuration(7)" id="btn-duration-7" class="diet-dur-btn" type="button">Tydzień</button>
           </div>
         </div>
+        <button id="diet-preferences-btn" onclick="switchTab('settings', null)" style="background:var(--mint-light); border:1px solid var(--mint); color:var(--navy); padding:0.7rem 1.2rem; border-radius:999px; font-weight:700; font-size:0.88rem; cursor:pointer; transition:var(--transition-smooth);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+          ⚙️ Ustawienia preferencji
+        </button>
       </div>
       <div style="display:flex; align-items:center; justify-content:space-between; width:100%; margin-bottom:1.25rem; gap:1rem;">
         <div style="display:flex; align-items:center; gap:0.75rem;">
@@ -468,9 +471,6 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
             🖨 Zapisz / Drukuj PDF
           </button>
         </div>
-        <button onclick="switchTab('settings', null)" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); color:var(--navy); padding:0.75rem 1.5rem; border-radius:999px; font-weight:700; font-size:0.9rem; cursor:pointer; transition:var(--transition-smooth);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-          ⚙️ Ustawienia preferencji
-        </button>
       </div>
     </div>
   </div>

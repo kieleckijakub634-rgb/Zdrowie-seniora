@@ -146,28 +146,6 @@ async function openRouterCompletion(
   throw new Error(lastError);
 }
 
-async function mapWithConcurrency<T, R>(
-  items: T[],
-  concurrency: number,
-  worker: (item: T, index: number) => Promise<R>,
-) {
-  const results = new Array<R>(items.length);
-  let nextIndex = 0;
-
-  async function runWorker() {
-    while (nextIndex < items.length) {
-      const index = nextIndex;
-      nextIndex += 1;
-      results[index] = await worker(items[index], index);
-    }
-  }
-
-  await Promise.all(
-    Array.from({ length: Math.min(concurrency, items.length) }, () => runWorker()),
-  );
-  return results;
-}
-
 Deno.serve(async (request) => {
   const origin = request.headers.get("origin");
 
@@ -247,116 +225,62 @@ Deno.serve(async (request) => {
         return jsonResponse({ error: "A multi-day diet requires at least two days." }, 400, origin);
       }
 
-      const blueprintPrompt = `
-Zaplanuj spójny jadłospis dla osoby 50+ na dni: ${dayNames.join(", ")}.
+      const maxSharedIngredients = dayNames.length === 7 ? 18 : 12;
+      const maxShoppingItems = dayNames.length === 7 ? 28 : 18;
+      const dietPrompt = `
+Przygotuj kompletny, spójny jadłospis dla osoby 50+ na dni: ${dayNames.join(", ")}.
 ${preferences}
 
 Cel: rozsądny kompromis między różnorodnością a krótką listą zakupów.
-- Ustal wspólną bazę maksymalnie ${dayNames.length === 7 ? 18 : 12} głównych produktów, które mogą wracać w różnych daniach.
+- Oprzyj cały plan na wspólnej bazie maksymalnie ${maxSharedIngredients} głównych produktów.
 - Każde z ${dayNames.length * 3} dań musi mieć inny pomysł; nie powtarzaj identycznych potraw.
 - Te same produkty wykorzystuj na różne sposoby, aby ograniczyć marnowanie żywności.
-- Zmieniaj główne źródła białka i warzywa między kolejnymi dniami.
+- Nie powtarzaj tego samego głównego źródła białka w dwóch kolejnych obiadach.
+- Lista zakupów ma być wspólna dla całego okresu, bez duplikatów i mieć maksymalnie ${maxShoppingItems} pozycji.
+- Każdy opis posiłku ma maksymalnie 16 słów.
+- Używaj prostych, tanich produktów dostępnych w polskich sklepach.
 
 Zwróć wyłącznie poprawny JSON:
 {
   "title": "krótka nazwa całego planu",
-  "sharedIngredients": ["wspólny produkt 1"],
   "days": [
     {
       "dayName": "${dayNames[0]}",
-      "mealIdeas": {
-        "breakfast": "unikalny pomysł na śniadanie",
-        "lunch": "unikalny pomysł na obiad",
-        "dinner": "unikalny pomysł na kolację"
-      }
+      "meals": [
+        {"type": "Śniadanie", "content": "krótki konkretny posiłek"},
+        {"type": "Obiad", "content": "krótki konkretny posiłek"},
+        {"type": "Kolacja", "content": "krótki konkretny posiłek"}
+      ]
     }
-  ]
-}
-Tablica days musi zawierać dokładnie ${dayNames.length} dni w podanej kolejności.
-      `.trim();
-      const blueprintText = await openRouterCompletion(
-        openRouterKey,
-        model,
-        [{ role: "user", content: blueprintPrompt }],
-        1200,
-        0.45,
-        45000,
-        2,
-      );
-      const blueprint = extractJsonObject(blueprintText) as Record<string, unknown>;
-      const blueprintDays = Array.isArray(blueprint.days) ? blueprint.days : [];
-      const sharedIngredients = cleanStringArray(
-        blueprint.sharedIngredients,
-        dayNames.length === 7 ? 18 : 12,
-        80,
-      );
-      if (blueprintDays.length !== dayNames.length || sharedIngredients.length < 5) {
-        throw new Error("AI provider returned an incomplete multi-day diet blueprint.");
-      }
-
-      const plannedDays = dayNames.map((dayName, index) => {
-        const source = blueprintDays[index];
-        if (!source || typeof source !== "object") {
-          throw new Error(`Missing diet blueprint for ${dayName}.`);
-        }
-        const mealIdeasSource = (source as Record<string, unknown>).mealIdeas;
-        const mealIdeas = mealIdeasSource && typeof mealIdeasSource === "object"
-          ? mealIdeasSource as Record<string, unknown>
-          : {};
-        const breakfast = cleanText(mealIdeas.breakfast, 160);
-        const lunch = cleanText(mealIdeas.lunch, 160);
-        const dinner = cleanText(mealIdeas.dinner, 160);
-        if (!breakfast || !lunch || !dinner) {
-          throw new Error(`Incomplete meal ideas for ${dayName}.`);
-        }
-        return { dayName, breakfast, lunch, dinner };
-      });
-      const allMealIdeas = plannedDays.flatMap((day) => [
-        `${day.dayName} / śniadanie: ${day.breakfast}`,
-        `${day.dayName} / obiad: ${day.lunch}`,
-        `${day.dayName} / kolacja: ${day.dinner}`,
-      ]).join("\n");
-
-      const days = await mapWithConcurrency(dayNames, 3, async (dayName, index) => {
-        const assigned = plannedDays[index];
-        const prompt = `
-Przygotuj jadłospis dla osoby 50+ wyłącznie na dzień "${dayName}" (${index + 1} z ${dayNames.length}).
-${preferences}
-
-Wspólna baza produktów dla całego okresu:
-${sharedIngredients.join(", ")}
-
-Ustalony plan wszystkich dań, którego musisz przestrzegać:
-${allMealIdeas}
-
-Dla dnia "${dayName}" rozwiń dokładnie te trzy przypisane pomysły:
-- Śniadanie: ${assigned.breakfast}
-- Obiad: ${assigned.lunch}
-- Kolacja: ${assigned.dinner}
-
-Nie zamieniaj ich na dania z innych dni. Preferuj wspólną bazę produktów; dodawaj nowe składniki tylko wtedy, gdy są konieczne.
-Zwróć wyłącznie poprawny JSON:
-{
-  "dayName": "${dayName}",
-  "meals": [
-    {"type": "Śniadanie", "content": "krótki konkretny posiłek"},
-    {"type": "Obiad", "content": "krótki konkretny posiłek"},
-    {"type": "Kolacja", "content": "krótki konkretny posiłek"}
   ],
   "shopping": ["składnik 1", "składnik 2"]
 }
-Dokładnie 3 posiłki. Maksymalnie 18 słów w opisie posiłku. Używaj tanich produktów dostępnych w polskich sklepach.
-        `.trim();
-        const text = await openRouterCompletion(
-          openRouterKey,
-          model,
-          [{ role: "user", content: prompt }],
-          700,
-          0.4,
-        );
-        const parsed = extractJsonObject(text) as Record<string, unknown>;
-        const meals = Array.isArray(parsed.meals)
-          ? parsed.meals.slice(0, 3).flatMap((meal) => {
+Tablica days musi zawierać dokładnie ${dayNames.length} dni w podanej kolejności.
+Każdy dzień musi zawierać dokładnie 3 posiłki: Śniadanie, Obiad i Kolacja.
+      `.trim();
+      const dietText = await openRouterCompletion(
+        openRouterKey,
+        model,
+        [{ role: "user", content: dietPrompt }],
+        dayNames.length === 7 ? 3200 : 1800,
+        0.45,
+        125000,
+        1,
+      );
+      const parsed = extractJsonObject(dietText) as Record<string, unknown>;
+      const parsedDays = Array.isArray(parsed.days) ? parsed.days : [];
+      if (parsedDays.length !== dayNames.length) {
+        throw new Error("AI provider returned an incomplete multi-day diet.");
+      }
+
+      const days = dayNames.map((dayName, index) => {
+        const source = parsedDays[index];
+        if (!source || typeof source !== "object") {
+          throw new Error(`Missing diet for ${dayName}.`);
+        }
+        const sourceRecord = source as Record<string, unknown>;
+        const meals = Array.isArray(sourceRecord.meals)
+          ? sourceRecord.meals.slice(0, 3).flatMap((meal) => {
             if (!meal || typeof meal !== "object") return [];
             const candidate = meal as Record<string, unknown>;
             const type = cleanText(candidate.type, 40);
@@ -365,23 +289,17 @@ Dokładnie 3 posiłki. Maksymalnie 18 słów w opisie posiłku. Używaj tanich p
           })
           : [];
         if (meals.length !== 3) throw new Error(`Incomplete diet for ${dayName}.`);
-        return {
-          dayName,
-          meals,
-          shopping: Array.isArray(parsed.shopping)
-            ? parsed.shopping.map((item) => cleanText(item, 120)).filter(Boolean)
-            : [],
-        };
+        return { dayName, meals };
       });
 
       const shopping = uniqueStrings(
-        days.flatMap((day) => day.shopping),
-        dayNames.length === 7 ? 28 : 18,
+        cleanStringArray(parsed.shopping, maxShoppingItems, 120),
+        maxShoppingItems,
       );
       return jsonResponse({
         plan: {
-          title: cleanText(blueprint.title, 120) || `Jadłospis na ${dayNames.length} dni`,
-          days: days.map(({ dayName, meals }) => ({ dayName, meals })),
+          title: cleanText(parsed.title, 120) || `Jadłospis na ${dayNames.length} dni`,
+          days,
           shopping,
         },
       }, 200, origin);

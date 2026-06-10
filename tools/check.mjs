@@ -124,15 +124,15 @@ assert(style.includes('.vf-link-button'), 'Przycisk powrotu nadal nie ma własne
 assert(home.includes('aria-expanded="false"') && home.includes('aria-controls="faq-answer-1"'), 'FAQ nie jest dostępne klawiaturowo.');
 assert(ai.includes("functions.invoke('ai-proxy'"), 'AI nie korzysta z zabezpieczonej Edge Function.');
 assert(!ai.includes('OPENROUTER_API_KEY'), 'Sekret OpenRouter nie może występować w kliencie.');
-assert(ai.includes('requestDietPlan') && modules.includes('requestDietPlan'), 'Dłuższe jadłospisy nadal korzystają z jednego ciężkiego wywołania AI.');
-assert(aiProxy.includes('mapWithConcurrency(dayNames, 3') && aiProxy.includes('dietRequest'), 'Edge Function nie dzieli wielodniowego jadłospisu na krótsze generacje.');
-assert(aiProxy.includes('sharedIngredients') && aiProxy.includes('allMealIdeas'), 'Dni jadłospisu nie korzystają ze wspólnego planu produktów i różnorodności dań.');
+assert(ai.includes('requestDietPlan') && modules.includes('requestDietPlan'), 'Dłuższe jadłospisy nie korzystają ze specjalizowanej ścieżki AI.');
+assert(aiProxy.includes('dietRequest') && aiProxy.includes('125000') && !aiProxy.includes('mapWithConcurrency'), 'Wielodniowy jadłospis nie jest generowany w jednym kontrolowanym wywołaniu.');
 assert(security.includes('document.createTextNode') && security.includes('safeMediaUrl'), 'Brakuje bezpiecznego renderowania treści i URL.');
 assert(ui.includes("kz_ai_health_consent") && modules.includes("kz_ai_health_consent"), 'Dane zdrowotne trafiają do AI bez sprawdzenia zgody.');
 assert(!ui.includes('botReply.innerHTML'), 'Odpowiedź AI nadal jest renderowana przez innerHTML.');
 assert(ui.includes('generatedDiets') && auth.includes('generatedDiets'), 'Wygenerowane diety nie są synchronizowane z profilem użytkownika.');
 assert(auth.includes('localStorage.removeItem(`kz_cached_diet_${duration}`)'), 'Cache diet nie jest czyszczony przed zmianą profilu.');
 assert(ui.includes('id="diet-ready-actions" style="display:none;'), 'Akcje gotowej diety są widoczne przed wygenerowaniem planu.');
+assert(ui.includes('id="diet-preferences-btn"') && !ui.match(/diet-ready-actions[\s\S]*id="diet-preferences-btn"/), 'Przycisk preferencji nie jest stale widoczny poza akcjami gotowej diety.');
 assert(modules.includes('window.dietGenerationDuration') && modules.includes('showDietGenerationState(currentDietDuration)'), 'Widok nie odtwarza trwającego generowania diety po zmianie zakładki.');
 assert(modules.includes('await window.syncToCloud()'), 'Gotowa dieta nie jest zapisywana w profilu użytkownika.');
 assert(admin.includes("functions.invoke('admin-config'"), 'Panel administratora omija zabezpieczoną Edge Function.');
