@@ -253,6 +253,9 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
 
     function buildAppHTML(name) {
       const firstName = VFSecurity.escapeHTML((name || '').split(' ')[0] || 'Seniorze');
+      const adminButton = localStorage.getItem('kz_is_admin') === '1'
+        ? `<button onclick="openAdmin()" class="app-logout-btn" aria-label="Otwórz panel administratora" style="height:38px;padding:0 0.85rem;display:flex;align-items:center;justify-content:center;border-radius:999px;background:rgba(53,187,160,0.2);border:1px solid rgba(168,237,224,0.45);color:white;font-weight:800;cursor:pointer;">Panel admina</button>`
+        : '';
       const now = new Date();
       const hour = now.getHours();
       let greeting = hour < 12 ? 'Dzień dobry' : hour < 18 ? 'Miłego popołudnia' : 'Dobry wieczór';
@@ -272,6 +275,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     </span>
     <div style="display:flex; align-items:center; gap:0.6rem;">
       <span class="app-badge" id="app-plan-badge" style="display:none;">✓ AKTYWNA SUBSKRYPCJA</span>
+      ${adminButton}
       <button onclick="switchTab('settings', null)" class="app-logout-btn" aria-label="Otwórz ustawienia" style="padding:0; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.1); cursor:pointer;">
         <span style="font-size:1.15rem; line-height:1;">⚙️</span>
       </button>

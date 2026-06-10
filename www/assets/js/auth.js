@@ -495,6 +495,7 @@ window.applyUserProfileData = async function(cloud) {
       if (error) throw error;
       if (!data) throw new Error('Brak odpowiedzi usługi rozliczeniowej.');
 
+      localStorage.setItem('kz_is_admin', data.isAdmin === true ? '1' : '0');
       if (data.subscription) {
         localStorage.setItem('kz_plan', data.subscription.plan || 'monthly');
         localStorage.setItem('kz_subscription_status', data.subscription.status || 'inactive');
