@@ -269,7 +269,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
 <!-- ══════ APP HEADER ══════ -->
 <div class="app-header">
   <div class="app-header-inner">
-    <span class="app-logo" onclick="adminClickTrigger()">
+    <span class="app-logo">
       <img src="assets/logo.png" alt="VitalFly Logo" style="height:35px; width:auto; border-radius:6px;" />
       <span>VitalFly</span>
     </span>
@@ -402,7 +402,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
     <div class="sec-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
       <span style="font-family:'Lora', serif; font-size:1.6rem; font-weight:700; color:var(--navy);">🥗 Twój Jadłospis AI</span>
       <span id="diet-status-tag" class="font-cyber text-[10px] bg-[#4DBFA8]/10 text-[#4DBFA8] px-2 py-0.5 border border-[#4DBFA8]/30 uppercase tracking-widest">
-        GOTOWY DO GENERACJI
+        BRAK PLANU
       </span>
     </div>
     
@@ -437,7 +437,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         <div style="text-align:center; padding:2rem 0; color:var(--warm-gray);">
           <span style="font-size:2.5rem; display:block; margin-bottom:0.75rem;">🍽️</span>
           <p style="font-size:0.92rem; font-weight:600; margin-bottom:1rem;">Brak aktywnego planu na dziś.</p>
-          <button onclick="renderPersonalizedDiet()" class="btn-cta" style="display:inline-block; font-size:0.88rem; padding:0.6rem 1.5rem;">
+          <button onclick="renderPersonalizedDiet(true)" class="btn-cta diet-generate-btn" style="display:inline-block; font-size:0.88rem; padding:0.6rem 1.5rem;">
             ⚡ Wygeneruj jadłospis na dziś
           </button>
         </div>
@@ -445,7 +445,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
       
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem; flex-wrap:wrap; gap:0.75rem;">
         <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-          <button onclick="renderPersonalizedDiet(true)" style="background:var(--mint); color:white; border:none; padding:0.75rem 1.5rem; border-radius:999px; font-weight:700; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:var(--transition-smooth); box-shadow:var(--shadow-sm);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+          <button onclick="renderPersonalizedDiet(true)" class="diet-generate-btn" style="background:var(--mint); color:white; border:none; padding:0.75rem 1.5rem; border-radius:999px; font-weight:700; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:var(--transition-smooth); box-shadow:var(--shadow-sm);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
             🔄 Generuj ponownie
           </button>
           <button id="diet-print-btn" onclick="printAIDiet()" style="background:var(--mint-light); border:2px solid var(--mint); color:var(--navy); padding:0.75rem 1.5rem; border-radius:999px; font-weight:700; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:var(--transition-smooth);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">

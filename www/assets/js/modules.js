@@ -448,7 +448,7 @@
       if (!container || !titleDisplay || !statusTag) return;
 
       titleDisplay.textContent = dietPlan.title;
-      statusTag.textContent = `PLAN SPERSONALIZOWANY // ZAPISANY W PAMIĘCI`;
+      statusTag.textContent = 'PLAN GOTOWY';
       statusTag.className = "font-cyber text-[10px] bg-teal-500/10 text-[#00ffcc] px-2 py-0.5 border border-teal-500/30 uppercase tracking-widest";
 
       // Kompatybilność wsteczna ze starą strukturą jednodniową
@@ -547,6 +547,10 @@
 
     // Funkcja zmiany okresu trwania diety
     window.setDietDuration = function (days) {
+      if (window.dietGenerationInProgress) {
+        if (typeof showToast === 'function') showToast('Poczekaj na zakończenie generowania jadłospisu.', 2500);
+        return;
+      }
       localStorage.setItem('kz_diet_duration', days);
       window.activeDietDayIndex = undefined;
 
@@ -575,6 +579,10 @@
       const statusTag = document.getElementById('diet-status-tag');
 
       if (!container) return;
+      if (forceRefresh && window.dietGenerationInProgress) {
+        if (typeof showToast === 'function') showToast('Jadłospis jest już przygotowywany.', 2500);
+        return;
+      }
 
       const btn = document.getElementById('diet-like-btn');
       if (btn) btn.style.display = 'none';
@@ -639,34 +647,43 @@
         <div style="text-align:center; padding:2rem 0; color:var(--warm-gray);">
           <span style="font-size:2.5rem; display:block; margin-bottom:0.75rem;">🍽️</span>
           <p style="font-size:0.92rem; font-weight:600; margin-bottom:1rem;">Brak aktywnego planu na ${periodName}.</p>
-          <button onclick="renderPersonalizedDiet(true)" class="btn-cta" style="display:inline-block; font-size:0.88rem; padding:0.6rem 1.5rem;">
+          <button onclick="renderPersonalizedDiet(true)" class="btn-cta diet-generate-btn" style="display:inline-block; font-size:0.88rem; padding:0.6rem 1.5rem;">
             ⚡ Wygeneruj jadłospis ${buttonText}
           </button>
         </div>
       `;
         titleDisplay.textContent = "Twój Spersonalizowany Jadłospis";
-        statusTag.textContent = "GOTOWY DO GENERACJI";
+        statusTag.textContent = 'BRAK PLANU';
         statusTag.className = "font-cyber text-[10px] bg-[#4DBFA8]/10 text-[#4DBFA8] px-2 py-0.5 border border-[#4DBFA8]/30 uppercase tracking-widest";
         return;
       }
 
       // Stan ładowania (Loader AI)
-      titleDisplay.textContent = "GENEROWANIE DIETY PRZEZ COGNITIVE AI...";
-      statusTag.textContent = "SYNCHRONIZACJA Z LLM...";
+      window.dietGenerationInProgress = true;
+      document.querySelectorAll('.diet-dur-btn, .diet-generate-btn').forEach(button => {
+        button.disabled = true;
+      });
+
+      titleDisplay.textContent = 'Tworzymy Twój jadłospis...';
+      statusTag.textContent = 'PRZYGOTOWYWANIE';
       statusTag.className = "font-cyber text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 border border-amber-500/30 uppercase tracking-widest";
 
       const durationName = currentDietDuration === 7 ? "tydzień (7 dni)" : (currentDietDuration === 3 ? "3 dni" : "dziś");
       container.innerHTML = `
       <div class="py-8 text-center space-y-3">
         <div class="inline-block w-8 h-8 border-4 border-t-transparent border-[#4DBFA8] rounded-full animate-spin"></div>
-        <p class="text-xs font-cyber text-slate-500 tracking-widest uppercase">Model LLM przygotowuje plan żywieniowy na ${durationName}...</p>
+        <p style="font-size:0.92rem;color:var(--warm-gray);font-weight:600;">Przygotowujemy plan na ${durationName}. Zwykle trwa to kilkanaście sekund.</p>
       </div>
     `;
 
       // Weryfikacja obecności klucza API
       if (!aiConfig.isConfigured) {
-        titleDisplay.textContent = "BŁĄD SYSTEMU DIETY";
-        statusTag.textContent = "BRAK POLACZENIA Z AI";
+        window.dietGenerationInProgress = false;
+        document.querySelectorAll('.diet-dur-btn, .diet-generate-btn').forEach(button => {
+          button.disabled = false;
+        });
+        titleDisplay.textContent = 'Nie można teraz utworzyć jadłospisu';
+        statusTag.textContent = 'USŁUGA NIEDOSTĘPNA';
         statusTag.className = "font-cyber text-[10px] bg-red-500/10 text-red-400 px-2 py-0.5 border border-red-500/30 uppercase tracking-widest";
         container.innerHTML = `
         <p class="text-sm text-red-400 p-4 border border-red-500/20 bg-red-500/5 font-mono">
@@ -819,10 +836,18 @@
           messages: [{ role: 'user', text: systemPrompt }]
         });
 
-        rawJsonText = rawJsonText.replace(/^\`\`\`json/, '').replace(/\`\`\`$/, '').trim();
+        rawJsonText = rawJsonText.replace(/^\`\`\`(?:json)?/i, '').replace(/\`\`\`$/, '').trim();
+        const jsonStart = rawJsonText.indexOf('{');
+        const jsonEnd = rawJsonText.lastIndexOf('}');
+        if (jsonStart !== -1 && jsonEnd > jsonStart) {
+          rawJsonText = rawJsonText.slice(jsonStart, jsonEnd + 1);
+        }
 
         // Parsowanie odpowiedzi z LLM
         const dietPlan = JSON.parse(rawJsonText);
+        if (!dietPlan || !Array.isArray(dietPlan.days) || dietPlan.days.length === 0) {
+          throw new Error('Model nie zwrócił kompletnego jadłospisu. Spróbuj wygenerować go ponownie.');
+        }
 
         // Zapisujemy wygenerowaną dietę w localStorage
         localStorage.setItem(`kz_cached_diet_${currentDietDuration}`, JSON.stringify(dietPlan));
@@ -838,15 +863,20 @@
 
       } catch (error) {
         console.error("LLM Generation Error:", error);
-        titleDisplay.textContent = "BŁĄD PRZETWARZANIA SYSTEMU AI";
-        statusTag.textContent = "BŁĄD INTEGRACJI MODELU";
+        titleDisplay.textContent = 'Nie udało się utworzyć jadłospisu';
+        statusTag.textContent = 'SPRÓBUJ PONOWNIE';
         statusTag.className = "font-cyber text-[10px] bg-red-500/10 text-red-400 px-2 py-0.5 border border-red-500/30 uppercase tracking-widest";
         container.innerHTML = `
-        <p class="text-sm text-red-400 p-4 border border-red-500/20 bg-red-500/5 font-mono">
-          Wygenerowanie autonomicznego planu nie powiodło się. Model LLM zwrócił nieprawidłową strukturę danych lub przekroczono limit zapytania.<br/>
-          Upewnij sie, ze konfiguracja AI jest poprawna i sprobuj ponownie za chwile.
-        </p>
+        <div style="text-align:center;padding:1.5rem;">
+          <p style="color:#b42318;font-size:0.95rem;font-weight:600;margin-bottom:1rem;">${VFSecurity.escapeHTML(error?.message || 'Wystąpił problem podczas przygotowywania planu.')}</p>
+          <button onclick="renderPersonalizedDiet(true)" class="btn-cta diet-generate-btn" style="display:inline-block;font-size:0.88rem;padding:0.6rem 1.5rem;">Spróbuj ponownie</button>
+        </div>
       `;
+      } finally {
+        window.dietGenerationInProgress = false;
+        document.querySelectorAll('.diet-dur-btn, .diet-generate-btn').forEach(button => {
+          button.disabled = false;
+        });
       }
     }
 

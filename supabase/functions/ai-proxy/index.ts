@@ -147,7 +147,7 @@ Deno.serve(async (request) => {
       messages: systemInstruction
         ? [{ role: "system", content: systemInstruction }, ...messages]
         : messages,
-      max_tokens: route === "diet" ? 1800 : 700,
+      max_tokens: route === "diet" ? 4000 : 700,
       temperature: route === "diet" ? 0.4 : 0.7,
     }),
   });

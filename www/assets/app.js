@@ -586,16 +586,6 @@
     }
 
     /* ══ ADMIN ══ */
-    let adminClickCount = 0;
-    let adminClickTimer = null;
-
-    function adminClickTrigger() {
-      adminClickCount++;
-      clearTimeout(adminClickTimer);
-      adminClickTimer = setTimeout(() => adminClickCount = 0, 2500);
-      if (adminClickCount >= 5) { adminClickCount = 0; openAdmin(); }
-    }
-
     async function openAdmin() {
       const shell = document.getElementById('adminShell');
       if (!shell) return;

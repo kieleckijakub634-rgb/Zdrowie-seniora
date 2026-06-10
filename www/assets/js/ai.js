@@ -47,7 +47,7 @@
       throw new Error('Zaloguj się ponownie, aby skorzystać z asystenta AI.');
     }
 
-    const { data, error } = await window.supabaseClient.functions.invoke('ai-proxy', {
+    const request = window.supabaseClient.functions.invoke('ai-proxy', {
       body: {
         route: options && options.route === 'diet' ? 'diet' : 'chat',
         messages: normalizeConversation(options && options.messages),
@@ -56,6 +56,11 @@
           : ''
       }
     });
+    const timeoutMs = 30000;
+    const timeout = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Generowanie trwało zbyt długo. Spróbuj ponownie za chwilę.')), timeoutMs);
+    });
+    const { data, error } = await Promise.race([request, timeout]);
 
     if (error) {
       let details = error.message || 'Nie udało się połączyć z asystentem AI.';
