@@ -126,6 +126,7 @@ assert(ai.includes("functions.invoke('ai-proxy'"), 'AI nie korzysta z zabezpiecz
 assert(!ai.includes('OPENROUTER_API_KEY'), 'Sekret OpenRouter nie może występować w kliencie.');
 assert(ai.includes('requestDietPlan') && modules.includes('requestDietPlan'), 'Dłuższe jadłospisy nadal korzystają z jednego ciężkiego wywołania AI.');
 assert(aiProxy.includes('mapWithConcurrency(dayNames, 3') && aiProxy.includes('dietRequest'), 'Edge Function nie dzieli wielodniowego jadłospisu na krótsze generacje.');
+assert(aiProxy.includes('sharedIngredients') && aiProxy.includes('allMealIdeas'), 'Dni jadłospisu nie korzystają ze wspólnego planu produktów i różnorodności dań.');
 assert(security.includes('document.createTextNode') && security.includes('safeMediaUrl'), 'Brakuje bezpiecznego renderowania treści i URL.');
 assert(ui.includes("kz_ai_health_consent") && modules.includes("kz_ai_health_consent"), 'Dane zdrowotne trafiają do AI bez sprawdzenia zgody.');
 assert(!ui.includes('botReply.innerHTML'), 'Odpowiedź AI nadal jest renderowana przez innerHTML.');
