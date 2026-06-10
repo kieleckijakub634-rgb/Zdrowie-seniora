@@ -126,6 +126,11 @@ assert(!ai.includes('OPENROUTER_API_KEY'), 'Sekret OpenRouter nie może występo
 assert(security.includes('document.createTextNode') && security.includes('safeMediaUrl'), 'Brakuje bezpiecznego renderowania treści i URL.');
 assert(ui.includes("kz_ai_health_consent") && modules.includes("kz_ai_health_consent"), 'Dane zdrowotne trafiają do AI bez sprawdzenia zgody.');
 assert(!ui.includes('botReply.innerHTML'), 'Odpowiedź AI nadal jest renderowana przez innerHTML.');
+assert(ui.includes('generatedDiets') && auth.includes('generatedDiets'), 'Wygenerowane diety nie są synchronizowane z profilem użytkownika.');
+assert(auth.includes('localStorage.removeItem(`kz_cached_diet_${duration}`)'), 'Cache diet nie jest czyszczony przed zmianą profilu.');
+assert(ui.includes('id="diet-ready-actions" style="display:none;'), 'Akcje gotowej diety są widoczne przed wygenerowaniem planu.');
+assert(modules.includes('window.dietGenerationDuration') && modules.includes('showDietGenerationState(currentDietDuration)'), 'Widok nie odtwarza trwającego generowania diety po zmianie zakładki.');
+assert(modules.includes('await window.syncToCloud()'), 'Gotowa dieta nie jest zapisywana w profilu użytkownika.');
 assert(admin.includes("functions.invoke('admin-config'"), 'Panel administratora omija zabezpieczoną Edge Function.');
 assert(read('www/robots.txt').includes('sitemap.xml'), 'robots.txt nie wskazuje sitemap.xml.');
 assert(manifest.start_url === '/' && manifest.scope === '/', 'Manifest PWA powinien uruchamiać aplikację z katalogu głównego.');

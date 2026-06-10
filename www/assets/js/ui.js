@@ -121,6 +121,21 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
             try { dogtag = JSON.parse(localStorage.getItem('vf_dogtag') || 'null'); } catch (e) { console.error("Error parsing vf_dogtag in syncToCloud:", e); }
             try { dietPrefs = JSON.parse(localStorage.getItem('kz_diet_prefs') || '[]'); } catch (e) { console.error("Error parsing dietPrefs in syncToCloud:", e); }
             try { likedVideos = JSON.parse(localStorage.getItem('kz_liked_videos') || '[]'); } catch (e) { console.error("Error parsing likedVideos in syncToCloud:", e); }
+            const generatedDiets = {};
+            [1, 3, 7].forEach(duration => {
+              try {
+                const rawPlan = localStorage.getItem(`kz_cached_diet_${duration}`);
+                if (!rawPlan) return;
+                generatedDiets[String(duration)] = {
+                  plan: JSON.parse(rawPlan),
+                  day: localStorage.getItem(`kz_cached_diet_day_${duration}`) || '',
+                  profileKey: localStorage.getItem(`kz_cached_diet_profile_key_${duration}`) || '',
+                  generatedAt: localStorage.getItem(`kz_cached_diet_time_${duration}`) || ''
+                };
+              } catch (e) {
+                console.error(`Error parsing cached diet ${duration} in syncToCloud:`, e);
+              }
+            });
 
             const payload = {
               medications: APP_DATA.medications,
@@ -131,7 +146,8 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
               selectedDiet: selectedDiet,
               dietPrefs: dietPrefs,
               likedVideos: likedVideos,
-              healthIssues: localStorage.getItem('kz_health_issues') || ''
+              healthIssues: localStorage.getItem('kz_health_issues') || '',
+              generatedDiets
             };
             const { error } = await window.supabaseClient
               .from('user_profiles')
@@ -443,7 +459,7 @@ window.likedVideos = window.likedVideos || JSON.parse(localStorage.getItem('kz_l
         </div>
       </div>
       
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem; flex-wrap:wrap; gap:0.75rem;">
+      <div id="diet-ready-actions" style="display:none; justify-content:space-between; align-items:center; margin-top:1.5rem; flex-wrap:wrap; gap:0.75rem;">
         <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
           <button onclick="renderPersonalizedDiet(true)" class="diet-generate-btn" style="background:var(--mint); color:white; border:none; padding:0.75rem 1.5rem; border-radius:999px; font-weight:700; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:var(--transition-smooth); box-shadow:var(--shadow-sm);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
             🔄 Generuj ponownie

@@ -94,6 +94,23 @@ window.applyUserProfileData = async function(cloud) {
   const healthIssuesVal = hasCloudField('healthIssues') ? (cloud.healthIssues || '') : (localStorage.getItem('kz_health_issues') || '');
   await window.asyncSetItem('kz_health_issues', healthIssuesVal);
 
+  // 10. Generated AI diet plans, stored separately for each duration.
+  const generatedDiets = hasCloudField('generatedDiets') && cloud.generatedDiets && typeof cloud.generatedDiets === 'object'
+    ? cloud.generatedDiets
+    : {};
+  [1, 3, 7].forEach(duration => {
+    localStorage.removeItem(`kz_cached_diet_${duration}`);
+    localStorage.removeItem(`kz_cached_diet_day_${duration}`);
+    localStorage.removeItem(`kz_cached_diet_profile_key_${duration}`);
+    localStorage.removeItem(`kz_cached_diet_time_${duration}`);
+    const saved = generatedDiets[String(duration)];
+    if (!saved || typeof saved !== 'object' || !saved.plan) return;
+    localStorage.setItem(`kz_cached_diet_${duration}`, JSON.stringify(saved.plan));
+    if (saved.day) localStorage.setItem(`kz_cached_diet_day_${duration}`, String(saved.day));
+    if (saved.profileKey) localStorage.setItem(`kz_cached_diet_profile_key_${duration}`, String(saved.profileKey));
+    if (saved.generatedAt) localStorage.setItem(`kz_cached_diet_time_${duration}`, String(saved.generatedAt));
+  });
+
 };
 
 /* ── Modal ── */

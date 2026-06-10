@@ -397,6 +397,30 @@
       return JSON.stringify({ prefs, health: (healthIssues || '').trim().toLowerCase() });
     }
 
+    function setDietReadyActionsVisible(visible) {
+      const actions = document.getElementById('diet-ready-actions');
+      if (actions) actions.style.display = visible ? 'flex' : 'none';
+    }
+
+    function showDietGenerationState(duration) {
+      const container = document.getElementById('diet-meals-container');
+      const titleDisplay = document.getElementById('diet-title-display');
+      const statusTag = document.getElementById('diet-status-tag');
+      if (!container || !titleDisplay || !statusTag) return;
+      const durationName = duration === 7 ? 'tydzień (7 dni)' : (duration === 3 ? '3 dni' : 'dziś');
+      setDietReadyActionsVisible(false);
+      titleDisplay.textContent = 'Tworzymy Twój jadłospis...';
+      statusTag.textContent = 'PRZYGOTOWYWANIE';
+      statusTag.className = "font-cyber text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 border border-amber-500/30 uppercase tracking-widest";
+      container.innerHTML = `
+        <div style="padding:2rem 0;text-align:center;">
+          <div class="diet-loading-spinner" role="status" aria-label="Trwa generowanie jadłospisu"></div>
+          <p style="font-size:0.92rem;color:var(--warm-gray);font-weight:600;margin-top:1rem;">Przygotowujemy plan na ${durationName}...</p>
+          <p style="font-size:0.82rem;color:var(--warm-gray);margin-top:0.35rem;">Możesz przejść do innej zakładki aplikacji. Plan pojawi się tutaj po zakończeniu.</p>
+        </div>
+      `;
+    }
+
     function clearDietCache() {
       localStorage.removeItem('kz_cached_diet');
       localStorage.removeItem('kz_cached_diet_day');
@@ -450,6 +474,7 @@
       titleDisplay.textContent = dietPlan.title;
       statusTag.textContent = 'PLAN GOTOWY';
       statusTag.className = "font-cyber text-[10px] bg-teal-500/10 text-[#00ffcc] px-2 py-0.5 border border-teal-500/30 uppercase tracking-widest";
+      setDietReadyActionsVisible(true);
 
       // Kompatybilność wsteczna ze starą strukturą jednodniową
       if (dietPlan.meals && !dietPlan.days) {
@@ -588,6 +613,10 @@
       if (btn) btn.style.display = 'none';
 
       const currentDietDuration = parseInt(localStorage.getItem('kz_diet_duration') || '1');
+      if (!forceRefresh && window.dietGenerationInProgress && window.dietGenerationDuration === currentDietDuration) {
+        showDietGenerationState(currentDietDuration);
+        return;
+      }
 
       // Synchronizacja klasy active przycisków wyboru okresu na starcie
       document.querySelectorAll('.diet-dur-btn').forEach(btn => {
@@ -641,6 +670,7 @@
 
       // Jeśli nie ma zapisanego planu i nie wywołano ręcznego generowania
       if (!forceRefresh && !cached) {
+        setDietReadyActionsVisible(false);
         const periodName = currentDietDuration === 1 ? 'dziś' : (currentDietDuration === 3 ? '3 dni' : 'tydzień');
         const buttonText = currentDietDuration === 1 ? 'na dziś' : (currentDietDuration === 3 ? 'na 3 dni' : 'na tydzień');
         container.innerHTML = `
@@ -660,31 +690,23 @@
 
       // Stan ładowania (Loader AI)
       window.dietGenerationInProgress = true;
+      window.dietGenerationDuration = currentDietDuration;
       document.querySelectorAll('.diet-dur-btn, .diet-generate-btn').forEach(button => {
         button.disabled = true;
       });
 
-      titleDisplay.textContent = 'Tworzymy Twój jadłospis...';
-      statusTag.textContent = 'PRZYGOTOWYWANIE';
-      statusTag.className = "font-cyber text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 border border-amber-500/30 uppercase tracking-widest";
-
-      const durationName = currentDietDuration === 7 ? "tydzień (7 dni)" : (currentDietDuration === 3 ? "3 dni" : "dziś");
-      container.innerHTML = `
-      <div style="padding:2rem 0;text-align:center;">
-        <div class="diet-loading-spinner" role="status" aria-label="Trwa generowanie jadłospisu"></div>
-        <p id="diet-generation-progress" style="font-size:0.92rem;color:var(--warm-gray);font-weight:600;margin-top:1rem;">Przygotowujemy plan na ${durationName}...</p>
-        <p style="font-size:0.82rem;color:var(--warm-gray);margin-top:0.35rem;">Nie zamykaj tej zakładki. Dłuższy plan może wymagać więcej czasu.</p>
-      </div>
-    `;
+      showDietGenerationState(currentDietDuration);
 
       // Weryfikacja obecności klucza API
       if (!aiConfig.isConfigured) {
         window.dietGenerationInProgress = false;
+        window.dietGenerationDuration = null;
         document.querySelectorAll('.diet-dur-btn, .diet-generate-btn').forEach(button => {
           button.disabled = false;
         });
         titleDisplay.textContent = 'Nie można teraz utworzyć jadłospisu';
         statusTag.textContent = 'USŁUGA NIEDOSTĘPNA';
+        setDietReadyActionsVisible(false);
         statusTag.className = "font-cyber text-[10px] bg-red-500/10 text-red-400 px-2 py-0.5 border border-red-500/30 uppercase tracking-widest";
         container.innerHTML = `
         <p class="text-sm text-red-400 p-4 border border-red-500/20 bg-red-500/5 font-mono">
@@ -703,132 +725,36 @@
         preferencesPrompt += ` Dodatkowo pacjent zgłasza następujące dolegliwości i stan zdrowia: "${healthIssues}". Dostosuj dietę tak, aby wspierać leczenie tych dolegliwości i była bezpieczna dla pacjenta.`;
       }
 
-      let durationPrompt = "";
-      let formatPrompt = "";
-      if (currentDietDuration === 3) {
-        durationPrompt = `Wygeneruj jadłospis dokładnie na 3 dni (Dzień 1, Dzień 2, Dzień 3).`;
-        formatPrompt = `
-        "days": [
-          {
-            "dayName": "Dzień 1",
-            "meals": [
-              {"type": "Śniadanie", "content": "Dokładny opis posiłku dopasowany do restrykcji"},
-              {"type": "Obiad", "content": "Dokładny opis obiadu"},
-              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
-            ]
-          },
-          {
-            "dayName": "Dzień 2",
-            "meals": [
-              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
-              {"type": "Obiad", "content": "Dokładny opis obiadu"},
-              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
-            ]
-          },
-          {
-            "dayName": "Dzień 3",
-            "meals": [
-              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
-              {"type": "Obiad", "content": "Dokładny opis obiadu"},
-              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
-            ]
-          }
-        ]
-      `;
-      } else if (currentDietDuration === 7) {
-        durationPrompt = `Wygeneruj jadłospis dokładnie na cały tydzień (7 dni: Poniedziałek, Wtorek, Środa, Czwartek, Piątek, Sobota, Niedziela).`;
-        formatPrompt = `
-        "days": [
-          {
-            "dayName": "Poniedziałek",
-            "meals": [
-              {"type": "Śniadanie", "content": "Dokładny opis posiłlu dopasowany do restrykcji"},
-              {"type": "Obiad", "content": "Dokładny opis obiadu"},
-              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
-            ]
-          },
-          {
-            "dayName": "Wtorek",
-            "meals": [
-              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
-              {"type": "Obiad", "content": "Dokładny opis obiadu"},
-              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
-            ]
-          },
-          {
-            "dayName": "Środa",
-            "meals": [
-              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
-              {"type": "Obiad", "content": "Dokładny opis obiadu"},
-              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
-            ]
-          },
-          {
-            "dayName": "Czwartek",
-            "meals": [
-              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
-              {"type": "Obiad", "content": "Dokładny opis obiadu"},
-              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
-            ]
-          },
-          {
-            "dayName": "Piątek",
-            "meals": [
-              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
-              {"type": "Obiad", "content": "Dokładny opis obiadu"},
-              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
-            ]
-          },
-          {
-            "dayName": "Sobota",
-            "meals": [
-              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
-              {"type": "Obiad", "content": "Dokładny opis obiadu"},
-              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
-            ]
-          },
-          {
-            "dayName": "Niedziela",
-            "meals": [
-              {"type": "Śniadanie", "content": "Dokładny opis posiłku"},
-              {"type": "Obiad", "content": "Dokładny opis obiadu"},
-              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
-            ]
-          }
-        ]
-      `;
-      } else {
-        durationPrompt = `Wygeneruj jadłospis na 1 dzień (dzisiejszy dzień tygodnia to: ${currentDay}). Dieta musi być unikalna dla tego dnia.`;
-        formatPrompt = `
-        "days": [
-          {
-            "dayName": "Dzisiaj",
-            "meals": [
-              {"type": "Śniadanie", "content": "Dokładny opis posiłku dopasowany do restrykcji"},
-              {"type": "Obiad", "content": "Dokładny opis obiadu"},
-              {"type": "Kolacja", "content": "Dokładny opis kolacji"}
-            ]
-          }
-        ]
-      `;
-      }
+      const dayNames = currentDietDuration === 7
+        ? ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela']
+        : currentDietDuration === 3
+        ? ['Dzień 1', 'Dzień 2', 'Dzień 3']
+        : [`Dzisiaj (${currentDay})`];
+      const durationPrompt = `Utwórz dokładnie ${dayNames.length} ${dayNames.length === 1 ? 'dzień' : 'dni'}: ${dayNames.join(', ')}.`;
 
       const systemPrompt = `
-      Jesteś zaawansowanym systemem dietetycznym AI w aplikacji VitalFly dla seniorów (osób 50+).
-      Twoim zadaniem jest wygenerowanie zbalansowanej, łatwostrawnej i przeciwzapalnej diety dla użytkownika aplikacji.
-      
-      Czas trwania: ${durationPrompt}
+      Przygotuj prosty, zbilansowany i przeciwzapalny jadłospis dla osoby 50+.
+      ${durationPrompt}
       ${preferencesPrompt}
 
-      Zwróć odpowiedź w czystym formacie JSON (bez żadnych znaczników markdown typu \`\`\`json \`\`\`), który zawiera dokładnie taką strukturę pól:
+      Zwróć wyłącznie poprawny JSON, bez markdown i komentarzy:
       {
-        "title": "Nazwa diety uwzględniająca preferencje i wybrany okres",
+        "title": "krótka nazwa planu",
         "days": [
-          ${formatPrompt.trim()}
+          {
+            "dayName": "jedna z wymaganych nazw dni",
+            "meals": [
+              {"type": "Śniadanie", "content": "krótki konkretny posiłek"},
+              {"type": "Obiad", "content": "krótki konkretny posiłek"},
+              {"type": "Kolacja", "content": "krótki konkretny posiłek"}
+            ]
+          }
         ],
-        "shopping": ["Składnik 1", "Składnik 2", "Składnik 3", ...] // skonsolidowana, łączna lista zakupów na cały ten okres
+        "shopping": ["składnik 1", "składnik 2"]
       }
-      Używaj prostych, tanich i łatwo dostępnych produktów w polskich sklepach. Podawaj krótkie opisy.
+      Tablica days musi zawierać dokładnie ${dayNames.length} elementów w podanej kolejności.
+      Każdy dzień musi mieć dokładnie 3 posiłki. Używaj tanich produktów dostępnych w polskich sklepach.
+      Opisy posiłków ogranicz do maksymalnie 18 słów. Lista zakupów ma być wspólna dla całego okresu i bez duplikatów.
     `;
 
       try {
@@ -847,7 +773,11 @@
 
         // Parsowanie odpowiedzi z LLM
         const dietPlan = JSON.parse(rawJsonText);
-        if (!dietPlan || !Array.isArray(dietPlan.days) || dietPlan.days.length === 0) {
+        const hasCompleteDays = dietPlan
+          && Array.isArray(dietPlan.days)
+          && dietPlan.days.length === dayNames.length
+          && dietPlan.days.every(day => Array.isArray(day.meals) && day.meals.length === 3);
+        if (!hasCompleteDays) {
           throw new Error('Model nie zwrócił kompletnego jadłospisu. Spróbuj wygenerować go ponownie.');
         }
 
@@ -862,11 +792,15 @@
         localStorage.setItem(`kz_cached_diet_time_${currentDietDuration}`, Date.now().toString());
 
         displayDietPlan(dietPlan);
+        if (typeof window.syncToCloud === 'function') {
+          await window.syncToCloud();
+        }
 
       } catch (error) {
         console.error("LLM Generation Error:", error);
         titleDisplay.textContent = 'Nie udało się utworzyć jadłospisu';
         statusTag.textContent = 'SPRÓBUJ PONOWNIE';
+        setDietReadyActionsVisible(false);
         statusTag.className = "font-cyber text-[10px] bg-red-500/10 text-red-400 px-2 py-0.5 border border-red-500/30 uppercase tracking-widest";
         container.innerHTML = `
         <div style="text-align:center;padding:1.5rem;">
@@ -876,6 +810,7 @@
       `;
       } finally {
         window.dietGenerationInProgress = false;
+        window.dietGenerationDuration = null;
         document.querySelectorAll('.diet-dur-btn, .diet-generate-btn').forEach(button => {
           button.disabled = false;
         });
