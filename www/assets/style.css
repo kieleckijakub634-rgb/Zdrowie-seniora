@@ -3452,6 +3452,20 @@
   }
 
   /* ── Autonomiczny Moduł Dietetyczny AI ── */
+  .diet-loading-spinner {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto;
+    border: 5px solid rgba(77, 191, 168, 0.22);
+    border-top-color: #4dbfa8;
+    border-radius: 50%;
+    animation: diet-loading-spin 0.8s linear infinite;
+  }
+
+  @keyframes diet-loading-spin {
+    to { transform: rotate(360deg); }
+  }
+
   .diet-ai-meals-box {
     background: var(--mint-light);
     border: 1px solid var(--mint-mid);

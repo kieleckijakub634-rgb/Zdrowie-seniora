@@ -670,9 +670,10 @@
 
       const durationName = currentDietDuration === 7 ? "tydzień (7 dni)" : (currentDietDuration === 3 ? "3 dni" : "dziś");
       container.innerHTML = `
-      <div class="py-8 text-center space-y-3">
-        <div class="inline-block w-8 h-8 border-4 border-t-transparent border-[#4DBFA8] rounded-full animate-spin"></div>
-        <p style="font-size:0.92rem;color:var(--warm-gray);font-weight:600;">Przygotowujemy plan na ${durationName}. Zwykle trwa to kilkanaście sekund.</p>
+      <div style="padding:2rem 0;text-align:center;">
+        <div class="diet-loading-spinner" role="status" aria-label="Trwa generowanie jadłospisu"></div>
+        <p id="diet-generation-progress" style="font-size:0.92rem;color:var(--warm-gray);font-weight:600;margin-top:1rem;">Przygotowujemy plan na ${durationName}...</p>
+        <p style="font-size:0.82rem;color:var(--warm-gray);margin-top:0.35rem;">Nie zamykaj tej zakładki. Dłuższy plan może wymagać więcej czasu.</p>
       </div>
     `;
 
@@ -831,6 +832,7 @@
     `;
 
       try {
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         let rawJsonText = await window.VitalFlyAI.requestText({
           route: 'diet',
           messages: [{ role: 'user', text: systemPrompt }]
