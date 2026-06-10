@@ -68,6 +68,88 @@ function normalizeMessages(value: unknown) {
   });
 }
 
+function extractJsonObject(value: string) {
+  const cleaned = value.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+  if (start === -1 || end <= start) throw new Error("AI provider returned invalid JSON.");
+  return JSON.parse(cleaned.slice(start, end + 1));
+}
+
+async function openRouterCompletion(
+  openRouterKey: string,
+  model: string,
+  messages: Array<{ role: string; content: string }>,
+  maxTokens: number,
+  temperature: number,
+) {
+  let lastError = "AI provider request failed.";
+
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      const response = await fetch(OPENROUTER_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${openRouterKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://vitalfly.pl/",
+          "X-Title": "VitalFly",
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          max_tokens: maxTokens,
+          temperature,
+        }),
+        signal: AbortSignal.timeout(60000),
+      });
+
+      const responseBody = await response.json().catch(() => null);
+      if (!response.ok) {
+        lastError = `AI provider request failed with status ${response.status}.`;
+        console.error("OpenRouter request failed:", response.status, responseBody);
+        continue;
+      }
+
+      const content = responseBody?.choices?.[0]?.message?.content;
+      const text = typeof content === "string"
+        ? content.trim()
+        : Array.isArray(content)
+        ? content.map((part: { text?: unknown }) => cleanText(part?.text, 12000)).join("\n").trim()
+        : "";
+      if (text) return text;
+      lastError = "AI provider returned an empty response.";
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : "AI provider request failed.";
+      console.error(`OpenRouter attempt ${attempt} failed:`, lastError);
+    }
+  }
+
+  throw new Error(lastError);
+}
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T, index: number) => Promise<R>,
+) {
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+
+  async function runWorker() {
+    while (nextIndex < items.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      results[index] = await worker(items[index], index);
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, items.length) }, () => runWorker()),
+  );
+  return results;
+}
+
 Deno.serve(async (request) => {
   const origin = request.headers.get("origin");
 
@@ -129,43 +211,93 @@ Deno.serve(async (request) => {
   const route = payload.route === "diet" ? "diet" : "chat";
   const systemInstruction = cleanText(payload.systemInstructionText, 12000);
   const messages = normalizeMessages(payload.messages);
-  if (messages.length === 0) {
+  const dietRequest = payload.dietRequest && typeof payload.dietRequest === "object"
+    ? payload.dietRequest as Record<string, unknown>
+    : null;
+  if (messages.length === 0 && !dietRequest) {
     return jsonResponse({ error: "At least one message is required." }, 400, origin);
   }
 
   const model = Deno.env.get("OPENROUTER_MODEL") || DEFAULT_MODEL;
-  const response = await fetch(OPENROUTER_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${openRouterKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://vitalfly.pl/",
-      "X-Title": "VitalFly",
-    },
-    body: JSON.stringify({
+  try {
+    if (route === "diet" && dietRequest) {
+      const dayNames = Array.isArray(dietRequest.dayNames)
+        ? dietRequest.dayNames.map((day) => cleanText(day, 40)).filter(Boolean).slice(0, 7)
+        : [];
+      const preferences = cleanText(dietRequest.preferences, 3000);
+      if (dayNames.length < 2) {
+        return jsonResponse({ error: "A multi-day diet requires at least two days." }, 400, origin);
+      }
+
+      const days = await mapWithConcurrency(dayNames, 3, async (dayName, index) => {
+        const prompt = `
+Przygotuj jadłospis dla osoby 50+ wyłącznie na dzień "${dayName}" (${index + 1} z ${dayNames.length}).
+${preferences}
+Zwróć wyłącznie poprawny JSON:
+{
+  "dayName": "${dayName}",
+  "meals": [
+    {"type": "Śniadanie", "content": "krótki konkretny posiłek"},
+    {"type": "Obiad", "content": "krótki konkretny posiłek"},
+    {"type": "Kolacja", "content": "krótki konkretny posiłek"}
+  ],
+  "shopping": ["składnik 1", "składnik 2"]
+}
+Dokładnie 3 posiłki. Maksymalnie 18 słów w opisie posiłku. Używaj tanich produktów dostępnych w polskich sklepach.
+        `.trim();
+        const text = await openRouterCompletion(
+          openRouterKey,
+          model,
+          [{ role: "user", content: prompt }],
+          700,
+          0.4,
+        );
+        const parsed = extractJsonObject(text) as Record<string, unknown>;
+        const meals = Array.isArray(parsed.meals)
+          ? parsed.meals.slice(0, 3).flatMap((meal) => {
+            if (!meal || typeof meal !== "object") return [];
+            const candidate = meal as Record<string, unknown>;
+            const type = cleanText(candidate.type, 40);
+            const content = cleanText(candidate.content, 300);
+            return type && content ? [{ type, content }] : [];
+          })
+          : [];
+        if (meals.length !== 3) throw new Error(`Incomplete diet for ${dayName}.`);
+        return {
+          dayName,
+          meals,
+          shopping: Array.isArray(parsed.shopping)
+            ? parsed.shopping.map((item) => cleanText(item, 120)).filter(Boolean)
+            : [],
+        };
+      });
+
+      const shopping = [...new Set(days.flatMap((day) => day.shopping))];
+      return jsonResponse({
+        plan: {
+          title: `Jadłospis na ${dayNames.length} dni`,
+          days: days.map(({ dayName, meals }) => ({ dayName, meals })),
+          shopping,
+        },
+      }, 200, origin);
+    }
+
+    const text = await openRouterCompletion(
+      openRouterKey,
       model,
-      messages: systemInstruction
+      systemInstruction
         ? [{ role: "system", content: systemInstruction }, ...messages]
         : messages,
-      max_tokens: route === "diet" ? 4000 : 700,
-      temperature: route === "diet" ? 0.4 : 0.7,
-    }),
-  });
-
-  const responseBody = await response.json().catch(() => null);
-  if (!response.ok) {
-    console.error("OpenRouter request failed:", response.status, responseBody);
-    return jsonResponse({ error: "AI provider request failed." }, 502, origin);
+      route === "diet" ? 1200 : 700,
+      route === "diet" ? 0.4 : 0.7,
+    );
+    return jsonResponse({ text }, 200, origin);
+  } catch (error) {
+    console.error("AI generation failed:", error);
+    return jsonResponse({
+      error: route === "diet"
+        ? "Nie udało się przygotować kompletnego jadłospisu. Spróbuj ponownie."
+        : "AI provider request failed.",
+    }, 502, origin);
   }
-
-  const content = responseBody?.choices?.[0]?.message?.content;
-  const text = typeof content === "string"
-    ? content.trim()
-    : Array.isArray(content)
-    ? content.map((part: { text?: unknown }) => cleanText(part?.text, 12000)).join("\n").trim()
-    : "";
-
-  return text
-    ? jsonResponse({ text }, 200, origin)
-    : jsonResponse({ error: "AI provider returned an empty response." }, 502, origin);
 });

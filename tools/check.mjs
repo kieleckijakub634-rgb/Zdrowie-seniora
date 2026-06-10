@@ -56,6 +56,7 @@ const polityka = read('www/pages/polityka.html');
 const regulamin = read('www/pages/regulamin.html');
 const middleware = read('functions/_middleware.js');
 const billing = read('supabase/functions/billing/index.ts');
+const aiProxy = read('supabase/functions/ai-proxy/index.ts');
 const manifest = JSON.parse(read('www/manifest.json'));
 const packageMetadata = JSON.parse(read('package.json'));
 const migrationNames = readdirSync(join(root, 'supabase/migrations'))
@@ -123,6 +124,8 @@ assert(style.includes('.vf-link-button'), 'Przycisk powrotu nadal nie ma własne
 assert(home.includes('aria-expanded="false"') && home.includes('aria-controls="faq-answer-1"'), 'FAQ nie jest dostępne klawiaturowo.');
 assert(ai.includes("functions.invoke('ai-proxy'"), 'AI nie korzysta z zabezpieczonej Edge Function.');
 assert(!ai.includes('OPENROUTER_API_KEY'), 'Sekret OpenRouter nie może występować w kliencie.');
+assert(ai.includes('requestDietPlan') && modules.includes('requestDietPlan'), 'Dłuższe jadłospisy nadal korzystają z jednego ciężkiego wywołania AI.');
+assert(aiProxy.includes('mapWithConcurrency(dayNames, 3') && aiProxy.includes('dietRequest'), 'Edge Function nie dzieli wielodniowego jadłospisu na krótsze generacje.');
 assert(security.includes('document.createTextNode') && security.includes('safeMediaUrl'), 'Brakuje bezpiecznego renderowania treści i URL.');
 assert(ui.includes("kz_ai_health_consent") && modules.includes("kz_ai_health_consent"), 'Dane zdrowotne trafiają do AI bez sprawdzenia zgody.');
 assert(!ui.includes('botReply.innerHTML'), 'Odpowiedź AI nadal jest renderowana przez innerHTML.');

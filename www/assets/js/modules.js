@@ -759,20 +759,26 @@
 
       try {
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        let rawJsonText = await window.VitalFlyAI.requestText({
-          route: 'diet',
-          messages: [{ role: 'user', text: systemPrompt }]
-        });
-
-        rawJsonText = rawJsonText.replace(/^\`\`\`(?:json)?/i, '').replace(/\`\`\`$/, '').trim();
-        const jsonStart = rawJsonText.indexOf('{');
-        const jsonEnd = rawJsonText.lastIndexOf('}');
-        if (jsonStart !== -1 && jsonEnd > jsonStart) {
-          rawJsonText = rawJsonText.slice(jsonStart, jsonEnd + 1);
+        let dietPlan;
+        if (dayNames.length > 1 && typeof window.VitalFlyAI.requestDietPlan === 'function') {
+          dietPlan = await window.VitalFlyAI.requestDietPlan({
+            dayNames,
+            preferences: preferencesPrompt
+          });
+        } else {
+          let rawJsonText = await window.VitalFlyAI.requestText({
+            route: 'diet',
+            messages: [{ role: 'user', text: systemPrompt }]
+          });
+          rawJsonText = rawJsonText.replace(/^\`\`\`(?:json)?/i, '').replace(/\`\`\`$/, '').trim();
+          const jsonStart = rawJsonText.indexOf('{');
+          const jsonEnd = rawJsonText.lastIndexOf('}');
+          if (jsonStart !== -1 && jsonEnd > jsonStart) {
+            rawJsonText = rawJsonText.slice(jsonStart, jsonEnd + 1);
+          }
+          dietPlan = JSON.parse(rawJsonText);
         }
 
-        // Parsowanie odpowiedzi z LLM
-        const dietPlan = JSON.parse(rawJsonText);
         const hasCompleteDays = dietPlan
           && Array.isArray(dietPlan.days)
           && dietPlan.days.length === dayNames.length

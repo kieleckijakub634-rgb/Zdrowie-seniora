@@ -73,10 +73,45 @@
     return text;
   }
 
+  async function requestDietPlan(options) {
+    if (!window.initSupabase || !window.initSupabase()) {
+      throw new Error('Nie udało się połączyć z usługą konta.');
+    }
+
+    const { data: { session }, error: sessionError } = await window.supabaseClient.auth.getSession();
+    if (sessionError || !session) {
+      throw new Error('Zaloguj się ponownie, aby wygenerować jadłospis.');
+    }
+
+    const { data, error } = await window.supabaseClient.functions.invoke('ai-proxy', {
+      body: {
+        route: 'diet',
+        dietRequest: {
+          dayNames: Array.isArray(options && options.dayNames) ? options.dayNames : [],
+          preferences: options && options.preferences ? String(options.preferences) : ''
+        }
+      }
+    });
+
+    if (error) {
+      let details = error.message || 'Nie udało się przygotować jadłospisu.';
+      if (error.context && typeof error.context.json === 'function') {
+        try {
+          const body = await error.context.json();
+          if (body && body.error) details = body.error;
+        } catch (_) {}
+      }
+      throw new Error(details);
+    }
+    if (!data || !data.plan) throw new Error('Asystent AI nie zwrócił kompletnego jadłospisu.');
+    return data.plan;
+  }
+
   window.VitalFlyAI = {
     getConfig: function () {
       return { provider: 'supabase-edge-function', isConfigured: true };
     },
-    requestText
+    requestText,
+    requestDietPlan
   };
 })();
